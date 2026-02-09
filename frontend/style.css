@@ -1,0 +1,73 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.hero-section {
+  height: 100vh;
+  background-image: url("background.jpg");
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  color: #ffffff;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(10, 20, 40, 0.75);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.brand {
+  color: #d6b57a;
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+
+.brand-icon {
+  margin-right: 6px;
+}
+
+.main-title {
+  font-size: 64px;
+  font-weight: 600;
+  color: #d6b57a;
+  margin-bottom: 10px;
+}
+
+.tagline {
+  font-size: 22px;
+  margin-bottom: 30px;
+}
+
+.explore-btn {
+  background-color: #d6b57a;
+  color: #1a1a1a;
+  padding: 12px 30px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: none;
+}
+
+.explore-btn:hover {
+  background-color: #c5a66b;
+}
+
+.info {
+  margin-top: 40px;
+  font-size: 14px;
+}
+
+.current-affairs {
+  margin-top: 6px;
+}
