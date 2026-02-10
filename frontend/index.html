@@ -13,11 +13,17 @@
 </head>
 <body>
 
+  <div class="logo-bar">
+  <i class="fa-solid fa-graduation-cap"></i>
+  <span>EduResolve</span>
+</div>
+
   <section class="hero-section">
     <div class="overlay"></div>
 
     <div class="container text-center hero-content">
-      <div class="brand mb-3">
+
+      <div class="brand mb-2">
         <span class="brand-icon"><i class="fa-solid fa-globe"></i></span>
         <span class="brand-text">KGS ASSOCIATES PRESENTS</span>
       </div>
@@ -32,10 +38,22 @@
         LET’S EXPLORE
       </button>
 
-      <div class="info mt-4">
+      <div class="info mt-3">
         <div id="datetime"></div>
-        <div class="current-affairs">Today current affairs</div>
+
+        <div class="current-affairs-box mt-3">
+          <h5>Today’s Current Affairs</h5>
+
+          <ul class="affairs-list">
+            <li id="affair1"></li>
+            <li id="affair2"></li>
+          </ul>
+
+          <h6 class="tech-title">Tech Update</h6>
+          <p class="tech-info" id="techAffair"></p>
+        </div>
       </div>
+
     </div>
   </section>
 
@@ -50,8 +68,31 @@
         now.toLocaleDateString() + " , " + now.toLocaleTimeString();
     }
 
+    const currentAffairsData = [
+      {
+        a1: "Digital assessment tools adopted by education boards. Helps students prepare for online exams.",
+        a2: "Universities promote skill based learning models. Improves practical knowledge and employability.",
+        tech: "AI based academic platforms analyze student performance and feedback."
+      },
+      {
+        a1: "Institutions strengthen student feedback mechanisms. Enhances teaching effectiveness.",
+        a2: "National focus on blended learning approaches. Supports flexible education models.",
+        tech: "Cloud computing enables secure academic data storage and access."
+      }
+    ];
+
+    function loadCurrentAffairs() {
+      const index = Math.floor(Date.now() / (12 * 60 * 60 * 1000)) % currentAffairsData.length;
+      const data = currentAffairsData[index];
+
+      document.getElementById("affair1").innerText = data.a1;
+      document.getElementById("affair2").innerText = data.a2;
+      document.getElementById("techAffair").innerText = data.tech;
+    }
+
     updateDateTime();
     setInterval(updateDateTime, 1000);
+    loadCurrentAffairs();
   </script>
 
 </body>
