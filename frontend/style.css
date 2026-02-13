@@ -229,19 +229,29 @@ body {
 
 /* ================= DASHBOARD LAYOUT ================= */
 
-/* ================= DASHBOARD LAYOUT ================= */
+
 
 .welcome-section {
-  padding: 110px 60px 30px;
+  padding: 110px 60px 40px;
+  margin: 30px 60px 0;
+  border-radius: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-radius: 16px;
-  margin: 20px 60px 0;
-  background-color: #ffffff;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  transition: background 0.3s ease;
 }
 
+/* Light mode */
+.light-mode .welcome-section {
+  background: linear-gradient(135deg, #f8fafc, #eef2ff);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+}
+
+/* Dark mode */
+.dark-mode .welcome-section {
+  background: linear-gradient(135deg, #162136, #0f1a2b);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+}
 .welcome-left h3 {
   font-weight: 600;
   margin-bottom: 6px;
@@ -278,13 +288,21 @@ body {
 }
 /* Dark Mode */
 
-.dark-mode .welcome-section {
+/*.dark-mode .welcome-section {
   background-color: #162136;
   box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-}
+}*/
 
 .dark-mode .welcome-left p,
 .dark-mode .institution-label {
+  color: #cbd5f5;
+}
+
+.dark-mode .welcome-left h3 {
+  color: #ffffff;
+}
+
+.dark-mode .welcome-left p {
   color: #cbd5f5;
 }
 
