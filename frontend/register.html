@@ -30,43 +30,43 @@
           Join your academic workspace
         </p>
 
-        <form>
+       <form id="registerForm">
 
-          <div class="mb-3">
-            <label class="form-label">Full Name</label>
-            <input type="text" class="form-control" placeholder="Enter your full name">
-          </div>
+  <div class="mb-3">
+    <label class="form-label">Full Name</label>
+    <input type="text" id="name" class="form-control" required>
+  </div>
 
-          <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input type="email" class="form-control" placeholder="Enter your email">
-          </div>
+  <div class="mb-3">
+    <label class="form-label">Email</label>
+    <input type="email" id="email" class="form-control" required>
+  </div>
 
-          <div class="mb-3">
-            <label class="form-label">Password</label>
-            <input type="password" class="form-control" placeholder="Create a password">
-          </div>
+  <div class="mb-3">
+    <label class="form-label">Password</label>
+    <input type="password" id="password" class="form-control" required>
+  </div>
 
-          <div class="mb-3">
-            <label class="form-label">Role</label>
-            <select class="form-select">
-              <option selected disabled>Select your role</option>
-              <option>Student</option>
-              <option>Teacher</option>
-              <option>HOD</option>
-            </select>
-          </div>
+  <div class="mb-3">
+    <label class="form-label">Role</label>
+    <select id="role" class="form-select" required>
+      <option value="">Select role</option>
+      <option value="student">Student</option>
+      <option value="teacher">Teacher</option>
+      <option value="hod">HOD</option>
+    </select>
+  </div>
 
-          <div class="mb-3">
-            <label class="form-label">Institution Name</label>
-            <input type="text" class="form-control" placeholder="School or College name">
-          </div>
+  <div class="mb-3">
+    <label class="form-label">Institution</label>
+    <input type="text" id="institution" class="form-control" required>
+  </div>
 
-          <button type="button" class="btn explore-btn w-100 mt-2">
-            Register
-          </button>
+  <button type="submit" class="btn explore-btn w-100">
+    Register
+  </button>
 
-        </form>
+</form>
 
         <div class="text-center mt-3">
           <small>
@@ -78,6 +78,58 @@
 
     </div>
   </section>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "YOUR_SUPABASE_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+document.getElementById("registerForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const role = document.getElementById("role").value;
+  const institution = document.getElementById("institution").value;
+
+  // Step 1: Create Auth user
+  const { data, error } = await supabase.auth.signUp({
+    email: email,
+    password: password
+  });
+
+  if (error) {
+    alert("Signup failed: " + error.message);
+    return;
+  }
+
+  const user = data.user;
+
+  // Step 2: Insert into users table
+  const { error: insertError } = await supabase
+    .from("users")
+    .insert([
+      {
+        id: user.id,
+        name: name,
+        role: role,
+        institution: institution
+      }
+    ]);
+
+  if (insertError) {
+    alert("Error saving user profile");
+    return;
+  }
+
+  alert("Registration successful. Please login.");
+  window.location.href = "login.html";
+});
+</script>
 
 </body>
 </html>
