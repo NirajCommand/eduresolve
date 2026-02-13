@@ -112,15 +112,16 @@ document.getElementById("registerForm").addEventListener("submit", async functio
   const user = data.user;
 
   const { error: insertError } = await client
-    .from("users")
-    .insert([
-      {
-        id: user.id,
-        name: name,
-        role: role,
-        institution: institution
-      }
-    ]);
+  .from("users")
+  .insert([
+    {
+      id: user.id,
+      name: name,
+      email: email,
+      role: role,
+      institution: institution
+    }
+  ]);
 
   if (insertError) {
     alert("Error saving user profile");
