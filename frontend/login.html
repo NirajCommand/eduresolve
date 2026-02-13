@@ -57,14 +57,17 @@
 
     </div>
   </section>
+    
 
-           <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+const { createClient } = supabase;
+
 const SUPABASE_URL = "https://jaetijisqgecxqgcqget.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphZXRpamlzcWdlY3hxZ2NxZ2V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2NTIxMDcsImV4cCI6MjA4NjIyODEwN30.9N66bJYHvB2JJIUESX-EQLtQM2Grk9R9xSY04dnexXk";
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 document.getElementById("loginForm").addEventListener("submit", async function(e) {
   e.preventDefault();
@@ -72,7 +75,7 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
-  const { data, error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await client.auth.signInWithPassword({
     email: email,
     password: password
   });
@@ -84,27 +87,28 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
 
   const user = data.user;
 
-  const { data: profile, error: profileError } = await supabase
+  const { data: profile, error: profileError } = await client
     .from("users")
     .select("role")
     .eq("id", user.id)
     .single();
 
-  if (profileError) {
+  if (profileError || !profile) {
     alert("User role not found.");
     return;
   }
 
   if (profile.role === "student") {
     window.location.href = "student-dashboard.html";
-  } else if (profile.role === "teacher") {
+  } 
+  else if (profile.role === "teacher") {
     window.location.href = "teacher-dashboard.html";
-  } else if (profile.role === "hod") {
+  } 
+  else if (profile.role === "hod") {
     window.location.href = "hod-dashboard.html";
   }
 });
 </script>
-
 
 </body>
 </html>
