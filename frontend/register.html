@@ -128,8 +128,17 @@ document.getElementById("registerForm").addEventListener("submit", async functio
     return;
   }
 
-  alert("Registration successful. Please login.");
-  window.location.href = "login.html";
+  alert("Registration successful");
+
+if (role === "student") {
+  window.location.href = "student-dashboard.html";
+} 
+else if (role === "teacher") {
+  window.location.href = "teacher-dashboard.html";
+} 
+else if (role === "hod") {
+  window.location.href = "hod-dashboard.html";
+}
 });
 </script>
 

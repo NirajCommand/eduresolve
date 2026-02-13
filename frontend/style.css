@@ -231,6 +231,63 @@ body {
 
 /* ================= DASHBOARD LAYOUT ================= */
 
+.welcome-section {
+  padding: 110px 60px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 16px;
+  margin: 20px 60px 0;
+  background-color: #ffffff;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.welcome-left h3 {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.welcome-left p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.welcome-right {
+  text-align: right;
+}
+
+.institution-label {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.welcome-right h5 {
+  margin: 2px 0 0;
+  font-weight: 600;
+}
+
+.welcome-date {
+  font-size: 12px;
+  margin-top: 6px;
+  color: #6b7280;
+}
+
+.dark-mode .welcome-date {
+  color: #cbd5f5;
+}
+/* Dark Mode */
+
+.dark-mode .welcome-section {
+  background-color: #162136;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+.dark-mode .welcome-left p,
+.dark-mode .institution-label {
+  color: #cbd5f5;
+}
+
 .dashboard-container {
   display: flex;
   gap: 50px;

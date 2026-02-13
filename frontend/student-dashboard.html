@@ -38,7 +38,7 @@
     <a href="#">Account Settings</a>
     <a href="#">Change Password</a>
     <a href="#">Help & Support</a>
-    <a href="#">Logout</a>
+    <a href="#" onclick="logout()">Logout</a>
   </div>
 </div>
     </div>
@@ -46,10 +46,17 @@
 
   <!-- Welcome Section -->
 <div class="welcome-section">
-  <h2>Welcome back, <span id="studentName">Niraj</span></h2>
-  <p>Stay consistent. Every small effort today builds your success tomorrow.</p>
-</div>
+  <div class="welcome-left">
+    <h3 id="welcomeText"></h3>
+    <p id="welcomeSub"></p>
+  </div>
 
+  <div class="welcome-right">
+    <span class="institution-label">Institution</span>
+    <h5 id="institutionName"></h5>
+    <p class="welcome-date" id="todayDate"></p>
+  </div>
+</div>
 
 
 
@@ -126,7 +133,79 @@
       document.body.classList.toggle("dark-mode");
       document.body.classList.toggle("light-mode");
     }
-  </script>
+  </script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const { createClient } = supabase;
+
+const SUPABASE_URL = "https://jaetijisqgecxqgcqget.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphZXRpamlzcWdlY3hxZ2NxZ2V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2NTIxMDcsImV4cCI6MjA4NjIyODEwN30.9N66bJYHvB2JJIUESX-EQLtQM2Grk9R9xSY04dnexXk";
+
+const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+async function checkSession() {
+  const { data } = await client.auth.getSession();
+
+  if (!data.session) {
+    window.location.href = "login.html";
+  }
+}
+
+checkSession();
+
+const messages = [
+  "Stay consistent. Small progress daily leads to big results.",
+  "Focus on understanding, not memorizing.",
+  "Discipline today builds your success tomorrow.",
+  "Your effort today shapes your academic future."
+];
+
+async function loadUser() {
+  const { data } = await client.auth.getSession();
+
+  if (!data.session) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  const user = data.session.user;
+
+  const { data: profile } = await client
+  .from("users")
+  .select("name, institution")
+  .eq("id", user.id)
+  .single();
+
+document.getElementById("welcomeText").innerText =
+  "Welcome back, " + profile.name;
+
+document.getElementById("welcomeSub").innerText =
+  messages[index];
+
+document.getElementById("institutionName").innerText =
+  profile.institution;
+}
+
+loadUser();
+
+async function logout() {
+  await client.auth.signOut();
+  window.location.href = "login.html";
+}
+
+const today = new Date();
+document.getElementById("todayDate").innerText =
+  today.toLocaleDateString("en-IN", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  });
+</script>
+
+
+
+
 
 </body>
 </html>
