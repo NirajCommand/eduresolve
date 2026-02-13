@@ -176,6 +176,8 @@ async function loadUser() {
   .eq("id", user.id)
   .single();
 
+  console.log("Institution:", profile.institution);
+
 document.getElementById("welcomeText").innerText =
   "Welcome back, " + profile.name;
 
