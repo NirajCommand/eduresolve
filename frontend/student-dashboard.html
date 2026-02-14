@@ -161,6 +161,7 @@ const messages = [
 ];
 
 async function loadUser() {
+
   const { data } = await client.auth.getSession();
 
   if (!data.session) {
@@ -171,21 +172,31 @@ async function loadUser() {
   const user = data.session.user;
 
   const { data: profile } = await client
-  .from("users")
-  .select("name, institution")
-  .eq("id", user.id)
-  .single();
+    .from("users")
+    .select("name, institution")
+    .eq("id", user.id)
+    .single();
 
-  console.log("Institution:", profile.institution);
+  // DEFINE INDEX HERE
+  const index = Math.floor(Date.now() / (24 * 60 * 60 * 1000)) % messages.length;
 
-document.getElementById("welcomeText").innerText =
-  "Welcome back, " + profile.name;
+  document.getElementById("welcomeText").innerText =
+    "Welcome back, " + profile.name;
 
-document.getElementById("welcomeSub").innerText =
-  messages[index];
+  document.getElementById("welcomeSub").innerText =
+    messages[index];
 
-document.getElementById("institutionName").innerText =
-  profile.institution;
+  document.getElementById("institutionName").innerText =
+    profile.institution;
+
+  const today = new Date();
+  document.getElementById("todayDate").innerText =
+    today.toLocaleDateString("en-IN", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    });
 }
 
 loadUser();
