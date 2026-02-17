@@ -46,13 +46,13 @@
 <!-- WELCOME SECTION -->
 <div class="welcome-section">
   <div class="welcome-left">
-    <h3>Welcome, Teacher Sam</h3>
+    <h3>Welcome, <span id="teacherName"></span></h3>
     
   </div>
 
   <div class="welcome-right">
-    <h6>ABC Engineering College</h6>
-    <p class="welcome-date">Saturday, 14 February 2026</p>
+    <h6 id="teacherInstitution"></h6>
+<p class="welcome-date" id="teacherDate"></p>
   </div>
 </div>
 
@@ -189,6 +189,36 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 
 const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+async function loadTeacherProfile() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const { data, error } = await supabase
+    .from("users")
+    .select("name, institution")
+    .eq("id", user.id)
+    .single();
+
+  if (error) {
+    console.log(error);
+    return;
+  }
+
+  document.getElementById("teacherName").innerText = data.name;
+  document.getElementById("teacherInstitution").innerText = data.institution;
+
+  const today = new Date();
+  document.getElementById("teacherDate").innerText =
+    today.toLocaleDateString("en-IN", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    });
+}
+
+loadTeacherProfile();
 
 async function loadTeacherTeams() {
 

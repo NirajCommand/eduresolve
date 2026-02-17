@@ -40,9 +40,7 @@
 
     <input type="text" id="teamName" class="form-control mt-3" placeholder="Enter Team Name">
 
-    <button class="btn explore-btn mt-3 w-100" onclick="createTeam()">
-      Create Team
-    </button>
+    <button onclick="createTeam()">Create Team</button>
   </div>
 
   <div class="teams-list mt-5">
@@ -51,14 +49,17 @@
   </div>
 
 </div>
-<script type="module">
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
 
-const supabase = createClient(
-   "https://jaetijisqgecxqgcqget.supabase.co",
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphZXRpamlzcWdlY3hxZ2NxZ2V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2NTIxMDcsImV4cCI6MjA4NjIyODEwN30.9N66bJYHvB2JJIUESX-EQLtQM2Grk9R9xSY04dnexXk",
+const supabase = window.supabase.createClient(
+  
+"https://jaetijisqgecxqgcqget.supabase.co",
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphZXRpamlzcWdlY3hxZ2NxZ2V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2NTIxMDcsImV4cCI6MjA4NjIyODEwN30.9N66bJYHvB2JJIUESX-EQLtQM2Grk9R9xSY04dnexXk"
 
 );
+
+/* ---------- MODE ---------- */
 
 function toggleMode() {
   document.body.classList.toggle("dark-mode");
@@ -115,14 +116,13 @@ async function createTeam() {
     }]);
 
   if (error) {
-    alert("Error creating team");
     console.log(error);
+    alert("Error creating team");
     return;
   }
 
   teamNameInput.value = "";
-
-  await loadTeams();   // refresh list
+  loadTeams();
 }
 
 /* ---------- LOAD TEAMS ---------- */
@@ -173,10 +173,9 @@ async function loadTeams() {
 
 /* ---------- INIT ---------- */
 
-document.querySelector(".btn.explore-btn")
-.addEventListener("click", createTeam);
-
-loadTeams();
+document.addEventListener("DOMContentLoaded", () => {
+  loadTeams();
+});
 
 </script>
 </body>
