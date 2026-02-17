@@ -275,3 +275,50 @@ body.dark-mode {
 .dark-mode .announcement-card {
   background-color: #273449;
 }
+
+
+/*-----------------
+Teacher teams style
+-------------------*/
+
+
+/* ---------- TEAMS PAGE ---------- */
+
+.teams-container {
+  padding: 40px 60px;
+}
+
+.create-team-card {
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 16px;
+  max-width: 500px;
+}
+
+.dark-mode .create-team-card {
+  background-color: #1e293b;
+}
+
+.teams-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.team-card {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  transition: transform 0.2s ease;
+}
+
+.team-card:hover {
+  transform: translateY(-4px);
+}
+
+.dark-mode .team-card {
+  background-color: #1e293b;
+  border-color: #334155;
+}

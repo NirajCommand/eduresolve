@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Teams | EduResolve</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="teacher_style.css">
+</head>
+
+<body class="light-mode">
+
+<nav class="navbar-custom">
+  <div class="nav-left">
+    <span class="logo">
+      <i class="fa-solid fa-graduation-cap"></i> EduResolve
+    </span>
+  </div>
+
+  <div class="nav-center">
+    <a href="teacher-dashboard.html">Dashboard</a>
+    <a href="#">My Courses</a>
+  </div>
+
+  <div class="nav-right">
+    <button class="mode-toggle" onclick="toggleMode()">
+      <i class="fa-solid fa-moon"></i>
+    </button>
+  </div>
+</nav>
+
+<div class="teams-container">
+
+  <div class="create-team-card">
+    <h4>Create New Team</h4>
+
+    <input type="text" id="teamName" class="form-control mt-3" placeholder="Enter Team Name">
+
+    <button class="btn explore-btn mt-3 w-100" onclick="createTeam()">
+      Create Team
+    </button>
+  </div>
+
+  <div class="teams-list mt-5">
+    <h4>Your Teams</h4>
+    <div id="teamsGrid" class="teams-grid"></div>
+  </div>
+
+</div>
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
+
+const supabase = createClient(
+   "https://jaetijisqgecxqgcqget.supabase.co",
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphZXRpamlzcWdlY3hxZ2NxZ2V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2NTIxMDcsImV4cCI6MjA4NjIyODEwN30.9N66bJYHvB2JJIUESX-EQLtQM2Grk9R9xSY04dnexXk",
+
+);
+
+function toggleMode() {
+  document.body.classList.toggle("dark-mode");
+  document.body.classList.toggle("light-mode");
+}
+
+/* ---------- AUTH PROTECTION ---------- */
+
+async function protectPage() {
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    window.location.href = "login.html";
+    return null;
+  }
+
+  return user;
+}
+
+/* ---------- GENERATE TEAM CODE ---------- */
+
+function generateTeamCode() {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+/* ---------- CREATE TEAM ---------- */
+
+async function createTeam() {
+
+  const user = await protectPage();
+  if (!user) return;
+
+  const teamNameInput = document.getElementById("teamName");
+  const teamName = teamNameInput.value.trim();
+
+  if (!teamName) {
+    alert("Enter team name");
+    return;
+  }
+
+  const code = generateTeamCode();
+
+  const { error } = await supabase
+    .from("teams")
+    .insert([{
+      name: teamName,
+      teacher_id: user.id,
+      team_code: code
+    }]);
+
+  if (error) {
+    alert("Error creating team");
+    console.log(error);
+    return;
+  }
+
+  teamNameInput.value = "";
+
+  await loadTeams();   // refresh list
+}
+
+/* ---------- LOAD TEAMS ---------- */
+
+async function loadTeams() {
+
+  const user = await protectPage();
+  if (!user) return;
+
+  const { data: teams, error } = await supabase
+    .from("teams")
+    .select("id, name, team_code")
+    .eq("teacher_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.log(error);
+    return;
+  }
+
+  const grid = document.getElementById("teamsGrid");
+  grid.innerHTML = "";
+
+  if (!teams || teams.length === 0) {
+    grid.innerHTML = "<p>No teams created yet.</p>";
+    return;
+  }
+
+  for (let team of teams) {
+
+    const { count } = await supabase
+      .from("team_members")
+      .select("*", { count: "exact", head: true })
+      .eq("team_id", team.id);
+
+    const card = document.createElement("div");
+    card.className = "team-card";
+
+    card.innerHTML = `
+      <h5>${team.name}</h5>
+      <p>Team Code: <strong>${team.team_code}</strong></p>
+      <p>Students: ${count || 0}</p>
+    `;
+
+    grid.appendChild(card);
+  }
+}
+
+/* ---------- INIT ---------- */
+
+document.querySelector(".btn.explore-btn")
+.addEventListener("click", createTeam);
+
+loadTeams();
+
+</script>
+</body>
+</html>

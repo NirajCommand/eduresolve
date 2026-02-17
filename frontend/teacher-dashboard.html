@@ -37,7 +37,7 @@
     <a href="#">Profile</a>
     <a href="#">Help</a>
     <a href="#">Settings</a>
-    <a href="#">Logout</a>
+    
   </div>
 </div>
   </div>
@@ -82,7 +82,7 @@
     <!-- ACTION CARDS -->
     <div class="actions-panel">
 
-      <div class="action-card">
+      <div class="action-card" onclick="window.location.href='teacher_teams.html'">
         <i class="fa-solid fa-users"></i>
         <h5>Teams</h5>
         <p>Chat and coordinate with students</p>
@@ -185,7 +185,8 @@ function toggleMode() {
 const { createClient } = supabase;
 
 const SUPABASE_URL = "https://jaetijisqgecxqgcqget.supabase.co";
-const SUPABASE_ANON_KEY = "";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphZXRpamlzcWdlY3hxZ2NxZ2V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2NTIxMDcsImV4cCI6MjA4NjIyODEwN30.9N66bJYHvB2JJIUESX-EQLtQM2Grk9R9xSY04dnexXk";
+
 
 const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -248,6 +249,52 @@ document.getElementById("announcementForm")
 loadTeacherTeams();
 
 
+async function protectTeacherPage() {
+
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("users")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (error) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  if (data.role !== "teacher") {
+
+    if (data.role === "student") {
+      window.location.href = "student-dashboard.html";
+    }
+
+    else if (data.role === "hod") {
+      window.location.href = "hod-dashboard.html";
+    }
+  }
+}
+
+protectTeacherPage();
+
+async function logoutUser() {
+
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    console.log(error);
+    alert("Error logging out");
+    return;
+  }
+
+  window.location.href = "login.html";
+}
 
 </script>
 
@@ -255,6 +302,7 @@ loadTeacherTeams();
 function toggleMenu() {
   document.getElementById("menuDropdown").classList.toggle("show-menu");
 }
+
 </script>
 
 </body>
