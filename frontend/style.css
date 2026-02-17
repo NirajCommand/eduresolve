@@ -180,7 +180,7 @@ body {
 
 .logo {
   font-size: 20px;
-  color: rgb(244, 165, 38);
+  color: wheat;
   cursor: pointer;
 }
 
@@ -284,7 +284,7 @@ body {
 }
 
 #institutionName{
-  color: wheat;
+  color: rgb(244, 165, 38);
 }
 
 .dark-mode .welcome-date {

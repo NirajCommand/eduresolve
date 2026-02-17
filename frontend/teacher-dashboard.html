@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Teacher Dashboard | EduResolve</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="teacher_style.css">
+</head>
+
+<body class="dark-mode">
+
+<!-- NAVBAR -->
+<nav class="navbar-custom">
+  <div class="nav-left">
+    <span class="logo">
+      <i class="fa-solid fa-graduation-cap"></i> EduResolve
+    </span>
+  </div>
+
+  <div class="nav-center">
+    <a href="#">Account</a>
+    <a href="#">My Courses</a>
+    <a href="#">Search</a>
+  </div>
+
+  <div class="nav-right">
+   <button class="mode-btn" onclick="toggleMode()" title="Switch Light / Dark mode">
+  <i class="fa-solid fa-moon"></i>
+</button>
+
+    <div class="menu">
+  <i class="fa-solid fa-bars" onclick="toggleMenu()"></i>
+  <div class="menu-dropdown" id="menuDropdown">
+    <a href="#">Profile</a>
+    <a href="#">Help</a>
+    <a href="#">Settings</a>
+    <a href="#">Logout</a>
+  </div>
+</div>
+  </div>
+</nav>
+
+<!-- WELCOME SECTION -->
+<div class="welcome-section">
+  <div class="welcome-left">
+    <h3>Welcome, Teacher Sam</h3>
+    
+  </div>
+
+  <div class="welcome-right">
+    <h6>ABC Engineering College</h6>
+    <p class="welcome-date">Saturday, 14 February 2026</p>
+  </div>
+</div>
+
+<!-- MAIN CONTAINER -->
+<div class="dashboard-container">
+
+  <!-- LEFT PANEL -->
+  <div class="updates-panel">
+    <h4>Academic Updates</h4>
+
+    <div class="update-item">
+      Holiday declared on Monday.
+    </div>
+
+    <div class="update-item">
+      Marks upload deadline approaching.
+    </div>
+
+    <div class="update-item">
+      Semester exams schedule released.
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div>
+
+    <!-- ACTION CARDS -->
+    <div class="actions-panel">
+
+      <div class="action-card">
+        <i class="fa-solid fa-users"></i>
+        <h5>Teams</h5>
+        <p>Chat and coordinate with students</p>
+      </div>
+
+      <div class="action-card">
+        <i class="fa-solid fa-circle-question"></i>
+        <h5>Doubts</h5>
+        <p>View and respond to student queries</p>
+      </div>
+
+      <div class="action-card">
+        <i class="fa-solid fa-pen"></i>
+        <h5>Quizzes</h5>
+        <p>Create and manage quizzes</p>
+      </div>
+
+      <div class="action-card">
+        <i class="fa-solid fa-file-lines"></i>
+        <h5>Assignments</h5>
+        <p>Assign and evaluate submissions</p>
+      </div>
+
+      <div class="action-card">
+        <i class="fa-solid fa-book"></i>
+        <h5>Study Materials</h5>
+        <p>Upload notes and references</p>
+      </div>
+
+      <div class="action-card">
+        <i class="fa-solid fa-star"></i>
+        <h5>Solutions Feedback</h5>
+        <p>View feedback on doubt resolutions</p>
+      </div>
+
+    </div>
+
+    <!-- CREATE ANNOUNCEMENT SECTION -->
+    <div class="announcement-section mt-5">
+      <h4>Create Announcement</h4>
+
+      <form id="announcementForm">
+
+  <div class="mb-3">
+    <label class="form-label">Select Team</label>
+    <select class="form-select" id="teamSelect" required>
+      <option value="">Select team</option>
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Title</label>
+    <input type="text" class="form-control" id="announcementTitle" required>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Content</label>
+    <textarea class="form-control" rows="4" id="announcementContent" required></textarea>
+  </div>
+
+  <button type="submit" class="btn explore-btn">
+    Post Announcement
+  </button>
+
+</form>
+    </div>
+
+    <!-- PAST ANNOUNCEMENTS -->
+    <div class="past-announcements mt-5">
+      <h4>Past Announcements</h4>
+
+      <div class="announcement-card">
+        <h6>Quiz postponed</h6>
+        <p>DBMS quiz moved to Friday.</p>
+        <small>Posted on 10 Feb 2026</small>
+      </div>
+
+      <div class="announcement-card">
+        <h6>Project submission</h6>
+        <p>Final project deadline is next Monday.</p>
+        <small>Posted on 5 Feb 2026</small>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+function toggleMode() {
+  document.body.classList.toggle("dark-mode");
+  document.body.classList.toggle("light-mode");
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const { createClient } = supabase;
+
+const SUPABASE_URL = "https://jaetijisqgecxqgcqget.supabase.co";
+const SUPABASE_ANON_KEY = "";
+
+const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+async function loadTeacherTeams() {
+
+  const { data } = await client.auth.getSession();
+  if (!data.session) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  const teacherId = data.session.user.id;
+
+  const { data: teams } = await client
+    .from("teams")
+    .select("id, name")
+    .eq("teacher_id", teacherId);
+
+  const select = document.getElementById("teamSelect");
+
+  teams.forEach(team => {
+    const option = document.createElement("option");
+    option.value = team.id;
+    option.textContent = team.name;
+    select.appendChild(option);
+  });
+}
+
+document.getElementById("announcementForm")
+.addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const { data } = await client.auth.getSession();
+  const teacherId = data.session.user.id;
+
+  const teamId = document.getElementById("teamSelect").value;
+  const title = document.getElementById("announcementTitle").value;
+  const content = document.getElementById("announcementContent").value;
+
+  const { error } = await client
+    .from("announcements")
+    .insert([{
+      title: title,
+      content: content,
+      posted_by: teacherId,
+      target_type: "team",
+      team_id: teamId
+    }]);
+
+  if (error) {
+    alert("Error posting announcement");
+    return;
+  }
+
+  alert("Announcement posted successfully");
+
+  document.getElementById("announcementForm").reset();
+});
+
+loadTeacherTeams();
+
+
+
+</script>
+
+<script>
+function toggleMenu() {
+  document.getElementById("menuDropdown").classList.toggle("show-menu");
+}
+</script>
+
+</body>
+</html>
