@@ -182,16 +182,53 @@ function toggleMode() {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-const { createClient } = supabase;
+
+/* =========================
+   SUPABASE CONFIG
+========================= */
 
 const SUPABASE_URL = "https://jaetijisqgecxqgcqget.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphZXRpamlzcWdlY3hxZ2NxZ2V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2NTIxMDcsImV4cCI6MjA4NjIyODEwN30.9N66bJYHvB2JJIUESX-EQLtQM2Grk9R9xSY04dnexXk";
 
+const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
 
-const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+/* =========================
+   PAGE PROTECTION
+========================= */
+
+async function protectTeacherPage() {
+
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    window.location.href = "login.html";
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("users")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (error || data.role !== "teacher") {
+    window.location.href = "login.html";
+    return null;
+  }
+
+  return user;
+}
+
+/* =========================
+   LOAD TEACHER PROFILE
+========================= */
 
 async function loadTeacherProfile() {
-  const { data: { user } } = await supabase.auth.getUser();
+
+  const user = await protectTeacherPage();
   if (!user) return;
 
   const { data, error } = await supabase
@@ -205,8 +242,8 @@ async function loadTeacherProfile() {
     return;
   }
 
-  document.getElementById("teacherName").innerText = data.name;
-  document.getElementById("teacherInstitution").innerText = data.institution;
+  document.getElementById("teacherName").innerText = data.name || "Teacher";
+  document.getElementById("teacherInstitution").innerText = data.institution || "";
 
   const today = new Date();
   document.getElementById("teacherDate").innerText =
@@ -218,24 +255,27 @@ async function loadTeacherProfile() {
     });
 }
 
-loadTeacherProfile();
+/* =========================
+   LOAD TEAMS IN DROPDOWN
+========================= */
 
 async function loadTeacherTeams() {
 
-  const { data } = await client.auth.getSession();
-  if (!data.session) {
-    window.location.href = "login.html";
+  const user = await protectTeacherPage();
+  if (!user) return;
+
+  const { data: teams, error } = await supabase
+    .from("teams")
+    .select("id, name")
+    .eq("teacher_id", user.id);
+
+  if (error) {
+    console.log(error);
     return;
   }
 
-  const teacherId = data.session.user.id;
-
-  const { data: teams } = await client
-    .from("teams")
-    .select("id, name")
-    .eq("teacher_id", teacherId);
-
   const select = document.getElementById("teamSelect");
+  select.innerHTML = '<option value="">Select team</option>';
 
   teams.forEach(team => {
     const option = document.createElement("option");
@@ -245,73 +285,50 @@ async function loadTeacherTeams() {
   });
 }
 
+/* =========================
+   POST ANNOUNCEMENT
+========================= */
+
 document.getElementById("announcementForm")
 .addEventListener("submit", async function(e) {
+
   e.preventDefault();
 
-  const { data } = await client.auth.getSession();
-  const teacherId = data.session.user.id;
+  const user = await protectTeacherPage();
+  if (!user) return;
 
   const teamId = document.getElementById("teamSelect").value;
-  const title = document.getElementById("announcementTitle").value;
-  const content = document.getElementById("announcementContent").value;
+  const title = document.getElementById("announcementTitle").value.trim();
+  const content = document.getElementById("announcementContent").value.trim();
 
-  const { error } = await client
+  if (!teamId || !title || !content) {
+    alert("All fields are required");
+    return;
+  }
+
+  const { error } = await supabase
     .from("announcements")
     .insert([{
       title: title,
       content: content,
-      posted_by: teacherId,
+      posted_by: user.id,
       target_type: "team",
       team_id: teamId
     }]);
 
   if (error) {
+    console.log(error);
     alert("Error posting announcement");
     return;
   }
 
   alert("Announcement posted successfully");
-
   document.getElementById("announcementForm").reset();
 });
 
-loadTeacherTeams();
-
-
-async function protectTeacherPage() {
-
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    window.location.href = "login.html";
-    return;
-  }
-
-  const { data, error } = await supabase
-    .from("users")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (error) {
-    window.location.href = "login.html";
-    return;
-  }
-
-  if (data.role !== "teacher") {
-
-    if (data.role === "student") {
-      window.location.href = "student-dashboard.html";
-    }
-
-    else if (data.role === "hod") {
-      window.location.href = "hod-dashboard.html";
-    }
-  }
-}
-
-protectTeacherPage();
+/* =========================
+   LOGOUT
+========================= */
 
 async function logoutUser() {
 
@@ -319,19 +336,20 @@ async function logoutUser() {
 
   if (error) {
     console.log(error);
-    alert("Error logging out");
     return;
   }
 
   window.location.href = "login.html";
 }
 
-</script>
+/* =========================
+   INIT
+========================= */
 
-<script>
-function toggleMenu() {
-  document.getElementById("menuDropdown").classList.toggle("show-menu");
-}
+document.addEventListener("DOMContentLoaded", () => {
+  loadTeacherProfile();
+  loadTeacherTeams();
+});
 
 </script>
 
