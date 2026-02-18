@@ -45,11 +45,11 @@
 <!-- WELCOME -->
 <div class="welcome-box">
   <div>
-    <h2>Welcome, <span id="teacherName"></span></h2>
+    <h3>Welcome, Shiv</h3>
   </div>
   <div class="welcome-right">
-    <h6 id="teacherInstitution"></h6>
-    <p id="teacherDate"></p>
+    <h6 id="teacherInstitution">gamer</h6>
+    <p id="teacherDate">35625</p>
   </div>
 </div>
 
@@ -246,9 +246,32 @@ document.getElementById("announcementForm")
 });
 
 
+async function loadTeacher() {
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const { data, error } = await supabase
+    .from("users")
+    .select("name, institution")
+    .eq("id", user.id)
+    .single();
+
+  if (error) {
+    console.log(error);
+    return;
+  }
+
+  document.getElementById("teacherName").innerText = data.name;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   loadTeacher();
   loadTeacherTeams();
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadTeacher();
 });
 </script>
 
