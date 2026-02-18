@@ -8,10 +8,13 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="teacher_style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body class="dark-mode">
 
+<!-- NAVBAR -->
 <nav class="navbar-custom">
   <div class="logo">
     <i class="fa-solid fa-graduation-cap"></i> EduResolve
@@ -24,7 +27,7 @@
   </div>
 
   <div class="nav-right">
-    <button class="mode-btn" onclick="toggleMode()">
+    <button id="modeBtn" class="mode-btn">
       <i class="fa-solid fa-moon"></i>
     </button>
 
@@ -33,166 +36,113 @@
       <div class="menu-dropdown" id="menuDropdown">
         <a href="#">Profile</a>
         <a href="#">Help</a>
-        <a href="#" onclick="logoutUser()">Logout</a>
+        <a href="#" onclick="logout()">Logout</a>
       </div>
     </div>
   </div>
 </nav>
 
-<div class="welcome-section">
+<!-- WELCOME -->
+<div class="welcome-box">
   <div>
-    <h3>Welcome, <span id="teacherName"></span></h3>
+    <h2>Welcome, <span id="teacherName"></span></h2>
   </div>
-  <div>
+  <div class="welcome-right">
     <h6 id="teacherInstitution"></h6>
     <p id="teacherDate"></p>
   </div>
 </div>
 
-<div class="dashboard-container">
+<!-- MAIN -->
+<div class="main-container">
 
   <div class="updates-panel">
     <h4>Academic Updates</h4>
-    <div class="update-item">Holiday declared on Monday</div>
-    <div class="update-item">Marks upload deadline approaching</div>
-    <div class="update-item">Semester exam schedule released</div>
+    <div id="updatesList"></div>
   </div>
 
-  <div>
+  <div class="right-content">
 
-    <div class="actions-panel">
+    <div class="actions-grid">
 
-      <div class="action-card" onclick="window.location.href='teacher_teams.html'">
-        <i class="fa-solid fa-users"></i>
-        <h5>Teams</h5>
-        <p>Manage student groups</p>
-      </div>
-
-      <div class="action-card">
-        <i class="fa-solid fa-circle-question"></i>
-        <h5>Doubts</h5>
-        <p>Respond to student queries</p>
-      </div>
-
-      <div class="action-card">
-        <i class="fa-solid fa-pen"></i>
-        <h5>Quizzes</h5>
-        <p>Create and manage quizzes</p>
-      </div>
-
-      <div class="action-card">
-        <i class="fa-solid fa-file-lines"></i>
-        <h5>Assignments</h5>
-        <p>Assign and evaluate work</p>
-      </div>
-
-      <div class="action-card">
-        <i class="fa-solid fa-book"></i>
-        <h5>Study Materials</h5>
-        <p>Upload resources</p>
-      </div>
-
-      <div class="action-card">
-        <i class="fa-solid fa-star"></i>
-        <h5>Solutions Feedback</h5>
-        <p>Review feedback</p>
-      </div>
+      <div class="card-box"><i class="fa-solid fa-users"></i><h5>Teams</h5></div>
+      <div class="card-box"><i class="fa-solid fa-circle-question"></i><h5>Doubts</h5></div>
+      <div class="card-box"><i class="fa-solid fa-pen"></i><h5>Quizzes</h5></div>
+      <div class="card-box"><i class="fa-solid fa-file-lines"></i><h5>Assignments</h5></div>
+      <div class="card-box"><i class="fa-solid fa-book"></i><h5>Study Materials</h5></div>
+      <div class="card-box"><i class="fa-solid fa-star"></i><h5>Solutions Feedback</h5></div>
 
     </div>
 
-    <div class="announcement-section mt-5">
-      <h4>Create Announcement</h4>
+   <div class="announcement-section mt-5">
+  <h4>Create Announcement</h4>
 
-      <form id="announcementForm">
+  <form id="announcementForm">
 
-        <div class="mb-3">
-          <label>Select Team</label>
-          <select class="form-select" id="teamSelect" required>
-            <option value="">Select team</option>
-          </select>
-        </div>
-
-        <div class="mb-3">
-          <label>Title</label>
-          <input type="text" class="form-control" id="announcementTitle" required>
-        </div>
-
-        <div class="mb-3">
-          <label>Content</label>
-          <textarea class="form-control" rows="4" id="announcementContent" required></textarea>
-        </div>
-
-        <button type="submit" class="btn explore-btn">
-          Post Announcement
-        </button>
-
-      </form>
+    <div class="mb-3">
+      <label class="form-label">Select Team</label>
+      <select class="form-select" id="teamSelect" required>
+        <option value="">Select team</option>
+      </select>
     </div>
 
-  </div>
+    <div class="mb-3">
+      <label class="form-label">Title</label>
+      <input type="text" class="form-control" id="announcementTitle" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Content</label>
+      <textarea class="form-control" rows="4" id="announcementContent" required></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">
+      Post Announcement
+    </button>
+
+  </form>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </div>
+
+</div>
 
 <script>
+const SUPABASE_URL = "YOUR_URL";
+const SUPABASE_KEY = "YOUR_KEY";
 
-/* ========= SUPABASE CONFIG ========= */
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const SUPABASE_URL = "https://jaetijisqgecxqgcqget.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphZXRpamlzcWdlY3hxZ2NxZ2V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2NTIxMDcsImV4cCI6MjA4NjIyODEwN30.9N66bJYHvB2JJIUESX-EQLtQM2Grk9R9xSY04dnexXk";
-
-const supabase = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
-
-/* ========= MODE ========= */
-
-function toggleMode() {
+/* ---------- MODE ---------- */
+document.getElementById("modeBtn").addEventListener("click", () => {
   document.body.classList.toggle("dark-mode");
   document.body.classList.toggle("light-mode");
-}
+});
 
-function toggleMenu() {
+/* ---------- MENU ---------- */
+function toggleMenu(){
   document.getElementById("menuDropdown").classList.toggle("show-menu");
 }
 
-/* ========= AUTH + ROLE PROTECTION ========= */
-
-async function protectTeacherPage() {
-
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    window.location.href = "login.html";
-    return null;
-  }
-
-  const { data } = await supabase
-    .from("users")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (!data || data.role !== "teacher") {
-    window.location.href = "login.html";
-    return null;
-  }
-
-  return user;
+/* ---------- LOGOUT ---------- */
+async function logout(){
+  await supabase.auth.signOut();
+  window.location.href = "login.html";
 }
 
-/* ========= LOAD PROFILE ========= */
+/* ---------- LOAD USER ---------- */
+async function loadUser(){
 
-async function loadTeacherProfile() {
-
-  const user = await protectTeacherPage();
-  if (!user) return;
+  const { data: { user } } = await supabase.auth.getUser();
+  if(!user){
+    window.location.href="login.html";
+    return;
+  }
 
   const { data } = await supabase
     .from("users")
-    .select("name, institution")
-    .eq("id", user.id)
+    .select("name,institution")
+    .eq("id",user.id)
     .single();
 
   document.getElementById("teacherName").innerText = data?.name || "Teacher";
@@ -200,30 +150,49 @@ async function loadTeacherProfile() {
 
   const today = new Date();
   document.getElementById("teacherDate").innerText =
-    today.toLocaleDateString("en-IN", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric"
-    });
+    today.toLocaleDateString("en-IN",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
 }
 
-/* ========= LOAD TEAMS ========= */
+loadUser();
+
+/* ---------- ANNOUNCEMENT ---------- */
+document.getElementById("announcementForm")
+.addEventListener("submit", async(e)=>{
+  e.preventDefault();
+
+  const { data:{user} } = await supabase.auth.getUser();
+
+  await supabase.from("announcements").insert([{
+    title: document.getElementById("title").value,
+    content: document.getElementById("content").value,
+    posted_by: user.id
+  }]);
+
+  alert("Announcement Posted");
+  e.target.reset();
+});
+
+
 
 async function loadTeacherTeams() {
 
-  const user = await protectTeacherPage();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
 
-  const { data: teams } = await supabase
+  const { data: teams, error } = await supabase
     .from("teams")
     .select("id, name")
     .eq("teacher_id", user.id);
 
+  if (error) {
+    console.log(error);
+    return;
+  }
+
   const select = document.getElementById("teamSelect");
   select.innerHTML = '<option value="">Select team</option>';
 
-  teams?.forEach(team => {
+  teams.forEach(team => {
     const option = document.createElement("option");
     option.value = team.id;
     option.textContent = team.name;
@@ -231,53 +200,56 @@ async function loadTeacherTeams() {
   });
 }
 
-/* ========= POST ANNOUNCEMENT ========= */
-
 document.getElementById("announcementForm")
 .addEventListener("submit", async function(e) {
 
   e.preventDefault();
 
-  const user = await protectTeacherPage();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
 
   const teamId = document.getElementById("teamSelect").value;
   const title = document.getElementById("announcementTitle").value.trim();
   const content = document.getElementById("announcementContent").value.trim();
 
-  const { error } = await supabase
-    .from("announcements")
-    .insert([{
-      title,
-      content,
-      posted_by: user.id,
-      team_id: teamId
-    }]);
-
-  if (error) {
-    alert("Error posting announcement");
-    console.log(error);
+  if (!teamId || !title || !content) {
+    alert("All fields are required");
     return;
   }
 
-  alert("Announcement posted");
+  // get teacher institution automatically
+  const { data: teacherData } = await supabase
+    .from("users")
+    .select("institution")
+    .eq("id", user.id)
+    .single();
+
+  const { error } = await supabase
+    .from("announcements")
+    .insert([{
+      title: title,
+      content: content,
+      posted_by: user.id,
+      team_id: teamId,
+      institution: teacherData.institution,
+      target_type: "team"
+    }]);
+
+  if (error) {
+    console.log(error);
+    alert("Error posting announcement");
+    return;
+  }
+
+  alert("Announcement posted successfully");
   document.getElementById("announcementForm").reset();
 });
 
-/* ========= LOGOUT ========= */
-
-async function logoutUser() {
-  await supabase.auth.signOut();
-  window.location.href = "login.html";
-}
-
-/* ========= INIT ========= */
 
 document.addEventListener("DOMContentLoaded", () => {
-  loadTeacherProfile();
+  loadTeacher();
   loadTeacherTeams();
 });
-
 </script>
 
 </body>
