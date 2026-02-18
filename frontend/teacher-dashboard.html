@@ -1,23 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Teacher Dashboard | EduResolve</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<title>Teacher Dashboard | EduResolve</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="teacher_style.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="teacher_style.css">
 </head>
 
 <body class="dark-mode">
 
-<!-- NAVBAR -->
 <nav class="navbar-custom">
-  <div class="nav-left">
-    <span class="logo">
-      <i class="fa-solid fa-graduation-cap"></i> EduResolve
-    </span>
+  <div class="logo">
+    <i class="fa-solid fa-graduation-cap"></i> EduResolve
   </div>
 
   <div class="nav-center">
@@ -27,71 +24,54 @@
   </div>
 
   <div class="nav-right">
-   <button class="mode-btn" onclick="toggleMode()" title="Switch Light / Dark mode">
-  <i class="fa-solid fa-moon"></i>
-</button>
+    <button class="mode-btn" onclick="toggleMode()">
+      <i class="fa-solid fa-moon"></i>
+    </button>
 
     <div class="menu">
-  <i class="fa-solid fa-bars" onclick="toggleMenu()"></i>
-  <div class="menu-dropdown" id="menuDropdown">
-    <a href="#">Profile</a>
-    <a href="#">Help</a>
-    <a href="#">Settings</a>
-    
-  </div>
-</div>
+      <i class="fa-solid fa-bars" onclick="toggleMenu()"></i>
+      <div class="menu-dropdown" id="menuDropdown">
+        <a href="#">Profile</a>
+        <a href="#">Help</a>
+        <a href="#" onclick="logoutUser()">Logout</a>
+      </div>
+    </div>
   </div>
 </nav>
 
-<!-- WELCOME SECTION -->
 <div class="welcome-section">
-  <div class="welcome-left">
+  <div>
     <h3>Welcome, <span id="teacherName"></span></h3>
-    
   </div>
-
-  <div class="welcome-right">
+  <div>
     <h6 id="teacherInstitution"></h6>
-<p class="welcome-date" id="teacherDate"></p>
+    <p id="teacherDate"></p>
   </div>
 </div>
 
-<!-- MAIN CONTAINER -->
 <div class="dashboard-container">
 
-  <!-- LEFT PANEL -->
   <div class="updates-panel">
     <h4>Academic Updates</h4>
-
-    <div class="update-item">
-      Holiday declared on Monday.
-    </div>
-
-    <div class="update-item">
-      Marks upload deadline approaching.
-    </div>
-
-    <div class="update-item">
-      Semester exams schedule released.
-    </div>
+    <div class="update-item">Holiday declared on Monday</div>
+    <div class="update-item">Marks upload deadline approaching</div>
+    <div class="update-item">Semester exam schedule released</div>
   </div>
 
-  <!-- RIGHT PANEL -->
   <div>
 
-    <!-- ACTION CARDS -->
     <div class="actions-panel">
 
       <div class="action-card" onclick="window.location.href='teacher_teams.html'">
         <i class="fa-solid fa-users"></i>
         <h5>Teams</h5>
-        <p>Chat and coordinate with students</p>
+        <p>Manage student groups</p>
       </div>
 
       <div class="action-card">
         <i class="fa-solid fa-circle-question"></i>
         <h5>Doubts</h5>
-        <p>View and respond to student queries</p>
+        <p>Respond to student queries</p>
       </div>
 
       <div class="action-card">
@@ -103,101 +83,81 @@
       <div class="action-card">
         <i class="fa-solid fa-file-lines"></i>
         <h5>Assignments</h5>
-        <p>Assign and evaluate submissions</p>
+        <p>Assign and evaluate work</p>
       </div>
 
       <div class="action-card">
         <i class="fa-solid fa-book"></i>
         <h5>Study Materials</h5>
-        <p>Upload notes and references</p>
+        <p>Upload resources</p>
       </div>
 
       <div class="action-card">
         <i class="fa-solid fa-star"></i>
         <h5>Solutions Feedback</h5>
-        <p>View feedback on doubt resolutions</p>
+        <p>Review feedback</p>
       </div>
 
     </div>
 
-    <!-- CREATE ANNOUNCEMENT SECTION -->
     <div class="announcement-section mt-5">
       <h4>Create Announcement</h4>
 
       <form id="announcementForm">
 
-  <div class="mb-3">
-    <label class="form-label">Select Team</label>
-    <select class="form-select" id="teamSelect" required>
-      <option value="">Select team</option>
-    </select>
-  </div>
+        <div class="mb-3">
+          <label>Select Team</label>
+          <select class="form-select" id="teamSelect" required>
+            <option value="">Select team</option>
+          </select>
+        </div>
 
-  <div class="mb-3">
-    <label class="form-label">Title</label>
-    <input type="text" class="form-control" id="announcementTitle" required>
-  </div>
+        <div class="mb-3">
+          <label>Title</label>
+          <input type="text" class="form-control" id="announcementTitle" required>
+        </div>
 
-  <div class="mb-3">
-    <label class="form-label">Content</label>
-    <textarea class="form-control" rows="4" id="announcementContent" required></textarea>
-  </div>
+        <div class="mb-3">
+          <label>Content</label>
+          <textarea class="form-control" rows="4" id="announcementContent" required></textarea>
+        </div>
 
-  <button type="submit" class="btn explore-btn">
-    Post Announcement
-  </button>
+        <button type="submit" class="btn explore-btn">
+          Post Announcement
+        </button>
 
-</form>
-    </div>
-
-    <!-- PAST ANNOUNCEMENTS -->
-    <div class="past-announcements mt-5">
-      <h4>Past Announcements</h4>
-
-      <div class="announcement-card">
-        <h6>Quiz postponed</h6>
-        <p>DBMS quiz moved to Friday.</p>
-        <small>Posted on 10 Feb 2026</small>
-      </div>
-
-      <div class="announcement-card">
-        <h6>Project submission</h6>
-        <p>Final project deadline is next Monday.</p>
-        <small>Posted on 5 Feb 2026</small>
-      </div>
-
+      </form>
     </div>
 
   </div>
-
 </div>
-
-<script>
-function toggleMode() {
-  document.body.classList.toggle("dark-mode");
-  document.body.classList.toggle("light-mode");
-}
-</script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 
-/* =========================
-   SUPABASE CONFIG
-========================= */
+/* ========= SUPABASE CONFIG ========= */
 
-const SUPABASE_URL = "https://jaetijisqgecxqgcqget.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphZXRpamlzcWdlY3hxZ2NxZ2V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2NTIxMDcsImV4cCI6MjA4NjIyODEwN30.9N66bJYHvB2JJIUESX-EQLtQM2Grk9R9xSY04dnexXk";
+const SUPABASE_URL = "YOUR_SUPABASE_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
 
 const supabase = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY
 );
 
-/* =========================
-   PAGE PROTECTION
-========================= */
+/* ========= MODE ========= */
+
+function toggleMode() {
+  document.body.classList.toggle("dark-mode");
+  document.body.classList.toggle("light-mode");
+}
+
+function toggleMenu() {
+  document.getElementById("menuDropdown").classList.toggle("show-menu");
+}
+
+/* ========= AUTH + ROLE PROTECTION ========= */
 
 async function protectTeacherPage() {
 
@@ -208,13 +168,13 @@ async function protectTeacherPage() {
     return null;
   }
 
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("users")
     .select("role")
     .eq("id", user.id)
     .single();
 
-  if (error || data.role !== "teacher") {
+  if (!data || data.role !== "teacher") {
     window.location.href = "login.html";
     return null;
   }
@@ -222,28 +182,21 @@ async function protectTeacherPage() {
   return user;
 }
 
-/* =========================
-   LOAD TEACHER PROFILE
-========================= */
+/* ========= LOAD PROFILE ========= */
 
 async function loadTeacherProfile() {
 
   const user = await protectTeacherPage();
   if (!user) return;
 
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("users")
     .select("name, institution")
     .eq("id", user.id)
     .single();
 
-  if (error) {
-    console.log(error);
-    return;
-  }
-
-  document.getElementById("teacherName").innerText = data.name || "Teacher";
-  document.getElementById("teacherInstitution").innerText = data.institution || "";
+  document.getElementById("teacherName").innerText = data?.name || "Teacher";
+  document.getElementById("teacherInstitution").innerText = data?.institution || "";
 
   const today = new Date();
   document.getElementById("teacherDate").innerText =
@@ -255,29 +208,22 @@ async function loadTeacherProfile() {
     });
 }
 
-/* =========================
-   LOAD TEAMS IN DROPDOWN
-========================= */
+/* ========= LOAD TEAMS ========= */
 
 async function loadTeacherTeams() {
 
   const user = await protectTeacherPage();
   if (!user) return;
 
-  const { data: teams, error } = await supabase
+  const { data: teams } = await supabase
     .from("teams")
     .select("id, name")
     .eq("teacher_id", user.id);
 
-  if (error) {
-    console.log(error);
-    return;
-  }
-
   const select = document.getElementById("teamSelect");
   select.innerHTML = '<option value="">Select team</option>';
 
-  teams.forEach(team => {
+  teams?.forEach(team => {
     const option = document.createElement("option");
     option.value = team.id;
     option.textContent = team.name;
@@ -285,9 +231,7 @@ async function loadTeacherTeams() {
   });
 }
 
-/* =========================
-   POST ANNOUNCEMENT
-========================= */
+/* ========= POST ANNOUNCEMENT ========= */
 
 document.getElementById("announcementForm")
 .addEventListener("submit", async function(e) {
@@ -301,50 +245,33 @@ document.getElementById("announcementForm")
   const title = document.getElementById("announcementTitle").value.trim();
   const content = document.getElementById("announcementContent").value.trim();
 
-  if (!teamId || !title || !content) {
-    alert("All fields are required");
-    return;
-  }
-
   const { error } = await supabase
     .from("announcements")
     .insert([{
-      title: title,
-      content: content,
+      title,
+      content,
       posted_by: user.id,
-      target_type: "team",
       team_id: teamId
     }]);
 
   if (error) {
-    console.log(error);
     alert("Error posting announcement");
+    console.log(error);
     return;
   }
 
-  alert("Announcement posted successfully");
+  alert("Announcement posted");
   document.getElementById("announcementForm").reset();
 });
 
-/* =========================
-   LOGOUT
-========================= */
+/* ========= LOGOUT ========= */
 
 async function logoutUser() {
-
-  const { error } = await supabase.auth.signOut();
-
-  if (error) {
-    console.log(error);
-    return;
-  }
-
+  await supabase.auth.signOut();
   window.location.href = "login.html";
 }
 
-/* =========================
-   INIT
-========================= */
+/* ========= INIT ========= */
 
 document.addEventListener("DOMContentLoaded", () => {
   loadTeacherProfile();
