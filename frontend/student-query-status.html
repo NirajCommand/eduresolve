@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Query Status</title>
+<link rel="stylesheet" href="student_query.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body class="dark-mode">
+
+<nav class="navbar-custom">
+
+<div class="logo"
+onclick="window.location.href='student-dashboard.html'">
+EduResolve
+</div>
+
+<div class="nav-center">
+<a href="student-dashboard.html">Dashboard</a>
+<a href="student-teams.html">Teams</a>
+</div>
+
+</nav>
+
+
+<div class="page-container">
+
+<h2 class="page-title">My Queries</h2>
+
+<div id="queriesContainer"></div>
+
+</div>
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", async function(){
+
+const SUPABASE_URL = "https://zwpjavmrgveckswnobhg.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw";
+
+const { createClient } = supabase;
+
+const client = createClient(
+SUPABASE_URL,
+SUPABASE_ANON_KEY
+);
+
+/* AUTH CHECK */
+
+const { data:{ user } } = await client.auth.getUser();
+
+if(!user){
+window.location.href="login.html";
+return;
+}
+
+/* LOAD STUDENT QUERIES */
+
+const { data:queries, error } = await client
+.from("queries")
+.select("*")
+.eq("student_id", user.id)
+.order("created_at", {ascending:false});
+
+if(error){
+console.log(error);
+return;
+}
+
+const container = document.getElementById("queriesContainer");
+
+container.innerHTML = "";
+
+queries?.forEach(q => {
+
+let html = `
+<div class="query-card">
+
+<div class="query-title">${q.title}</div>
+
+<div class="query-meta">
+${new Date(q.created_at).toLocaleString()}
+</div>
+
+<div class="query-desc">
+${q.description}
+</div>
+
+<div class="query-status">
+
+Status:
+<span class="${
+q.status === "answered"
+? "status-solved"
+: "status-pending"
+}">
+${q.status}
+</span>
+
+</div>
+`;
+
+/* SHOW SOLUTION + FEEDBACK */
+
+if(q.status === "answered"){
+
+html += `
+<div class="solution-box">
+
+<strong>Teacher Solution</strong>
+
+<p>${q.solution || "No solution added yet"}</p>
+
+</div>
+
+<div class="feedback-box">
+
+<textarea
+placeholder="Give feedback..."
+id="fb-${q.id}">
+</textarea>
+
+<button
+class="feedback-btn"
+onclick="submitFeedback('${q.id}')">
+Submit Feedback
+</button>
+
+</div>
+`;
+
+}
+
+html += `</div>`;
+
+container.innerHTML += html;
+
+});
+
+});
+
+
+/* FEEDBACK FUNCTION */
+
+async function submitFeedback(queryId){
+
+const SUPABASE_URL = "YOUR_SUPABASE_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_KEY";
+
+const { createClient } = supabase;
+
+const client = createClient(
+SUPABASE_URL,
+SUPABASE_ANON_KEY
+);
+
+const text = document
+.getElementById("fb-"+queryId)
+.value.trim();
+
+if(!text){
+alert("Write feedback first");
+return;
+}
+
+const { error } = await client
+.from("queries")
+.update({feedback:text})
+.eq("id", queryId);
+
+if(error){
+alert("Feedback failed");
+console.log(error);
+return;
+}
+
+alert("Feedback submitted successfully");
+
+}
+
+</script>
+
+</body>
+</html>

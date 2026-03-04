@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Requests | EduResolve</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="hod.css">
+</head>
+
+<body class="light-mode">
+
+<nav class="navbar-custom">
+  <div class="logo" onclick="goDashboard()">EduResolve</div>
+</nav>
+
+<div class="requests-container">
+  <h2>Pending Account Requests</h2>
+
+  <div id="requestsContainer"></div>
+
+  <div class="pagination">
+    <button onclick="prevPage()">Previous</button>
+    <span id="pageInfo"></span>
+    <button onclick="nextPage()">Next</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const { createClient } = supabase;
+
+const SUPABASE_URL = "https://zwpjavmrgveckswnobhg.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw";
+
+const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentPage = 1;
+const pageSize = 5;
+let totalRecords = 0;
+
+function goDashboard() {
+  window.location.href = "hod-dashboard.html";
+}
+
+async function loadRequests() {
+
+  const { data: { user } } = await client.auth.getUser();
+
+  const { data: hod } = await client
+    .from("users")
+    .select("institution")
+    .eq("id", user.id)
+    .single();
+
+  const from = (currentPage - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  const { data: pendingUsers, count } = await client
+    .from("users")
+    .select("id, name, email, role, created_at", { count: "exact" })
+    .eq("institution", hod.institution)
+    .eq("status", "pending")
+    .range(from, to);
+
+  totalRecords = count;
+
+  const container = document.getElementById("requestsContainer");
+  container.innerHTML = "";
+
+  if (!pendingUsers || pendingUsers.length === 0) {
+    container.innerHTML = "<p>No pending requests</p>";
+    return;
+  }
+
+  for (let u of pendingUsers) {
+    container.innerHTML += `
+      <div class="request-card">
+        <div class="request-info">
+          <p><strong>Name:</strong> ${u.name}</p>
+          <p><strong>Email:</strong> ${u.email}</p>
+          <p><strong>Role:</strong> ${u.role}</p>
+          <p><strong>Requested:</strong> ${new Date(u.created_at).toLocaleString()}</p>
+        </div>
+        <div class="request-actions">
+          <button class="approve-btn" onclick="approveUser('${u.id}')">Approve</button>
+          <button class="reject-btn" onclick="rejectUser('${u.id}')">Reject</button>
+        </div>
+      </div>
+    `;
+  }
+
+  document.getElementById("pageInfo").innerText =
+    `Page ${currentPage} of ${Math.ceil(totalRecords / pageSize)}`;
+}
+
+async function approveUser(id) {
+  await client.from("users").update({ status: "approved" }).eq("id", id);
+  loadRequests();
+}
+
+async function rejectUser(id) {
+  await client.from("users").delete().eq("id", id);
+  loadRequests();
+}
+
+function nextPage() {
+  if (currentPage * pageSize < totalRecords) {
+    currentPage++;
+    loadRequests();
+  }
+}
+
+function prevPage() {
+  if (currentPage > 1) {
+    currentPage--;
+    loadRequests();
+  }
+}
+
+loadRequests();
+</script>
+
+</body>
+</html>

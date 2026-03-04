@@ -1,165 +1,4 @@
-:root {
-  --primary-gold: #d6b57a;
-  --primary-blue: #2f6df6;
-  --soft-blue: rgba(47,109,246,0.15);
-}
 
-/* Base */
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-}
-
-/* =====================================================
-   LANDING PAGE
-===================================================== */
-/* ================= LANDING PAGE FIXED ================= */
-
-.hero-section {
-  height: 100vh;
-  background-image: url("background1.jpg");
-  background-size: cover;
-  background-position: center;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #ffffff;
-  text-align: center;
-}
-
-.hero-section::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-color: rgba(10, 20, 40, 0.60);
-  backdrop-filter: blur(3px);
-}
-
-.hero-content {
-  position: relative;
-  z-index: 2;
-  max-width: 720px;
-  width: 100%;
-  margin-top: 65px;   /* slight top spacing */
-  padding: 20px;
-}
-
-.brand {
-  color: #d6b57a;
-  font-size: 13px;
-  letter-spacing: 2px;
-  margin-bottom: 8px;
-}
-
-.main-title {
-  font-size: 60px;
-  font-weight: 700;
-  color: #d6b57a;
-  margin-bottom: 10px;
-  margin-top: 20px;
-}
-
-.tagline {
-  font-size: 18px;
-  margin-bottom: 22px;
-  color: #e5e7eb;
-}
-
-.explore-btn {
-  background-color: #d6b57a;
-  color: #1a1a1a;
-  padding: 10px 24px;
-  font-size: 14px;
-  border-radius: 6px;
-  border: none;
-  /* Smooths the transition back and forth */
-  transition: transform 0.3s ease, background-color 0.3s ease;
-}
-
-.explore-btn:hover {
-  background-color: #c9a963;
-  /* This creates the zoom effect */
-  transform: scale(1.05);
-  cursor: pointer;
-}
-
-.info {
-  margin-top: 20px;
-  font-size: 15px;
-}
-
-.current-affairs-box {
-  max-width: 640px;
-  margin: 18px auto 0 auto;
-  background-color: rgba(0, 0, 0, 0.45);
-  padding: 18px 20px;
-  border-radius: 8px;
-  text-align: left;
-}
-
-.current-affairs-box h5 {
-  color: #d6b57a;
-  font-size: 16px;
-  margin-bottom: 8px;
-}
-
-.affairs-list li {
-  font-size: 13px;
-  margin-bottom: 6px;
-}
-
-.tech-title {
-  color: #f0d9a0;
-  font-size: 16px;
-  margin-top: 8px;
-}
-
-.tech-info {
-  font-size: 13px;
-}
-
-/* =====================================================
-   LOGIN & REGISTER
-===================================================== */
-
-.login-box,
-.register-box {
-  background-color: rgba(0, 0, 0, 0.4);
-  padding: 26px;
-  border-radius: 14px;
-  color: #ffffff;
-  backdrop-filter: blur(8px);
-}
-
-.login-box {
-  max-width: 420px;
-  margin: auto;
-}
-
-.register-box {
-  max-width: 480px;
-  margin: auto;
-  max-height: 85vh;
-  overflow-y: auto;
-}
-
-.login-box h2,
-.register-box h2 {
-  color: var(--primary-gold);
-}
-
-.form-control,
-.form-select {
-  background-color: rgba(255, 255, 255, 0.9);
-}
-
-
-.form-control:focus,
-.form-select:focus {
-  border-color: var(--primary-gold);
-  box-shadow: 0 0 0 0.2rem rgba(214,181,122,0.25);
-}
 /* =====================================================
    NAVBAR
 ===================================================== */
@@ -545,13 +384,7 @@ body {
   color: #1f2937;
 }
 
-.menu-dropdown a:hover {
-  background-color: #f4f6fa;
-}
 
-.menu:hover .menu-dropdown {
-  display: block;
-}
 
 /* Dark mode menu */
 .dark-mode .menu-dropdown {
@@ -566,3 +399,208 @@ body {
   background-color: #243553;
 }
 
+/* ==========================================
+   TEAMS PAGE
+========================================== */
+
+.teams-page {
+  padding: 70px 80px;
+  max-width: 1400px;
+  margin: auto;
+}
+
+.page-title {
+  font-size: 30px;
+  font-weight: 600;
+  margin-bottom: 50px;
+}
+
+.section-block {
+  margin-bottom: 70px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 25px;
+  position: relative;
+}
+
+.section-title::after {
+  content: "";
+  width: 40px;
+  height: 3px;
+  background: #2f6df6;
+  display: block;
+  margin-top: 6px;
+  border-radius: 10px;
+}
+
+/* ==========================================
+   JOIN FORM
+========================================== */
+
+.large-form {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.large-form input {
+  flex: 1;
+  padding: 16px 20px;
+  border-radius: 14px;
+  border: none;
+  font-size: 14px;
+  transition: 0.3s ease;
+}
+
+body.dark-mode .large-form input {
+  background: #1e293b;
+  color: white;
+  box-shadow: 0 12px 25px rgba(0,0,0,0.4);
+}
+
+body.light-mode .large-form input {
+  background: #ffffff;
+  box-shadow: 0 12px 25px rgba(0,0,0,0.08);
+}
+
+.large-form input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(47,109,246,0.3);
+}
+
+.large-form button {
+  padding: 14px 26px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, #2f6df6, #1e4fc4);
+  color: white;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.large-form button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(47,109,246,0.4);
+}
+
+/* ==========================================
+   TEAMS GRID
+========================================== */
+
+.teams-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+/* ==========================================
+   TEAM CARD
+========================================== */
+
+.team-card {
+  padding: 30px;
+  border-radius: 20px;
+  position: relative;
+  transition: 0.3s ease;
+  overflow: hidden;
+}
+
+body.dark-mode .team-card {
+  background: #1e293b;
+  box-shadow: 0 18px 35px rgba(0,0,0,0.5);
+}
+
+body.light-mode .team-card {
+  background: #ffffff;
+  box-shadow: 0 18px 35px rgba(0,0,0,0.08);
+}
+
+.team-card:hover {
+  transform: translateY(-8px);
+}
+
+.team-card h4 {
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+
+.join-code {
+  font-size: 13px;
+  opacity: 0.7;
+  margin-bottom: 20px;
+}
+
+.enter-btn {
+  display: inline-block;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2f6df6, #1e4fc4);
+  color: white;
+  text-decoration: none;
+  font-size: 12px;
+  transition: 0.3s ease;
+}
+
+.enter-btn:hover {
+  box-shadow: 0 10px 20px rgba(47,109,246,0.4);
+}
+
+/* ==========================================
+   PENDING REQUEST CARD
+========================================== */
+
+.request-card {
+  padding: 18px 22px;
+  border-radius: 14px;
+  margin-bottom: 15px;
+}
+
+body.dark-mode .request-card {
+  background: #1e293b;
+}
+
+body.light-mode .request-card {
+  background: #ffffff;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.06);
+}
+
+.request-card strong {
+  font-size: 14px;
+}
+
+.request-card p {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-top: 5px;
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 900px) {
+
+  .navbar-custom {
+    padding: 0 20px;
+  }
+
+  .teams-page {
+    padding: 40px 20px;
+  }
+
+  .nav-center {
+    display: none;
+  }
+
+  .large-form {
+    flex-direction: column;
+  }
+
+  .large-form button {
+    width: 100%;
+  }
+}

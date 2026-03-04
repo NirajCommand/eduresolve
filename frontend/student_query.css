@@ -1,0 +1,193 @@
+body {
+margin:0;
+font-family:Segoe UI, sans-serif;
+background:#0f172a;
+color:white;
+}
+
+/* NAVBAR */
+
+.navbar-custom{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:16px 40px;
+background:#111827;
+}
+
+.logo{
+font-size:20px;
+font-weight:600;
+color:#facc15;
+cursor:pointer;
+}
+
+.nav-center{
+display:flex;
+gap:30px;
+}
+
+.nav-center a{
+text-decoration:none;
+color:#d1d5db;
+font-size:14px;
+}
+
+.nav-center a:hover{
+color:white;
+}
+
+/* PAGE */
+
+.page-container{
+max-width:900px;
+margin:auto;
+padding:40px 20px;
+}
+
+.page-title{
+font-size:24px;
+margin-bottom:30px;
+}
+
+/* QUERY FORM */
+
+.query-form{
+background:#1e293b;
+padding:30px;
+border-radius:14px;
+display:flex;
+flex-direction:column;
+gap:16px;
+}
+
+.query-form input,
+.query-form textarea{
+width:100%;
+padding:12px;
+border:none;
+border-radius:8px;
+font-size:14px;
+background:#0f172a;
+color:white;
+}
+
+.query-form textarea{
+min-height:120px;
+resize:none;
+}
+
+.query-form button{
+padding:12px;
+border:none;
+border-radius:8px;
+background:#3b82f6;
+color:white;
+font-size:14px;
+cursor:pointer;
+}
+
+.query-form button:hover{
+background:#2563eb;
+}
+
+/* QUERY CARD */
+
+.query-card{
+background:#1e293b;
+padding:20px;
+border-radius:14px;
+margin-bottom:20px;
+}
+
+.query-title{
+font-size:16px;
+font-weight:600;
+margin-bottom:6px;
+}
+
+.query-meta{
+font-size:12px;
+color:#94a3b8;
+margin-bottom:12px;
+}
+
+.query-desc{
+font-size:14px;
+margin-bottom:12px;
+}
+
+/* STATUS */
+
+.query-status{
+font-size:13px;
+margin-top:10px;
+}
+
+.status-solved{
+color:#22c55e;
+font-weight:600;
+}
+
+.status-pending{
+color:#f59e0b;
+font-weight:600;
+}
+
+/* SOLUTION */
+
+.solution-box{
+margin-top:15px;
+padding:15px;
+background:#0f172a;
+border-radius:10px;
+font-size:14px;
+}
+
+/* FEEDBACK */
+
+.feedback-box{
+margin-top:15px;
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.feedback-box textarea{
+padding:10px;
+border:none;
+border-radius:8px;
+background:#020617;
+color:white;
+}
+
+.feedback-btn{
+padding:10px;
+border:none;
+border-radius:8px;
+background:#22c55e;
+color:white;
+cursor:pointer;
+}
+
+.feedback-btn:hover{
+background:#16a34a;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:700px){
+
+.navbar-custom{
+padding:14px 20px;
+}
+
+.page-container{
+padding:30px 15px;
+}
+
+.query-form{
+padding:20px;
+}
+
+}

@@ -1,151 +1,435 @@
-/* =========================
-   TEACHER DASHBOARD CLEAN STYLE
-   ========================= */
+/* ===============================
+   GLOBAL THEME
+================================ */
 
-/* ---------- BODY THEMES ---------- */
-
-body.dark-mode{
-  background:#0f172a;
-  color:#fff;
-}
-body.light-mode{
-  background:#f4f6fa;
-  color:#111;
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  transition: 0.3s ease;
 }
 
-.navbar-custom{
-  height:60px;
-  background:#000;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:0 60px;
+/* ---------- DARK MODE ---------- */
+
+body.dark-mode {
+  background: #0f172a;
+  color: #ffffff;
 }
 
-.logo{color:wheat;font-weight:600}
+/* ---------- LIGHT MODE ---------- */
 
-.nav-center{display:flex;gap:40px}
-.nav-center a{color:#fff;text-decoration:none}
-
-.nav-right{display:flex;gap:20px;align-items:center}
-
-.mode-btn{
-  background:#1f2937;
-  border:none;
-  color:#fff;
-  width:34px;
-  height:34px;
-  border-radius:6px;
+body.light-mode {
+  background: #f4f6fa;
+  color: #111827;
 }
 
-.menu-dropdown{
-  display:none;
-  position:absolute;
-  right:60px;
-  top:60px;
-  background:#1e293b;
-  border-radius:8px;
-}
-.menu-dropdown a{
-  display:block;
-  padding:10px 16px;
-  color:#fff;
-  text-decoration:none;
-}
-.show-menu{display:block}
+/* ===============================
+   NAVBAR
+================================ */
 
-.welcome-box{
-  margin:30px 60px;
-  padding:30px 40px;
-  background:#1a70b3;
-  border-radius:14px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+.navbar-custom {
+  height: 65px;
+  padding: 0 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #111827, #1f2937);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.4);
 }
 
-.main-container{
-  display:grid;
-  grid-template-columns:1fr 2.5fr;
-  gap:30px;
-  padding:20px 60px 80px;
+.logo {
+  font-size: 20px;
+  font-weight: 600;
+  color: #f4c430;
+  cursor: pointer;
 }
 
-.updates-panel{
-  background:#1e293b;
-  padding:20px;
-  border-radius:14px;
+.nav-center {
+  display: flex;
+  gap: 35px;
 }
 
-.actions-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:20px;
+.nav-center a {
+  color: #d1d5db;
+  text-decoration: none;
+  font-size: 14px;
 }
 
-.card-box{
-  background:#1e293b;
-  padding:30px;
-  border-radius:14px;
-  text-align:center;
-  transition:.2s;
-  cursor:pointer;
-}
-.card-box:hover{
-  transform:translateY(-5px);
-  background:#2f6df6;
-}
-.card-box i{font-size:22px;margin-bottom:10px}
-
-.announcement-box{
-  margin-top:40px;
-  background:#1e293b;
-  padding:25px;
-  border-radius:14px;
+.nav-center a:hover {
+  color: #ffffff;
 }
 
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.mode-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  background: #1e293b;
+  color: white;
+  cursor: pointer;
+}
+
+/* ---------- MENU ---------- */
+
+.menu {
+  position: relative;
+}
+
+.menu-dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 45px;
+  width: 160px;
+  background: #1e293b;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+
+.menu-dropdown a {
+  display: block;
+  padding: 12px 16px;
+  text-decoration: none;
+  color: white;
+  font-size: 14px;
+}
+
+.menu-dropdown a:hover {
+  background: #2f6df6;
+}
+
+.show-menu {
+  display: block;
+}
+
+/* ===============================
+   WELCOME BOX
+================================ */
+
+.welcome-box {
+  margin: 30px 60px;
+  padding: 30px 40px;
+  border-radius: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #2f6df6, #1e4fc4);
+  box-shadow: 0 12px 35px rgba(47,109,246,0.4);
+}
+
+.welcome-box h3 {
+  margin: 0;
+  font-weight: 600;
+}
+
+.welcome-right {
+  text-align: right;
+}
+
+/* ===============================
+   MAIN LAYOUT
+================================ */
+
+.main-container {
+  display: grid;
+  grid-template-columns: 1fr 2.5fr;
+  gap: 30px;
+  padding: 20px 60px 80px;
+}
+
+/* ===============================
+   LEFT PANEL
+================================ */
+
+.updates-panel {
+  padding: 25px;
+  border-radius: 16px;
+  background: #1e293b;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+}
+
+/* ===============================
+   ACTION CARDS
+================================ */
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+}
+
+.card-box {
+  padding: 30px;
+  border-radius: 16px;
+  background: #1e293b;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.3s ease;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+}
+
+.card-box i {
+  font-size: 22px;
+  margin-bottom: 12px;
+}
+
+.card-box:hover {
+  transform: translateY(-6px);
+  background: linear-gradient(135deg, #2f6df6, #1e4fc4);
+  box-shadow: 0 18px 45px rgba(47,109,246,0.4);
+}
+
+/* ===============================
+   ANNOUNCEMENT SECTION
+================================ */
+
+.announcement-section {
+  margin-top: 40px;
+  padding: 30px;
+  border-radius: 16px;
+  background: #1e293b;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+}
+
+.announcement-section h4 {
+  margin-bottom: 20px;
+}
+
+.announcement-section input,
+.announcement-section textarea,
+.announcement-section select {
+  border-radius: 10px;
+  border: none;
+}
+
+/* ===============================
+   LIGHT MODE OVERRIDES
+================================ */
+
+body.light-mode .navbar-custom {
+  background: #ffffff;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+body.light-mode .nav-center a {
+  color: #1f2937;
+}
+
+body.light-mode .menu-dropdown {
+  background: #ffffff;
+}
+
+body.light-mode .menu-dropdown a {
+  color: #1f2937;
+}
+
+body.light-mode .updates-panel,
+body.light-mode .card-box,
+body.light-mode .announcement-section {
+  background: #ffffff;
+  color: #111827;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+}
+
+body.light-mode .card-box:hover {
+  background: linear-gradient(135deg, #2f6df6, #1e4fc4);
+  color: white;
+}
 /*-----------------
 Teacher teams style
 -------------------*/
 
 
 /* ---------- TEAMS PAGE ---------- */
+/* ================= TEAMS PAGE LAYOUT ================= */
 
-.teams-container {
-  padding: 40px 60px;
+.teams-page {
+  padding: 80px 100px;
+  max-width: 1400px;
+  margin: auto;
 }
 
-.create-team-card {
-  background-color: #ffffff;
-  padding: 30px;
-  border-radius: 16px;
-  max-width: 500px;
+.page-title {
+  font-size: 34px;
+  font-weight: 600;
+  margin-bottom: 60px;
 }
 
-.dark-mode .create-team-card {
-  background-color: #1e293b;
+.section-block {
+  margin-bottom: 80px;
 }
+
+.section-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.section-title::after {
+  content: "";
+  width: 50px;
+  height: 3px;
+  background: #2f6df6;
+  display: block;
+  margin-top: 8px;
+  border-radius: 10px;
+}
+
+/* ================= LARGE FORM ================= */
+
+.large-form {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.large-form input {
+  flex: 1;
+  padding: 18px 20px;
+  font-size: 15px;
+  border-radius: 14px;
+  border: none;
+  transition: 0.3s ease;
+}
+
+body.light-mode .large-form input {
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+}
+
+body.dark-mode .large-form input {
+  background: #1e293b;
+  color: white;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+}
+
+.large-form input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(47,109,246,0.3);
+}
+
+.large-form button {
+  padding: 16px 30px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, #2f6df6, #1e4fc4);
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.large-form button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 35px rgba(47,109,246,0.4);
+}
+
+/* ================= GRID ================= */
 
 .teams-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  margin-top: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 35px;
 }
 
+/* ================= TEAM CARD ================= */
+
 .team-card {
-  background-color: #ffffff;
-  padding: 20px;
-  border-radius: 14px;
-  border: 1px solid #e5e7eb;
-  transition: transform 0.2s ease;
+  padding: 35px;
+  border-radius: 20px;
+  transition: 0.35s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+body.light-mode .team-card {
+  background: #ffffff;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.08);
+}
+
+body.dark-mode .team-card {
+  background: #1e293b;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.5);
 }
 
 .team-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-10px);
 }
 
-.dark-mode .team-card {
-  background-color: #1e293b;
-  border-color: #334155;
+.team-card h4 {
+  margin-bottom: 15px;
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.join-code {
+  font-size: 13px;
+  opacity: 0.8;
+  margin-bottom: 20px;
+}
+
+.meta-text {
+  font-size: 13px;
+  opacity: 0.8;
+  margin-bottom: 10px;
+}
+
+.enter-btn {
+  display: inline-block;
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2f6df6, #1e4fc4);
+  color: white;
+  text-decoration: none;
+  font-size: 13px;
+  transition: 0.3s ease;
+}
+
+.enter-btn:hover {
+  box-shadow: 0 12px 25px rgba(47,109,246,0.4);
+}
+
+/* ================= REQUEST CARD ================= */
+
+.request-card {
+  padding: 25px;
+  border-radius: 18px;
+  margin-bottom: 20px;
+  background: #1e293b;
+  color: white;
+}
+
+body.light-mode .request-card {
+  background: #ffffff;
+  color: #111;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+}
+
+.request-actions {
+  margin-top: 15px;
+  display: flex;
+  gap: 15px;
+}
+
+.request-actions button {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.approve-btn {
+  background: #16a34a;
+  color: white;
+}
+
+.reject-btn {
+  background: #dc2626;
+  color: white;
 }

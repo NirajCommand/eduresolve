@@ -14,7 +14,8 @@
 
 <body class="dark-mode">
 
-<!-- NAVBAR -->
+<!-- ================= NAVBAR ================= -->
+
 <nav class="navbar-custom">
   <div class="logo">
     <i class="fa-solid fa-graduation-cap"></i> EduResolve
@@ -32,248 +33,311 @@
     </button>
 
     <div class="menu">
-      <i class="fa-solid fa-bars" onclick="toggleMenu()"></i>
+      <i class="fa-solid fa-bars" id="menuIcon"></i>
       <div class="menu-dropdown" id="menuDropdown">
         <a href="#">Profile</a>
-        <a href="#">Help</a>
-        <a href="#" onclick="logout()">Logout</a>
+        <a href="#">Registered Courses</a>
+        <a href="#">Language</a>
+        <a href="#" id="logoutBtn">Logout</a>
       </div>
     </div>
   </div>
 </nav>
 
-<!-- WELCOME -->
+<!-- ================= WELCOME ================= -->
+
 <div class="welcome-box">
   <div>
-    <h3>Welcome, Shiv</h3>
+    <h3 id="teacherName">Welcome</h3>
   </div>
   <div class="welcome-right">
-    <h6 id="teacherInstitution">gamer</h6>
-    <p id="teacherDate">35625</p>
+    <h6 id="teacherInstitution"></h6>
+    <p id="teacherDate"></p>
   </div>
 </div>
 
-<!-- MAIN -->
+<!-- ================= MAIN ================= -->
+
 <div class="main-container">
 
+  <!-- LEFT 30% -->
   <div class="updates-panel">
-    <h4>Academic Updates</h4>
-    <div id="updatesList"></div>
+    <h4>Announcements by HOD</h4>
+    <div id="hodAnnouncements">Loading...</div>
   </div>
 
+  <!-- RIGHT 70% -->
   <div class="right-content">
 
     <div class="actions-grid">
 
-      <div class="card-box"><i class="fa-solid fa-users"></i><h5>Teams</h5></div>
-      <div class="card-box"><i class="fa-solid fa-circle-question"></i><h5>Doubts</h5></div>
-      <div class="card-box"><i class="fa-solid fa-pen"></i><h5>Quizzes</h5></div>
-      <div class="card-box"><i class="fa-solid fa-file-lines"></i><h5>Assignments</h5></div>
-      <div class="card-box"><i class="fa-solid fa-book"></i><h5>Study Materials</h5></div>
-      <div class="card-box"><i class="fa-solid fa-star"></i><h5>Solutions Feedback</h5></div>
+      <div class="card-box" onclick="window.location.href='teacher-teams.html'">
+        <i class="fa-solid fa-users"></i>
+        <h5>Teams</h5>
+      </div>
 
-    </div>
-
-   <div class="announcement-section mt-5">
-  <h4>Create Announcement</h4>
-
-  <form id="announcementForm">
-
-    <div class="mb-3">
-      <label class="form-label">Select Team</label>
-      <select class="form-select" id="teamSelect" required>
-        <option value="">Select team</option>
-      </select>
-    </div>
-
-    <div class="mb-3">
-      <label class="form-label">Title</label>
-      <input type="text" class="form-control" id="announcementTitle" required>
-    </div>
-
-    <div class="mb-3">
-      <label class="form-label">Content</label>
-      <textarea class="form-control" rows="4" id="announcementContent" required></textarea>
-    </div>
-
-    <button type="submit" class="btn btn-primary w-100">
-      Post Announcement
-    </button>
-
-  </form>
+      <div class="card-box" onclick="window.location.href='teacher_queries.html'">
+<i class="fa-solid fa-comments"></i>
+<h5>Student Queries</h5>
 </div>
+
+<div class="card-box" onclick="window.location.href='teacher_feedback.html'">
+<i class="fa-solid fa-star"></i>
+<h5>Solution Feedback</h5>
+</div>
+
+      <div class="card-box">
+        <i class="fa-solid fa-book"></i>
+        <h5>Study Materials</h5>
+      </div>
+
+      <div class="card-box">
+        <i class="fa-solid fa-pen"></i>
+        <h5>My Quizzes</h5>
+      </div>
+
+      <div class="card-box">
+        <i class="fa-solid fa-file-lines"></i>
+        <h5>Assignments</h5>
+      </div>
+
+      <div class="card-box">
+        <i class="fa-solid fa-bell"></i>
+        <h5>Notifications</h5>
+      </div>
+
+    </div>
+
+    <!-- TEACHER ANNOUNCEMENT FORM -->
+
+    <div class="announcement-section mt-5">
+      <h4>Create Announcement for Team</h4>
+
+      <form id="announcementForm">
+
+        <div class="mb-3">
+          <label class="form-label">Select Team</label>
+          <select class="form-select" id="teamSelect" required>
+            <option value="">Select team</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Title</label>
+          <input type="text" class="form-control"
+                 id="announcementTitle" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Description</label>
+          <textarea class="form-control"
+                    rows="4"
+                    id="announcementContent" required></textarea>
+        </div>
+
+        <button type="submit"
+                class="btn btn-primary w-100">
+          Post Announcement
+        </button>
+
+      </form>
+    </div>
 
   </div>
-
 </div>
-
 <script>
-const SUPABASE_URL = "https://jaetijisqgecxqgcqget.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphZXRpamlzcWdlY3hxZ2NxZ2V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2NTIxMDcsImV4cCI6MjA4NjIyODEwN30.9N66bJYHvB2JJIUESX-EQLtQM2Grk9R9xSY04dnexXk";
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+document.addEventListener("DOMContentLoaded", async function(){
 
-/* ---------- MODE ---------- */
-document.getElementById("modeBtn").addEventListener("click", () => {
-  document.body.classList.toggle("dark-mode");
-  document.body.classList.toggle("light-mode");
+const SUPABASE_URL = "https://zwpjavmrgveckswnobhg.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw";
+
+const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
+/* ROLE PROTECTION */
+
+const { data:{ user } } = await supabase.auth.getUser();
+
+if(!user){
+  window.location.href="login.html";
+  return;
+}
+
+const { data: profile } = await supabase
+.from("users")
+.select("name,institution,role")
+.eq("id",user.id)
+.single();
+
+if(!profile || profile.role !== "teacher"){
+
+  if(profile?.role==="student")
+    window.location.href="student-dashboard.html";
+
+  if(profile?.role==="hod")
+    window.location.href="hod-dashboard.html";
+
+  return;
+}
+
+/* PROFILE */
+
+document.getElementById("teacherName").innerText =
+"Welcome, "+profile.name;
+
+document.getElementById("teacherInstitution").innerText =
+profile.institution;
+
+document.getElementById("teacherDate").innerText =
+new Date().toLocaleDateString(
+"en-IN",
+{weekday:"long",year:"numeric",month:"long",day:"numeric"}
+);
+
+/* MODE */
+
+document.getElementById("modeBtn")
+.addEventListener("click",function(){
+document.body.classList.toggle("dark-mode");
+document.body.classList.toggle("light-mode");
 });
 
-/* ---------- MENU ---------- */
-function toggleMenu(){
-  document.getElementById("menuDropdown").classList.toggle("show-menu");
+/* MENU */
+
+document.getElementById("menuIcon")
+.addEventListener("click",function(){
+document.getElementById("menuDropdown")
+.classList.toggle("show-menu");
+});
+
+document.getElementById("logoutBtn")
+.addEventListener("click",async function(e){
+e.preventDefault();
+await supabase.auth.signOut();
+window.location.href="login.html";
+});
+
+/* LOAD HOD ANNOUNCEMENTS */
+
+const { data: hodAnnouncements, error: hodError } =
+await supabase
+.from("announcements")
+.select("title,description,created_at")
+.eq("role","hod")
+.eq("institution",profile.institution)
+.order("created_at",{ascending:false});
+
+const hodContainer =
+document.getElementById("hodAnnouncements");
+
+hodContainer.innerHTML="";
+
+if(hodError){
+console.log(hodError);
+hodContainer.innerHTML="Error loading announcements";
+return;
 }
 
-/* ---------- LOGOUT ---------- */
-async function logout(){
-  await supabase.auth.signOut();
-  window.location.href = "login.html";
+if(!hodAnnouncements || hodAnnouncements.length===0){
+
+hodContainer.innerHTML="No announcements yet.";
+
+}else{
+
+hodAnnouncements.forEach(a=>{
+
+hodContainer.innerHTML+=`
+<div style="margin-bottom:18px">
+<strong>${a.title}</strong>
+<p>${a.description}</p>
+<small>${new Date(a.created_at).toLocaleString()}</small>
+</div>
+`;
+
+});
+
 }
 
-/* ---------- LOAD USER ---------- */
-async function loadUser(){
+/* LOAD TEACHER TEAMS */
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if(!user){
-    window.location.href="login.html";
-    return;
-  }
+const { data: teams, error: teamError } =
+await supabase
+.from("teams")
+.select("id,name")
+.eq("teacher_id",user.id);
 
-  const { data } = await supabase
-    .from("users")
-    .select("name,institution")
-    .eq("id",user.id)
-    .single();
-
-  document.getElementById("teacherName").innerText = data?.name || "Teacher";
-  document.getElementById("teacherInstitution").innerText = data?.institution || "";
-
-  const today = new Date();
-  document.getElementById("teacherDate").innerText =
-    today.toLocaleDateString("en-IN",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+if(teamError){
+console.log(teamError);
+return;
 }
 
-loadUser();
+const select =
+document.getElementById("teamSelect");
 
-/* ---------- ANNOUNCEMENT ---------- */
+teams?.forEach(team=>{
+const option=document.createElement("option");
+option.value=team.id;
+option.textContent=team.name;
+select.appendChild(option);
+});
+
+/* POST ANNOUNCEMENT */
+
 document.getElementById("announcementForm")
-.addEventListener("submit", async(e)=>{
-  e.preventDefault();
+.addEventListener("submit",async function(e){
 
-  const { data:{user} } = await supabase.auth.getUser();
+e.preventDefault();
 
-  await supabase.from("announcements").insert([{
-    title: document.getElementById("title").value,
-    content: document.getElementById("content").value,
-    posted_by: user.id
-  }]);
+const teamId =
+document.getElementById("teamSelect").value;
 
-  alert("Announcement Posted");
-  e.target.reset();
-});
+const title =
+document.getElementById("announcementTitle").value.trim();
 
+const description =
+document.getElementById("announcementContent").value.trim();
 
-
-async function loadTeacherTeams() {
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
-
-  const { data: teams, error } = await supabase
-    .from("teams")
-    .select("id, name")
-    .eq("teacher_id", user.id);
-
-  if (error) {
-    console.log(error);
-    return;
-  }
-
-  const select = document.getElementById("teamSelect");
-  select.innerHTML = '<option value="">Select team</option>';
-
-  teams.forEach(team => {
-    const option = document.createElement("option");
-    option.value = team.id;
-    option.textContent = team.name;
-    select.appendChild(option);
-  });
+if(!teamId){
+alert("Select team first");
+return;
 }
 
-document.getElementById("announcementForm")
-.addEventListener("submit", async function(e) {
-
-  e.preventDefault();
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
-
-  const teamId = document.getElementById("teamSelect").value;
-  const title = document.getElementById("announcementTitle").value.trim();
-  const content = document.getElementById("announcementContent").value.trim();
-
-  if (!teamId || !title || !content) {
-    alert("All fields are required");
-    return;
-  }
-
-  // get teacher institution automatically
-  const { data: teacherData } = await supabase
-    .from("users")
-    .select("institution")
-    .eq("id", user.id)
-    .single();
-
-  const { error } = await supabase
-    .from("announcements")
-    .insert([{
-      title: title,
-      content: content,
-      posted_by: user.id,
-      team_id: teamId,
-      institution: teacherData.institution,
-      target_type: "team"
-    }]);
-
-  if (error) {
-    console.log(error);
-    alert("Error posting announcement");
-    return;
-  }
-
-  alert("Announcement posted successfully");
-  document.getElementById("announcementForm").reset();
-});
-
-
-async function loadTeacher() {
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
-
-  const { data, error } = await supabase
-    .from("users")
-    .select("name, institution")
-    .eq("id", user.id)
-    .single();
-
-  if (error) {
-    console.log(error);
-    return;
-  }
-
-  document.getElementById("teacherName").innerText = data.name;
+if(!title || !description){
+alert("All fields required");
+return;
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  loadTeacher();
-  loadTeacherTeams();
+const { error } =
+await supabase
+.from("announcements")
+.insert([{
+title:title,
+description:description,
+created_by:user.id,
+team_id:teamId,
+institution:profile.institution,
+role:"teacher"
+}]);
+
+if(error){
+console.log(error);
+alert("Announcement failed");
+return;
+}
+
+alert("Announcement posted successfully");
+
+document.getElementById("announcementForm").reset();
+
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-  loadTeacher();
 });
+
 </script>
+
 
 </body>
 </html>

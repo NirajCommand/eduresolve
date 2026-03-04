@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Student Teams | EduResolve</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="student_style.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body class="dark-mode">
+
+<nav class="navbar-custom">
+
+  <div class="logo" onclick="window.location.href='student-dashboard.html'">
+    <i class="fa-solid fa-graduation-cap"></i> EduResolve
+  </div>
+
+  <div class="nav-center">
+    <a href="student-dashboard.html">Dashboard</a>
+    <a href="student-teams.html">Teams</a>
+  </div>
+
+  <div class="nav-right">
+
+    <button id="modeBtn" class="mode-btn">
+      <i class="fa-solid fa-moon"></i>
+    </button>
+
+    <div class="menu">
+      <i class="fa-solid fa-bars" id="menuIcon"></i>
+
+      <div class="menu-dropdown" id="menuDropdown">
+        <a href="#">Profile</a>
+        <a href="#" id="logoutBtn">Logout</a>
+      </div>
+    </div>
+
+  </div>
+
+</nav>
+
+<div class="teams-page">
+
+  <h2 class="page-title">My Teams</h2>
+
+  <div class="section-block">
+    <h3 class="section-title">Join Team</h3>
+
+    <div class="large-form">
+      <input type="text" id="joinCodeInput" placeholder="Enter 6 Digit Join Code">
+      <button id="joinBtn">Request Join</button>
+    </div>
+  </div>
+
+  <div class="section-block">
+    <h3 class="section-title">Enrolled Teams</h3>
+    <div class="teams-grid" id="approvedTeamsContainer"></div>
+  </div>
+
+  <div class="section-block">
+    <h3 class="section-title">Pending Requests</h3>
+    <div id="pendingTeamsContainer"></div>
+  </div>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function(){
+
+  const SUPABASE_URL = "https://zwpjavmrgveckswnobhg.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw";
+
+  const supabase = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
+
+  /* ================= AUTH ================= */
+
+  const { data:{ user } } = await supabase.auth.getUser();
+
+  if(!user){
+    window.location.href="login.html";
+    return;
+  }
+
+  const { data: profile } = await supabase
+    .from("users")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if(!profile || profile.role !== "student"){
+    window.location.href="login.html";
+    return;
+  }
+
+  /* ================= MODE ================= */
+
+  document.getElementById("modeBtn")
+  .addEventListener("click", function(){
+    document.body.classList.toggle("dark-mode");
+    document.body.classList.toggle("light-mode");
+  });
+
+  /* ================= MENU ================= */
+
+  document.getElementById("menuIcon")
+  .addEventListener("click", function(){
+    document.getElementById("menuDropdown")
+    .classList.toggle("show-menu");
+  });
+
+  document.getElementById("logoutBtn")
+  .addEventListener("click", async function(e){
+    e.preventDefault();
+    await supabase.auth.signOut();
+    window.location.href="login.html";
+  });
+
+  /* ================= JOIN TEAM ================= */
+
+  document.getElementById("joinBtn")
+  .addEventListener("click", async function(){
+
+    const code = document.getElementById("joinCodeInput").value.trim();
+
+    if(code.length !== 6){
+      alert("Enter valid 6 digit code");
+      return;
+    }
+
+    const { data: team } = await supabase
+      .from("teams")
+      .select("id")
+      .eq("join_code", code)
+      .single();
+
+    if(!team){
+      alert("Invalid join code");
+      return;
+    }
+
+    const { data: existing } = await supabase
+      .from("team_members")
+      .select("id")
+      .eq("team_id", team.id)
+      .eq("student_id", user.id);
+
+    if(existing && existing.length > 0){
+      alert("Already requested or member");
+      return;
+    }
+
+    await supabase
+      .from("team_members")
+      .insert([{
+        team_id: team.id,
+        student_id: user.id,
+        status: "pending"
+      }]);
+
+    alert("Join request sent");
+    document.getElementById("joinCodeInput").value = "";
+    loadTeams();
+  });
+
+  /* ================= LOAD TEAMS ================= */
+
+  async function loadTeams(){
+
+    const { data: memberships } = await supabase
+      .from("team_members")
+      .select(`
+        id,
+        status,
+        teams(id,name,join_code)
+      `)
+      .eq("student_id", user.id);
+
+    const approvedContainer =
+      document.getElementById("approvedTeamsContainer");
+
+    const pendingContainer =
+      document.getElementById("pendingTeamsContainer");
+
+    approvedContainer.innerHTML="";
+    pendingContainer.innerHTML="";
+
+    for(const m of memberships || []){
+
+      if(m.status === "approved"){
+
+        approvedContainer.innerHTML += `
+          <div class="team-card">
+            <h4>${m.teams.name}</h4>
+            <p class="join-code">Team Code: ${m.teams.join_code}</p>
+            <a href="team-detail.html?team=${m.teams.id}"
+               class="enter-btn">
+              Open Team
+            </a>
+          </div>
+        `;
+      }
+
+      if(m.status === "pending"){
+
+        pendingContainer.innerHTML += `
+          <div class="request-card">
+            <strong>${m.teams.name}</strong>
+            <p>Waiting for teacher approval</p>
+          </div>
+        `;
+      }
+
+    }
+  }
+
+  loadTeams();
+
+});
+</script>
+
+</body>
+</html>

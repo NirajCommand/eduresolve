@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Raise Query | EduResolve</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+/* PAGE */
+
+body{
+margin:0;
+font-family:Segoe UI, Arial;
+background:#0f172a;
+color:white;
+}
+
+/* NAVBAR */
+
+.navbar-custom{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:16px 50px;
+background:#020617;
+}
+
+.logo{
+font-size:20px;
+font-weight:600;
+color:#facc15;
+cursor:pointer;
+}
+
+.nav-center{
+display:flex;
+gap:30px;
+}
+
+.nav-center a{
+text-decoration:none;
+color:#cbd5f5;
+font-size:14px;
+}
+
+.nav-center a:hover{
+color:white;
+}
+
+/* PAGE WRAPPER */
+
+.page-wrapper{
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:85vh;
+padding:40px;
+}
+
+/* FORM CARD */
+
+.query-card{
+width:520px;
+background:#1e293b;
+padding:40px;
+border-radius:18px;
+box-shadow:0 25px 60px rgba(0,0,0,0.5);
+}
+
+.query-card h2{
+margin:0 0 25px 0;
+font-size:24px;
+}
+
+/* FORM */
+
+.form-group{
+margin-bottom:20px;
+}
+
+.form-group label{
+display:block;
+margin-bottom:6px;
+font-size:14px;
+color:#cbd5f5;
+}
+
+.form-group select,
+.form-group input,
+.form-group textarea{
+width:100%;
+padding:12px;
+border-radius:10px;
+border:none;
+background:#020617;
+color:white;
+font-size:14px;
+}
+
+.form-group textarea{
+resize:none;
+min-height:120px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus{
+outline:2px solid #3b82f6;
+}
+
+/* BUTTON */
+
+.submit-btn{
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+background:#3b82f6;
+color:white;
+font-size:15px;
+font-weight:500;
+cursor:pointer;
+transition:0.2s;
+}
+
+.submit-btn:hover{
+background:#2563eb;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<nav class="navbar-custom">
+
+<div class="logo"
+onclick="window.location.href='student-dashboard.html'">
+<i class="fa-solid fa-graduation-cap"></i>
+EduResolve
+</div>
+
+<div class="nav-center">
+<a href="student-dashboard.html">Dashboard</a>
+<a href="student-teams.html">Teams</a>
+</div>
+
+</nav>
+
+
+
+<div class="page-wrapper">
+
+<div class="query-card">
+
+<h2>Raise Query</h2>
+
+<form id="queryForm">
+
+<div class="form-group">
+
+<label>Select Team</label>
+
+<select id="teamSelect" required>
+<option value="">Select your team</option>
+</select>
+
+</div>
+
+
+<div class="form-group">
+
+<label>Query Title</label>
+
+<input
+type="text"
+id="queryTitle"
+placeholder="Example: Doubt in AI assignment"
+required>
+
+</div>
+
+
+<div class="form-group">
+
+<label>Describe your problem</label>
+
+<textarea
+id="queryDescription"
+placeholder="Explain your doubt clearly so the teacher can help you faster"
+required>
+</textarea>
+
+</div>
+
+
+<button
+type="submit"
+class="submit-btn">
+
+Submit Query
+
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", async function(){
+
+const { createClient } = supabase;
+
+const client = createClient("https://zwpjavmrgveckswnobhg.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw");
+
+/* AUTH CHECK */
+
+const { data:{ user } } = await client.auth.getUser();
+
+if(!user){
+window.location.href="login.html";
+return;
+}
+
+/* LOAD STUDENT TEAMS */
+
+const { data:teams } = await client
+.from("team_members")
+.select(`
+team_id,
+teams(name)
+`)
+.eq("student_id",user.id)
+.eq("status","approved");
+
+const select=document.getElementById("teamSelect");
+
+teams?.forEach(t=>{
+
+const option=document.createElement("option");
+
+option.value=t.team_id;
+
+option.textContent=t.teams.name;
+
+select.appendChild(option);
+
+});
+
+/* SUBMIT QUERY */
+
+document.getElementById("queryForm")
+.addEventListener("submit", async function(e){
+
+e.preventDefault();
+
+const teamId=document.getElementById("teamSelect").value;
+
+const title=document.getElementById("queryTitle").value;
+
+const description=document.getElementById("queryDescription").value;
+
+const { error } = await client
+.from("queries")
+.insert([{
+team_id:teamId,
+student_id:user.id,
+title:title,
+description:description,
+status:"pending"
+}]);
+
+if(error){
+console.log(error);
+alert("Failed to submit query");
+return;
+}
+
+alert("Query submitted successfully");
+
+this.reset();
+
+});
+
+});
+
+</script>
+
+
+</body>
+</html>

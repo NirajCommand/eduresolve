@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HOD Dashboard | EduResolve</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="hod.css">
+</head>
+
+<body class="light-mode">
+
+<nav class="navbar-custom">
+
+  <div class="logo" onclick="goDashboard()">
+    EduResolve
+  </div>
+
+  <div class="nav-right">
+
+    <input 
+      type="text" 
+      id="globalSearch" 
+      placeholder="Search teachers, students, courses, teams..."
+      onkeyup="handleSearch(event)"
+    >
+
+    <div class="notification" onclick="window.location.href='requests.html'">
+      <i class="fa-solid fa-bell"></i>
+      <span id="notificationCount" class="notif-count">0</span>
+    </div>
+
+    <button class="mode-btn" onclick="toggleMode()" id="modeIcon">
+      <i class="fa-solid fa-moon"></i>
+    </button>
+
+    <div class="menu">
+      <button class="menu-btn" onclick="toggleMenu()">
+        <i class="fa-solid fa-user-circle"></i>
+      </button>
+
+      <div class="menu-dropdown" id="menuDropdown">
+        <a href="profile.html">Profile</a>
+        <a href="teacher-list-hod.html">Teacher List</a>
+        <a href="Create_courses-hod.html">Courses</a>
+        <a href="#" onclick="logout()">Logout</a>
+      </div>
+    </div>
+
+  </div>
+
+</nav>
+<div id="searchResults" class="search-results"></div>
+
+<div class="welcome-section">
+  <div>
+    <h2>HOD Dashboard</h2>
+    <p>Department Overview</p>
+  </div>
+  <div>
+    <h5 id="institutionName"></h5>
+    <p id="todayDate"></p>
+  </div>
+</div>
+
+<div class="dashboard-container">
+
+  <div class="left-panel">
+
+    <div class="card-box">
+      <h4>Post Announcement</h4>
+      <form id="announcementForm">
+        <input type="text" id="title" placeholder="Title" required>
+        <textarea id="content" placeholder="Announcement" required></textarea>
+        <select id="targetRole" required>
+  <option value="both">Students & Teachers</option>
+  <option value="student">Students Only</option>
+  <option value="teacher">Teachers Only</option>
+</select>
+
+        <button type="submit">Post</button>
+      </form>
+    </div>
+
+    <div class="card-box">
+      <h4>Pending Approvals</h4>
+      <div id="approvalContainer"></div>
+    </div>
+
+  </div>
+
+  <div class="right-panel">
+
+    <h4>Weekly Summary</h4>
+    <div id="summaryContainer"></div>
+
+    <h4 style="margin-top:40px;">Announcement History (Last 3 Months)</h4>
+    <div id="announcementHistory"></div>
+
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+
+const SUPABASE_URL = "https://zwpjavmrgveckswnobhg.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw";
+
+const { createClient } = supabase;
+const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+document.getElementById("todayDate").innerText =
+  new Date().toLocaleDateString("en-IN");
+
+function goDashboard(){
+  window.location.href = "hod-dashboard.html";
+}
+
+function toggleMode(){
+  document.body.classList.toggle("dark-mode");
+  document.body.classList.toggle("light-mode");
+
+  const icon = document.getElementById("modeIcon");
+
+  if(document.body.classList.contains("dark-mode")){
+    icon.innerHTML = '<i class="fa-solid fa-sun"></i>';
+  } else {
+    icon.innerHTML = '<i class="fa-solid fa-moon"></i>';
+  }
+}
+
+function toggleMenu(){
+  const menu = document.getElementById("menuDropdown");
+  menu.style.display =
+    menu.style.display === "block" ? "none" : "block";
+}
+
+async function logout(){
+  await client.auth.signOut();
+  window.location.href = "login.html";
+}
+
+async function loadDashboard(){
+
+  const { data:{ user } } = await client.auth.getUser();
+  if(!user){
+    window.location.href = "login.html";
+    return;
+  }
+
+  const { data: profile } = await client
+    .from("users")
+    .select("role, institution")
+    .eq("id", user.id)
+    .single();
+
+  if(!profile || profile.role !== "hod"){
+    window.location.href = "login.html";
+    return;
+  }
+
+  document.getElementById("institutionName").innerText =
+    profile.institution;
+
+  /* ===== Pending Approvals ===== */
+
+  const { data: pendingUsers } = await client
+    .from("users")
+    .select("id, name, role")
+    .eq("institution", profile.institution)
+    .eq("status", "pending");
+
+  const approvalContainer =
+    document.getElementById("approvalContainer");
+
+  approvalContainer.innerHTML = "";
+
+  const { count: pendingCount } = await client
+    .from("users")
+    .select("*",{count:"exact",head:true})
+    .eq("institution", profile.institution)
+    .eq("status","pending");
+
+  document.getElementById("notificationCount")
+    .innerText = pendingCount || 0;
+
+  pendingUsers?.forEach(u=>{
+    approvalContainer.innerHTML += `
+      <div class="approval-card">
+        <span>${u.name} (${u.role})</span>
+        <button onclick="approveUser('${u.id}')">
+          Approve
+        </button>
+      </div>
+    `;
+  });
+
+  /* ===== Weekly Summary ===== */
+
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+  const { data: allTeams } = await client
+    .from("teams")
+    .select("id")
+    .eq("institution", profile.institution);
+
+  const teamIds = allTeams?.map(t => t.id) || [];
+
+  let total = 0;
+  let solved = 0;
+
+  if(teamIds.length > 0){
+    const { data: queries } = await client
+      .from("queries")
+      .select("status")
+      .in("team_id", teamIds)
+      .gte("created_at", oneWeekAgo.toISOString());
+
+    total = queries?.length || 0;
+    solved = queries?.filter(q =>
+      q.status === "answered"
+    ).length || 0;
+  }
+
+  const { count: teacherCount } = await client
+    .from("users")
+    .select("*",{count:"exact",head:true})
+    .eq("role","teacher")
+    .eq("institution", profile.institution);
+
+  const { count: courseCount } = await client
+    .from("courses")
+    .select("*",{count:"exact",head:true})
+    .eq("institution", profile.institution);
+
+  document.getElementById("summaryContainer").innerHTML = `
+    <div class="report-card">
+      <h5>Total Teachers</h5>
+      <p>${teacherCount || 0}</p>
+    </div>
+
+    <div class="report-card">
+      <h5>Total Courses</h5>
+      <p>${courseCount || 0}</p>
+    </div>
+
+    <div class="report-card">
+      <h5>Total Queries (7 Days)</h5>
+      <p>${total}</p>
+    </div>
+
+    <div class="report-card">
+      <h5>Solved</h5>
+      <p>${solved}</p>
+    </div>
+
+    <div class="report-card">
+      <h5>Pending</h5>
+      <p>${total - solved}</p>
+    </div>
+  `;
+
+  /* ===== Announcement History ===== */
+
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setMonth(
+    threeMonthsAgo.getMonth() - 3
+  );
+
+  const { data: announcements } = await client
+    .from("announcements")
+    .select("title, description, created_at, target_role")
+    .eq("role","hod")
+    .eq("institution", profile.institution)
+    .gte("created_at", threeMonthsAgo.toISOString())
+    .order("created_at",{ascending:false});
+
+  const historyContainer =
+    document.getElementById("announcementHistory");
+
+  historyContainer.innerHTML = "";
+
+  announcements?.forEach(a=>{
+    historyContainer.innerHTML += `
+      <div class="report-card">
+        <h5>${a.title}</h5>
+        <p>${a.description}</p>
+        <small>
+          ${a.target_role || "both"} |
+          ${new Date(a.created_at).toLocaleString()}
+        </small>
+      </div>
+    `;
+  });
+}
+
+async function approveUser(id){
+  await client
+    .from("users")
+    .update({status:"approved"})
+    .eq("id",id);
+
+  loadDashboard();
+}
+
+/* ===== Announcement Insert FIXED ===== */
+
+document.getElementById("announcementForm")
+.addEventListener("submit", async function(e){
+
+  e.preventDefault();
+
+  const { data:{ user } } = await client.auth.getUser();
+  if(!user) return;
+
+  const { data: profile } = await client
+    .from("users")
+    .select("institution")
+    .eq("id", user.id)
+    .single();
+
+  const title =
+    document.getElementById("title").value.trim();
+
+  const description =
+    document.getElementById("content").value.trim();
+
+  const targetRole =
+    document.getElementById("targetRole").value;
+
+  if(!title || !description){
+    alert("All fields required");
+    return;
+  }
+
+  const { error } = await client
+    .from("announcements")
+    .insert([{
+      title: title,
+      description: description,
+      created_by: user.id,
+      role:"hod",
+      institution: profile.institution,
+      target_role: targetRole,
+      team_id: null
+    }]);
+
+  if(error){
+    console.log(error);
+    alert("Insert failed");
+    return;
+  }
+
+  alert("Announcement posted successfully");
+  this.reset();
+  loadDashboard();
+});
+
+/* ===== Search FIXED SINGLE FUNCTION ===== */
+
+async function handleSearch(event){
+
+  if(event.key !== "Enter") return;
+
+  const keyword =
+    document.getElementById("globalSearch")
+    .value.trim();
+
+  if(!keyword) return;
+
+  const { data:{ user } } =
+    await client.auth.getUser();
+
+  const { data: profile } =
+    await client
+    .from("users")
+    .select("institution")
+    .eq("id", user.id)
+    .single();
+
+  const institution = profile.institution;
+
+  const resultsBox =
+    document.getElementById("searchResults");
+
+  resultsBox.innerHTML = "<p>Searching...</p>";
+
+  const { data: users } = await client
+    .from("users")
+    .select("name, role")
+    .eq("institution", institution)
+    .ilike("name", `%${keyword}%`);
+
+  const { data: courses } = await client
+    .from("courses")
+    .select("course_name")
+    .eq("institution", institution)
+    .ilike("course_name", `%${keyword}%`);
+
+  const { data: teams } = await client
+    .from("teams")
+    .select("name")
+    .eq("institution", institution)
+    .ilike("name", `%${keyword}%`);
+
+  let html = "";
+
+  users?.forEach(u=>{
+    html += `<p>${u.name} (${u.role})</p>`;
+  });
+
+  courses?.forEach(c=>{
+    html += `<p>${c.course_name}</p>`;
+  });
+
+  teams?.forEach(t=>{
+    html += `<p>${t.name}</p>`;
+  });
+
+  if(!html) html = "<p>No results found</p>";
+
+  resultsBox.innerHTML = html;
+}
+
+loadDashboard();
+
+</script>
+
+
+</body>
+</html>

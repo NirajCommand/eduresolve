@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Team Chat | EduResolve</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="team_detail.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="dark-mode">
+<nav class="navbar-custom">
+<div class="logo" id="logoBtn">
+<i class="fa-solid fa-graduation-cap"></i> EduResolve
+</div>
+<div class="nav-center">
+<a href="#" id="teamsNav">Teams</a>
+</div>
+<div class="nav-right">
+<button id="modeBtn" class="mode-btn">
+<i class="fa-solid fa-moon"></i>
+</button>
+</div>
+</nav>
+<div class="team-header">
+<div>
+<h3 id="teamName">Loading...</h3>
+<p id="teamMeta"></p>
+</div>
+</div>
+<div class="chat-container">
+<div id="messages" class="messages"></div>
+<div id="typingIndicator" class="typing-indicator"></div>
+<div class="chat-input">
+<input type="text" id="messageInput" placeholder="Type a message...">
+<button id="sendBtn">
+<i class="fa-solid fa-paper-plane"></i>
+</button>
+</div>
+</div>
+<script>
+
+document.addEventListener("DOMContentLoaded", async function(){
+
+
+const SUPABASE_URL = "https://zwpjavmrgveckswnobhg.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw";
+
+
+const { createClient } = supabase;
+const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+
+const urlParams = new URLSearchParams(window.location.search);
+const teamId = urlParams.get("team");
+
+
+if(!teamId){
+window.location.href = "student-dashboard.html";
+return;
+}
+
+
+const { data:{ user } } = await client.auth.getUser();
+
+if(!user){
+window.location.href = "login.html";
+return;
+}
+
+
+/* GET USER ROLE */
+
+const { data: profile } = await client
+.from("users")
+.select("role")
+.eq("id", user.id)
+.single();
+
+
+/* MODE TOGGLE */
+
+document.getElementById("modeBtn")
+.addEventListener("click", function(){
+
+document.body.classList.toggle("dark-mode");
+document.body.classList.toggle("light-mode");
+
+const icon = this.querySelector("i");
+
+if(document.body.classList.contains("dark-mode")){
+icon.className = "fa-solid fa-sun";
+}else{
+icon.className = "fa-solid fa-moon";
+}
+
+});
+
+
+/* LOGO NAVIGATION */
+
+document.getElementById("logoBtn")
+.addEventListener("click", function(){
+
+if(profile.role === "student"){
+window.location.href = "student-dashboard.html";
+}
+
+if(profile.role === "teacher"){
+window.location.href = "teacher-dashboard.html";
+}
+
+});
+
+
+/* TEAMS PAGE NAVIGATION */
+
+document.getElementById("teamsNav")
+.addEventListener("click", function(){
+
+if(profile.role === "student"){
+window.location.href = "student-teams.html";
+}
+
+if(profile.role === "teacher"){
+window.location.href = "teacher-teams.html";
+}
+
+});
+
+
+/* LOAD TEAM INFO */
+
+const { data: team } = await client
+.from("teams")
+.select("name, teacher_id")
+.eq("id", teamId)
+.single();
+
+
+const { data: teacher } = await client
+.from("users")
+.select("name")
+.eq("id", team.teacher_id)
+.single();
+
+
+document.getElementById("teamName").innerText = team.name;
+
+document.getElementById("teamMeta").innerText =
+"Teacher: " + (teacher?.name || "Unknown");
+
+
+/* LOAD OLD MESSAGES */
+
+const { data: oldMessages } = await client
+.from("team_messages")
+.select(`
+id,
+message,
+sender_id,
+created_at,
+is_read,
+users(name)
+`)
+.eq("team_id", teamId)
+.order("created_at",{ascending:true});
+
+
+oldMessages?.forEach(m => addMessage(m));
+
+
+/* MARK MESSAGES AS READ */
+
+await client
+.from("team_messages")
+.update({ is_read: true })
+.eq("team_id", teamId)
+.neq("sender_id", user.id);
+
+
+
+/* REALTIME MESSAGE LISTENER */
+
+client
+.channel("room-" + teamId)
+.on(
+"postgres_changes",
+{
+event: "INSERT",
+schema: "public",
+table: "team_messages",
+filter: "team_id=eq." + teamId
+},
+payload => {
+
+client
+.from("users")
+.select("name")
+.eq("id", payload.new.sender_id)
+.single()
+.then(res => {
+
+payload.new.users = { name: res.data?.name };
+addMessage(payload.new);
+
+});
+
+}
+)
+.subscribe();
+
+
+
+/* SEND MESSAGE */
+
+document.getElementById("sendBtn")
+.addEventListener("click", sendMessage);
+
+
+document.getElementById("messageInput")
+.addEventListener("keydown", function(e){
+
+if(e.key === "Enter"){
+e.preventDefault();
+sendMessage();
+}
+
+});
+
+
+async function sendMessage(){
+
+const input = document.getElementById("messageInput");
+const text = input.value.trim();
+
+if(!text) return;
+
+
+await client.from("team_messages").insert([{
+
+team_id: teamId,
+sender_id: user.id,
+message: text,
+is_read: false
+
+}]);
+
+
+input.value = "";
+
+}
+
+
+
+/* RENDER MESSAGE */
+
+function addMessage(m){
+
+const container = document.getElementById("messages");
+
+const div = document.createElement("div");
+
+const isSelf = m.sender_id === user.id;
+
+div.className = isSelf ? "message self" : "message other";
+
+
+const time = new Date(m.created_at)
+.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+
+
+const senderName = m.users?.name || "User";
+
+
+div.innerHTML = `
+<div class="sender">${isSelf ? "You" : senderName}</div>
+<div class="msg-text">${m.message}</div>
+<div class="msg-meta">
+<span>${time}</span>
+${isSelf ? `<span class="read-status">${m.is_read ? "✓✓" : "✓"}</span>` : ""}
+</div>
+`;
+
+
+container.appendChild(div);
+
+container.scrollTop = container.scrollHeight;
+
+}
+
+
+});
+
+</script>
+</body>
+</html>

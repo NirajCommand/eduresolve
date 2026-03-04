@@ -3,90 +3,90 @@
 <head>
   <meta charset="UTF-8">
   <title>Register | EduResolve</title>
-
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="logo-bar">
+<div class="logo-bar">
   <i class="fa-solid fa-graduation-cap"></i>
   <span>EduResolve</span>
 </div>
 
-  <section class="hero-section">
-    <div class="overlay"></div>
+<section class="hero-section">
+  <div class="overlay"></div>
 
-    <div class="container hero-content">
+  <div class="container hero-content">
+    <div class="register-box mx-auto">
 
-      <div class="register-box mx-auto">
+      <h2 class="text-center mb-3">Create Account</h2>
+      <p class="text-center register-subtitle">
+        Join your academic workspace
+      </p>
 
-        <h2 class="text-center mb-3">Create Account</h2>
-        <p class="text-center register-subtitle">
-          Join your academic workspace
-        </p>
+      <form id="registerForm">
 
-       <form id="registerForm">
-
-  <div class="mb-3">
-    <label class="form-label">Full Name</label>
-    <input type="text" id="name" class="form-control" required>
-  </div>
-
-  <div class="mb-3">
-    <label class="form-label">Email</label>
-    <input type="email" id="email" class="form-control" required>
-  </div>
-
-  <div class="mb-3">
-    <label class="form-label">Password</label>
-    <input type="password" id="password" class="form-control" required>
-  </div>
-
-  <div class="mb-3">
-    <label class="form-label">Role</label>
-    <select id="role" class="form-select" required>
-      <option value="">Select role</option>
-      <option value="student">Student</option>
-      <option value="teacher">Teacher</option>
-      <option value="hod">HOD</option>
-    </select>
-  </div>
-
-  <div class="mb-3">
-    <label class="form-label">Institution</label>
-    <input type="text" id="institution" class="form-control" required>
-  </div>
-
-  <button type="submit" class="btn explore-btn w-100">
-    Register
-  </button>
-
-</form>
-
-        <div class="text-center mt-3">
-          <small>
-            Already registered? <a href="login.html">Login here</a>
-          </small>
+        <div class="mb-3">
+          <label class="form-label">Full Name</label>
+          <input type="text" id="name" class="form-control" required>
         </div>
 
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" id="email" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <input type="password" id="password" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Confirm Password</label>
+          <input type="password" id="confirmPassword" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Role</label>
+          <select id="role" class="form-select" required>
+            <option value="">Select role</option>
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+            <option value="hod">HOD</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Institution</label>
+          <input type="text" id="institution" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn explore-btn w-100">
+          Register
+        </button>
+
+      </form>
+
+      <div class="text-center mt-3">
+        <small>
+          Already registered? <a href="login.html">Login here</a>
+        </small>
       </div>
 
     </div>
-  </section>
-   
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 const { createClient } = supabase;
 
-const SUPABASE_URL = "https://jaetijisqgecxqgcqget.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphZXRpamlzcWdlY3hxZ2NxZ2V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2NTIxMDcsImV4cCI6MjA4NjIyODEwN30.9N66bJYHvB2JJIUESX-EQLtQM2Grk9R9xSY04dnexXk";
-
+const SUPABASE_URL = "https://zwpjavmrgveckswnobhg.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw";
 
 const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -96,8 +96,14 @@ document.getElementById("registerForm").addEventListener("submit", async functio
   const name = document.getElementById("name").value;
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
   const role = document.getElementById("role").value;
   const institution = document.getElementById("institution").value;
+
+  if (password !== confirmPassword) {
+    alert("Passwords do not match");
+    return;
+  }
 
   const { data, error } = await client.auth.signUp({
     email: email,
@@ -111,34 +117,52 @@ document.getElementById("registerForm").addEventListener("submit", async functio
 
   const user = data.user;
 
+  const { data: existingHod } = await client
+    .from("users")
+    .select("*")
+    .eq("institution", institution)
+    .eq("role", "hod")
+    .maybeSingle();
+
+  let status = "pending";
+
+  if (role === "hod" && !existingHod) {
+    status = "approved";
+  }
+
   const { error: insertError } = await client
-  .from("users")
-  .insert([
-    {
-      id: user.id,
-      name: name,
-      email: email,
-      role: role,
-      institution: institution
-    }
-  ]);
+    .from("users")
+    .insert([
+      {
+        id: user.id,
+        name: name,
+        email: email,
+        role: role,
+        institution: institution,
+        status: status
+      }
+    ]);
 
   if (insertError) {
-    alert("Error saving user profile");
+    alert("Error saving profile");
     return;
   }
 
-  alert("Registration successful");
+  if (status !== "approved") {
+    alert("Account created. Waiting for approval.");
+    window.location.href = "login.html";
+    return;
+  }
 
-if (role === "student") {
-  window.location.href = "student-dashboard.html";
-} 
-else if (role === "teacher") {
-  window.location.href = "teacher-dashboard.html";
-} 
-else if (role === "hod") {
-  window.location.href = "hod-dashboard.html";
-}
+  if (role === "student") {
+    window.location.href = "student-dashboard.html";
+  } 
+  else if (role === "teacher") {
+    window.location.href = "teacher-dashboard.html";
+  } 
+  else if (role === "hod") {
+    window.location.href = "hod-dashboard.html";
+  }
 });
 </script>
 

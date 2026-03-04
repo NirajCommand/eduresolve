@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Teacher Queries | EduResolve</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="teacher_queries.css">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body class="dark-mode">
+
+<nav class="navbar-custom">
+
+<div class="logo"
+onclick="window.location.href='teacher-dashboard.html'">
+<i class="fa-solid fa-graduation-cap"></i> EduResolve
+</div>
+
+<div class="nav-center">
+<a href="teacher-dashboard.html">Dashboard</a>
+<a href="teacher-teams.html">Teams</a>
+<a href="teacher_feedback.html">Solution Feedback</a>
+</div>
+
+</nav>
+
+
+<div class="page-container">
+
+<h2>Student Queries</h2>
+
+<div class="stats-box">
+
+<div class="stat-card">
+<h3 id="totalQueries">0</h3>
+<p>Total Queries</p>
+</div>
+
+<div class="stat-card">
+<h3 id="pendingQueries">0</h3>
+<p>Pending</p>
+</div>
+
+<div class="stat-card">
+<h3 id="solvedQueries">0</h3>
+<p>Solved</p>
+</div>
+
+</div>
+
+
+<div id="queriesContainer"></div>
+
+</div>
+
+<script>
+
+const SUPABASE_URL = "https://zwpjavmrgveckswnobhg.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw";
+
+const { createClient } = supabase;
+const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+
+document.addEventListener("DOMContentLoaded", async function(){
+
+/* AUTH */
+
+const { data:{ user } } = await client.auth.getUser();
+
+if(!user){
+window.location.href="login.html";
+return;
+}
+
+
+/* GET TEACHER TEAMS */
+
+const { data:teams } = await client
+.from("teams")
+.select("id,name")
+.eq("teacher_id",user.id);
+
+const teamIds = teams?.map(t=>t.id) || [];
+
+
+/* LOAD QUERIES */
+
+const { data:queries } = await client
+.from("queries")
+.select(`
+id,
+title,
+description,
+status,
+deadline,
+created_at,
+team_id,
+teams(name)
+`)
+.in("team_id",teamIds)
+.order("created_at",{ascending:false});
+
+
+const container = document.getElementById("queriesContainer");
+
+container.innerHTML="";
+
+let total=0;
+let pending=0;
+let solved=0;
+
+
+queries?.forEach(q=>{
+
+total++;
+
+if(q.status==="pending") pending++;
+if(q.status==="answered") solved++;
+
+let html=`
+<div class="query-card">
+
+<div class="query-header">
+
+<div>
+<h4>${q.title}</h4>
+<p class="team-name">${q.teams?.name}</p>
+</div>
+
+<span class="${
+q.status==="answered"?
+"status-solved":"status-pending"
+}">
+${q.status}
+</span>
+
+</div>
+
+<div class="query-meta">
+${new Date(q.created_at).toLocaleString()}
+</div>
+
+<p>${q.description}</p>
+
+<p class="deadline">
+Deadline: ${q.deadline || "Not set"}
+</p>
+`;
+
+
+if(q.status==="pending"){
+
+html+=`
+<textarea
+id="solution-${q.id}"
+placeholder="Write solution here">
+</textarea>
+
+<button
+onclick="submitSolution('${q.id}')">
+Submit Solution
+</button>
+`;
+
+}else{
+
+html+=`
+<div class="solution-box">
+<strong>Solution</strong>
+<p>${q.solution}</p>
+</div>
+`;
+
+}
+
+html+=`</div>`;
+
+container.innerHTML+=html;
+
+});
+
+
+document.getElementById("totalQueries").innerText=total;
+document.getElementById("pendingQueries").innerText=pending;
+document.getElementById("solvedQueries").innerText=solved;
+
+});
+
+
+async function submitSolution(queryId){
+
+const text = document
+.getElementById("solution-"+queryId)
+.value;
+
+if(!text){
+alert("Write solution first");
+return;
+}
+
+const { error } = await client
+.from("queries")
+.update({
+solution:text,
+status:"answered"
+})
+.eq("id",queryId);
+
+if(error){
+console.log(error);
+alert("Failed to submit solution");
+return;
+}
+
+alert("Solution submitted successfully");
+
+location.reload();
+
+}
+
+</script>
+
+
+    
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Course Management</title>
+<link rel="stylesheet" href="hod.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body class="light-mode">
+
+<nav class="navbar-custom">
+  <div class="logo" onclick="window.location.href='hod-dashboard.html'">
+    EduResolve
+  </div>
+</nav>
+
+<div class="requests-container">
+
+  <h2>Create Course</h2>
+
+  <div class="card-box">
+    <input type="text" id="courseName" placeholder="Course Name">
+    <input type="text" id="courseCode" placeholder="Course Code">
+    <select id="teacherSelect"></select>
+    <button onclick="createCourse()">Create</button>
+  </div>
+
+  <h2 style="margin-top:40px;">Existing Courses</h2>
+  <div id="courseContainer"></div>
+
+</div>
+
+<script>
+const { createClient } = supabase;
+const client = createClient("https://zwpjavmrgveckswnobhg.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw");
+
+async function loadPage(){
+
+  const { data: { user } } = await client.auth.getUser();
+
+  const { data: profile } = await client
+    .from("users")
+    .select("institution")
+    .eq("id", user.id)
+    .single();
+
+  const { data: teachers } = await client
+    .from("users")
+    .select("id, name")
+    .eq("role","teacher")
+    .eq("institution", profile.institution);
+
+  const select = document.getElementById("teacherSelect");
+  select.innerHTML = "";
+
+  teachers?.forEach(t=>{
+    select.innerHTML += `<option value="${t.id}">${t.name}</option>`;
+  });
+
+  const { data: courses } = await client
+    .from("courses")
+    .select(`
+      id,
+      course_name,
+      course_code,
+      users(name)
+    `)
+    .eq("institution", profile.institution);
+
+  const container = document.getElementById("courseContainer");
+  container.innerHTML = "";
+
+  courses?.forEach(c=>{
+    container.innerHTML += `
+      <div class="report-card">
+        <h5>${c.course_name} (${c.course_code})</h5>
+        <p>Assigned Teacher: ${c.users?.name || "Not Assigned"}</p>
+      </div>
+    `;
+  });
+}
+
+async function createCourse(){
+
+  const { data: { user } } = await client.auth.getUser();
+
+  const { data: profile } = await client
+    .from("users")
+    .select("institution")
+    .eq("id", user.id)
+    .single();
+
+  await client.from("courses").insert([{
+    course_name: document.getElementById("courseName").value,
+    course_code: document.getElementById("courseCode").value,
+    institution: profile.institution,
+    teacher_id: document.getElementById("teacherSelect").value
+  }]);
+
+  alert("Course Created");
+  loadPage();
+}
+
+loadPage();
+</script>
+
+</body>
+</html>
