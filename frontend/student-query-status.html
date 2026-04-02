@@ -42,7 +42,7 @@ const { createClient } = supabase;
 const client = createClient("https://zwpjavmrgveckswnobhg.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw");
 
 
-/* ===== LOAD DATA ===== */
+/* ===== LOAD ===== */
 
 document.addEventListener("DOMContentLoaded", async function(){
 
@@ -52,8 +52,6 @@ if(!user){
 window.location.href="login.html";
 return;
 }
-
-/* FETCH QUERIES */
 
 const { data:queries, error } = await client
 .from("queries")
@@ -87,7 +85,6 @@ ${q.description}
 </div>
 
 <div class="query-status">
-
 Status:
 <span class="${
 q.status === "answered"
@@ -96,29 +93,52 @@ q.status === "answered"
 }">
 ${q.status}
 </span>
-
 </div>
 `;
 
-/* ANSWER + FEEDBACK */
+/* SHOW SOLUTION */
 
 if(q.status === "answered"){
 
 html += `
 <div class="solution-box">
-
 <strong>Teacher Solution</strong>
-
 <p>${q.solution || "No solution added yet"}</p>
-
 </div>
+`;
 
+/* IF ALREADY GIVEN FEEDBACK */
+
+if(q.feedback_text){
+
+html += `
+<div class="feedback-box">
+<strong>Your Feedback</strong>
+<p>${q.feedback_text}</p>
+<p>Rating: ${q.feedback_rating || "N/A"} ⭐</p>
+</div>
+`;
+
+} else {
+
+/* SHOW INPUT */
+
+html += `
 <div class="feedback-box">
 
 <textarea
-placeholder="Give feedback..."
+placeholder="Write feedback..."
 id="fb-${q.id}">
 </textarea>
+
+<select id="rating-${q.id}">
+<option value="">Rating</option>
+<option value="1">1 ⭐</option>
+<option value="2">2 ⭐</option>
+<option value="3">3 ⭐</option>
+<option value="4">4 ⭐</option>
+<option value="5">5 ⭐</option>
+</select>
 
 <button
 class="feedback-btn"
@@ -128,6 +148,8 @@ Submit Feedback
 
 </div>
 `;
+
+}
 
 }
 
@@ -148,16 +170,23 @@ const text = document
 .getElementById("fb-"+queryId)
 .value.trim();
 
-if(!text){
-alert("Write feedback first");
+const rating = document
+.getElementById("rating-"+queryId)
+.value;
+
+if(!text || !rating){
+alert("Write feedback and select rating");
 return;
 }
 
-/* UPDATE DB */
+/* UPDATE CORRECT COLUMNS */
 
 const { error } = await client
 .from("queries")
-.update({ feedback: text })
+.update({
+  feedback_text: text,
+  feedback_rating: rating
+})
 .eq("id", queryId);
 
 if(error){
@@ -166,11 +195,11 @@ alert("Feedback failed");
 return;
 }
 
-/* UI UPDATE */
+alert("Feedback submitted");
 
-document.getElementById("fb-"+queryId).value = "";
+/* RELOAD PAGE */
 
-alert("Feedback submitted successfully");
+location.reload();
 
 }
 
