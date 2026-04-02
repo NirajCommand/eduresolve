@@ -7,8 +7,9 @@
 <link rel="stylesheet" href="student_style.css">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="theme.js"></script>
 </head>
-<body class="dark-mode">
+<body>
 <!-- NAVBAR -->
 <nav class="navbar-custom">
   <div class="logo" id="logoBtn">
@@ -22,6 +23,9 @@
   <div class="nav-right">
 <button id="modeBtn" class="mode-btn">
   <i class="fa-solid fa-moon"></i>
+</button>
+<button id="logoutNavBtn" class="logout-nav-btn">
+  <i class="fa-solid fa-right-from-bracket"></i>
 </button>
 
 <div class="menu">
@@ -74,19 +78,29 @@
 </div>
 
 
-<div class="action-card">
+<div class="action-card" id="studyMaterialsCard">
   <i class="fa-solid fa-book"></i>
   <h5>Study Materials</h5>
 </div>
 
-<div class="action-card">
+<div class="action-card" id="quizCard">
   <i class="fa-solid fa-pen"></i>
   <h5>My Quizzes</h5>
 </div>
 
-<div class="action-card">
+<div class="action-card" id="assignmentCard">
   <i class="fa-solid fa-file-lines"></i>
   <h5>Assignments</h5>
+</div>
+
+<div class="action-card" id="codingExamCard">
+  <i class="fa-solid fa-laptop-code"></i>
+  <h5>Coding Exams</h5>
+</div>
+
+<div class="action-card" id="codePracticeCard">
+  <i class="fa-solid fa-code"></i>
+  <h5>Code Practice</h5>
 </div>
 
 <div class="action-card">
@@ -217,13 +231,6 @@ document.addEventListener("DOMContentLoaded", async function(){
       window.location.href="student-dashboard.html";
     });
 
-  /* MODE */
-  document.getElementById("modeBtn")
-    .addEventListener("click", function(){
-      document.body.classList.toggle("dark-mode");
-      document.body.classList.toggle("light-mode");
-    });
-
   /* MENU */
   document.getElementById("menuIcon")
     .addEventListener("click", function(){
@@ -239,6 +246,13 @@ document.addEventListener("DOMContentLoaded", async function(){
       window.location.href="login.html";
     });
 
+  document.getElementById("logoutNavBtn")
+    .addEventListener("click", async function(e){
+      e.preventDefault();
+      await client.auth.signOut();
+      window.location.href="login.html";
+    });
+
     document.getElementById("raiseQueryCard")
 .addEventListener("click",function(){
 window.location.href="student-raise-query.html";
@@ -247,6 +261,31 @@ window.location.href="student-raise-query.html";
 document.getElementById("queryStatusCard")
 .addEventListener("click",function(){
 window.location.href="student-query-status.html";
+});
+
+document.getElementById("studyMaterialsCard")
+.addEventListener("click",function(){
+window.location.href="study-material/student-materials.html";
+});
+
+document.getElementById("quizCard")
+.addEventListener("click",function(){
+window.location.href="quiz/student-quiz-list.html";
+});
+
+document.getElementById("assignmentCard")
+.addEventListener("click",function(){
+window.location.href="assignment/student-assignment-list.html";
+});
+
+document.getElementById("codingExamCard")
+.addEventListener("click",function(){
+window.location.href="coding-exam/student-exam-list.html";
+});
+
+document.getElementById("codePracticeCard")
+.addEventListener("click",function(){
+window.location.href="coding/coding.html";
 });
 
 });

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Coding Exams | EduResolve</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="exam.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../theme.js"></script>
+</head>
+<body>
+
+<nav class="navbar-custom">
+  <div class="logo" onclick="window.location.href='../student-dashboard.html'">
+    <i class="fa-solid fa-graduation-cap"></i> EduResolve
+  </div>
+  <div class="nav-center">
+    <a href="../student-dashboard.html">Dashboard</a>
+    <a href="student-exam-list.html">Exams</a>
+  </div>
+  <div class="nav-right">
+    <button id="modeBtn" class="mode-btn"><i class="fa-solid fa-moon"></i></button>
+    <button id="logoutNavBtn" class="logout-nav-btn"><i class="fa-solid fa-right-from-bracket"></i></button>
+    <div class="menu">
+      <i class="fa-solid fa-bars" id="menuIcon"></i>
+      <div class="menu-dropdown" id="menuDropdown">
+        <a href="#">Profile</a>
+        <a href="#" id="logoutBtn">Logout</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="welcome-box">
+  <div>
+    <h3 id="studentName">Coding Exams</h3>
+    <p style="margin:5px 0 0;opacity:0.8;font-size:14px">Available exams and your submissions</p>
+  </div>
+  <div class="welcome-right">
+    <h6 id="studentInstitution"></h6>
+    <p id="todayDate"></p>
+  </div>
+</div>
+
+<div class="main-container">
+  <div class="stats-box" id="statsBox"></div>
+  <h3 style="margin-bottom:25px"><i class="fa-solid fa-calendar-check"></i> Available Exams</h3>
+  <div class="exams-grid" id="examsGrid"></div>
+  <h3 style="margin:40px 0 25px"><i class="fa-solid fa-clock-rotate-left"></i> Your Submissions</h3>
+  <div class="exams-grid" id="submissionsGrid"></div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://zwpjavmrgveckswnobhg.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let currentUser = null;
+let profile = null;
+
+document.addEventListener("DOMContentLoaded", async function() {
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) { window.location.href = "../login.html"; return; }
+  currentUser = user;
+  const { data: p } = await db.from("users").select("name,institution,role").eq("id", user.id).single();
+  if (!p || p.role !== "student") { window.location.href = "../login.html"; return; }
+  profile = p;
+  document.getElementById("studentName").innerText = "Exams, " + p.name;
+  document.getElementById("studentInstitution").innerText = p.institution;
+  document.getElementById("todayDate").innerText = new Date().toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+  loadExams();
+  loadSubmissions();
+  setupUI();
+});
+
+function setupUI() {
+  document.getElementById("menuIcon").addEventListener("click", function() {
+    document.getElementById("menuDropdown").classList.toggle("show-menu");
+  });
+  document.getElementById("logoutBtn").addEventListener("click", async function(e) {
+    e.preventDefault();
+    await db.auth.signOut();
+    window.location.href = "../login.html";
+  });
+  document.getElementById("logoutNavBtn").addEventListener("click", async function(e){
+    e.preventDefault();
+    await db.auth.signOut();
+    window.location.href="../login.html";
+  });
+}
+
+async function loadExams() {
+  const { data: memberships } = await db.from("team_members").select("team_id").eq("student_id", currentUser.id).eq("status", "approved");
+  const teamIds = memberships?.map(m => m.team_id) || [];
+  const now = new Date();
+
+  let query = db.from("coding_exams").select("*").eq("status", "published").order("created_at", { ascending: false });
+  if (teamIds.length > 0) {
+    query = query.in("team_id", teamIds);
+  } else {
+    query = query.eq("team_id", "00000000-0000-0000-0000-000000000000");
+  }
+  const { data: exams } = await query;
+  const grid = document.getElementById("examsGrid");
+  const statsBox = document.getElementById("statsBox");
+
+  if (!exams || exams.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><i class="fa-solid fa-file-circle-question"></i><h4>No exams available</h4><p>Your teacher hasn't published any exams yet</p></div>`;
+    statsBox.innerHTML = `<div class="stat-card"><h3>0</h3><p>Available Exams</p></div><div class="stat-card"><h3>0</h3><p>Completed</p></div><div class="stat-card"><h3>0</h3><p>Pending</p></div>`;
+    return;
+  }
+
+  let availableCount = 0;
+  let completedCount = 0;
+  let pendingCount = 0;
+
+  grid.innerHTML = "";
+  for (const exam of exams) {
+    const start = exam.start_time ? new Date(exam.start_time) : new Date(exam.created_at);
+    const end = exam.end_time ? new Date(exam.end_time) : new Date(start.getTime() + 24 * 60 * 60 * 1000);
+    let statusBadge = "";
+    let canTake = false;
+    if (now < start) {
+      statusBadge = `<span class="badge badge-upcoming">Starts ${start.toLocaleString()}</span>`;
+    } else if (now > end) {
+      statusBadge = `<span class="badge badge-expired">Expired</span>`;
+    } else {
+      statusBadge = `<span class="badge badge-active">Active</span>`;
+      canTake = true;
+      availableCount++;
+    }
+
+    const { count: qCount } = await db.from("coding_exam_questions").select("*", { count: "exact", head: true }).eq("exam_id", exam.id);
+    const { data: existingSub } = await db.from("coding_exam_submissions").select("id,status,score").eq("exam_id", exam.id).eq("student_id", currentUser.id).single();
+    const { data: teamData } = await db.from("teams").select("name").eq("id", exam.team_id).single();
+    const teamName = teamData?.name || "";
+
+    if (existingSub) {
+      if (existingSub.status === "submitted") completedCount++;
+      else pendingCount++;
+    }
+
+    const card = document.createElement("div");
+    card.className = "exam-card fade-in";
+    card.innerHTML = `
+      <h4>${exam.title}</h4>
+      <p>${exam.description || "No description"}</p>
+      <div class="exam-meta">
+        ${statusBadge}
+        <span class="meta-tag"><i class="fa-solid fa-clock"></i> ${exam.time_limit} min</span>
+        <span class="meta-tag"><i class="fa-solid fa-list"></i> ${qCount || 0} questions</span>
+        ${teamName ? `<span class="meta-tag"><i class="fa-solid fa-users"></i> ${teamName}</span>` : ""}
+      </div>
+      <div class="exam-actions">
+        ${existingSub ? `
+          ${existingSub.status === "submitted" ? `<button class="btn-secondary" style="width:100%" onclick="window.location.href='student-exam-results.html?id=${existingSub.id}'"><i class="fa-solid fa-chart-bar"></i> View Results</button>` : `<button class="btn-primary" style="width:100%" onclick="window.location.href='student-exam-take.html?id=${exam.id}'"><i class="fa-solid fa-play"></i> Resume Exam</button>`}
+        ` : canTake ? `<button class="btn-success" style="width:100%" onclick="window.location.href='student-exam-take.html?id=${exam.id}'"><i class="fa-solid fa-play"></i> Start Exam</button>` : `<button class="btn-secondary" style="width:100%" disabled><i class="fa-solid fa-ban"></i> Not Available</button>`}
+      </div>
+    `;
+    grid.appendChild(card);
+  }
+
+  statsBox.innerHTML = `
+    <div class="stat-card"><h3>${exams.length}</h3><p>Total Exams</p></div>
+    <div class="stat-card"><h3>${availableCount}</h3><p>Available Now</p></div>
+    <div class="stat-card"><h3>${completedCount}</h3><p>Completed</p></div>
+    <div class="stat-card"><h3>${pendingCount}</h3><p>In Progress</p></div>
+  `;
+}
+
+async function loadSubmissions() {
+  const { data: submissions } = await db.from("coding_exam_submissions").select("*, coding_exams(title,time_limit)").eq("student_id", currentUser.id).order("created_at", { ascending: false });
+  const grid = document.getElementById("submissionsGrid");
+
+  if (!submissions || submissions.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><i class="fa-solid fa-inbox"></i><h4>No submissions yet</h4><p>Take an exam to see your results here</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = "";
+  for (const sub of submissions) {
+    const card = document.createElement("div");
+    card.className = "exam-card fade-in";
+    card.innerHTML = `
+      <h4>${sub.coding_exams?.title || "Unknown Exam"}</h4>
+      <div class="exam-meta">
+        <span class="badge ${sub.status === 'submitted' ? 'badge-active' : 'badge-upcoming'}">${sub.status}</span>
+        ${sub.status === 'submitted' ? `<span class="meta-tag"><i class="fa-solid fa-star"></i> Score: ${sub.score}</span>` : ""}
+        ${sub.malpractice_count > 0 ? `<span class="meta-tag" style="background:rgba(239,68,68,0.15);color:#ef4444"><i class="fa-solid fa-triangle-exclamation"></i> ${sub.malpractice_count} violations</span>` : ""}
+      </div>
+      <div class="exam-actions">
+        ${sub.status === 'submitted' ? `<button class="btn-secondary" style="width:100%" onclick="window.location.href='student-exam-results.html?id=${sub.id}'"><i class="fa-solid fa-chart-bar"></i> View Results</button>` : `<button class="btn-primary" style="width:100%" onclick="window.location.href='student-exam-take.html?id=${sub.exam_id}'"><i class="fa-solid fa-play"></i> Resume</button>`}
+      </div>
+    `;
+    grid.appendChild(card);
+  }
+}
+</script>
+</body>
+</html>

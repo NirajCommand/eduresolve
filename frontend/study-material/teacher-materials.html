@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Study Materials | EduResolve</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+body{margin:0;font-family:'Segoe UI',sans-serif;transition:0.3s ease}
+body.dark-mode{background:#0f172a;color:#fff}
+body.light-mode{background:#f4f6fa;color:#111827}
+.navbar-custom{height:65px;padding:0 60px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#111827,#1f2937);box-shadow:0 6px 18px rgba(0,0,0,0.4);position:fixed;top:0;left:0;right:0;z-index:1000}
+body.light-mode .navbar-custom{background:#fff;box-shadow:0 6px 20px rgba(0,0,0,0.08)}
+.logo{font-size:20px;font-weight:600;color:#f4c430;cursor:pointer}
+.nav-center{display:flex;gap:35px}
+.nav-center a{color:#d1d5db;text-decoration:none;font-size:14px}
+body.light-mode .nav-center a{color:#1f2937}
+.nav-right{display:flex;align-items:center;gap:20px}
+.mode-btn{width:36px;height:36px;border-radius:8px;border:none;background:#1e293b;color:#fff;cursor:pointer}
+.logout-nav-btn{width:36px;height:36px;border-radius:8px;border:none;background:#1e293b;color:#fff;cursor:pointer}
+.menu{position:relative}
+.menu-dropdown{display:none;position:absolute;right:0;top:45px;width:160px;background:#1e293b;border-radius:10px;box-shadow:0 10px 25px rgba(0,0,0,0.4)}
+body.light-mode .menu-dropdown{background:#fff;box-shadow:0 10px 25px rgba(0,0,0,0.1)}
+.menu-dropdown a{display:block;padding:12px 16px;text-decoration:none;color:#fff;font-size:14px}
+body.light-mode .menu-dropdown a{color:#1f2937}
+.menu-dropdown a:hover{background:#2f6df6}
+.show-menu{display:block}
+.welcome-box{margin:90px 60px 30px;padding:30px 40px;border-radius:18px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#2f6df6,#1e4fc4);box-shadow:0 12px 35px rgba(47,109,246,0.4)}
+.welcome-box h3{margin:0;font-weight:600}
+.welcome-right{text-align:right}
+.welcome-right h6{margin:0 0 4px;opacity:0.9}
+.welcome-right p{margin:0;font-size:13px;opacity:0.7}
+.main-container{padding:20px 60px 80px;max-width:1400px;margin:auto}
+.form-section{padding:30px;border-radius:16px;margin-bottom:30px}
+body.dark-mode .form-section{background:#1e293b;box-shadow:0 12px 30px rgba(0,0,0,0.3)}
+body.light-mode .form-section{background:#fff;box-shadow:0 12px 30px rgba(0,0,0,0.08)}
+.form-section h3{margin:0 0 25px;font-size:20px;font-weight:600;padding-bottom:15px;border-bottom:2px solid rgba(47,109,246,0.2)}
+.form-group{margin-bottom:20px}
+.form-group label{display:block;margin-bottom:8px;font-weight:500;font-size:14px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 16px;border-radius:10px;border:2px solid rgba(47,109,246,0.15);font-size:14px;transition:0.3s ease;box-sizing:border-box;font-family:inherit}
+body.dark-mode .form-group input,body.dark-mode .form-group select,body.dark-mode .form-group textarea{background:#0f172a;color:#fff;border-color:rgba(47,109,246,0.2)}
+body.light-mode .form-group input,body.light-mode .form-group select,body.light-mode .form-group textarea{background:#f8fafc;color:#111827;border-color:#e2e8f0}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:#2f6df6;box-shadow:0 0 0 3px rgba(47,109,246,0.15)}
+.btn-primary{background:linear-gradient(135deg,#2f6df6,#1e4fc4);color:#fff;border:none;padding:10px 20px;border-radius:10px;font-weight:600;cursor:pointer}
+.btn-primary:hover{box-shadow:0 10px 25px rgba(47,109,246,0.4)}
+.btn-danger{background:rgba(239,68,68,0.15);color:#ef4444;border:none;padding:8px 16px;border-radius:8px;cursor:pointer}
+.btn-danger:hover{background:rgba(239,68,68,0.25)}
+.btn-secondary{background:rgba(47,109,246,0.15);color:#2f6df6;border:none;padding:8px 16px;border-radius:8px;cursor:pointer}
+.materials-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:25px;margin-top:20px}
+.material-card{padding:25px;border-radius:16px;transition:0.35s ease}
+body.dark-mode .material-card{background:#1e293b;box-shadow:0 12px 30px rgba(0,0,0,0.3)}
+body.light-mode .material-card{background:#fff;box-shadow:0 12px 30px rgba(0,0,0,0.08)}
+.material-card:hover{transform:translateY(-5px)}
+.material-card h4{margin:0 0 10px;font-size:18px}
+.material-card p{margin:0 0 15px;font-size:14px;opacity:0.7}
+.material-meta{display:flex;gap:12px;font-size:12px;margin-bottom:15px}
+.meta-tag{padding:4px 10px;border-radius:20px;font-weight:500}
+body.dark-mode .meta-tag{background:rgba(47,109,246,0.15);color:#93c5fd}
+body.light-mode .meta-tag{background:rgba(47,109,246,0.1);color:#2f6df6}
+.empty-state{text-align:center;padding:60px 20px;opacity:0.5}
+.empty-state i{font-size:64px;margin-bottom:20px;color:#2f6df6}
+.toggle-switch{position:relative;display:inline-block;width:50px;height:26px}
+.toggle-switch input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#475569;transition:0.3s;border-radius:26px}
+.toggle-slider:before{position:absolute;content:"";height:20px;width:20px;left:3px;bottom:3px;background-color:#fff;transition:0.3s;border-radius:50%}
+.toggle-switch input:checked+.toggle-slider{background-color:#2f6df6}
+.toggle-switch input:checked+.toggle-slider:before{transform:translateX(24px)}
+.form-check{display:flex;align-items:center;gap:10px;margin-bottom:15px}
+.form-check input[type="checkbox"]{width:18px;height:18px;accent-color:#2f6df6}
+.form-check label{margin:0;font-size:14px}
+.upload-area{border:2px dashed rgba(47,109,246,0.3);border-radius:12px;padding:30px;text-align:center;cursor:pointer;transition:0.3s}
+.upload-area:hover{border-color:#2f6df6;background:rgba(47,109,246,0.05)}
+.upload-area i{font-size:48px;color:#2f6df6;margin-bottom:10px}
+.upload-area p{margin:0;opacity:0.7}
+@media(max-width:768px){.navbar-custom{padding:0 20px}.nav-center{display:none}.welcome-box{margin:90px 20px 20px;padding:20px;flex-direction:column;text-align:center;gap:15px}.main-container{padding:20px}.materials-grid{grid-template-columns:1fr}}
+</style>
+<script src="../theme.js"></script>
+</head>
+<body>
+<nav class="navbar-custom">
+  <div class="logo" id="logoBtn"><i class="fa-solid fa-graduation-cap"></i> EduResolve</div>
+  <div class="nav-center">
+        <a href="../teacher-dashboard.html">Dashboard</a>
+    <a href="#">My Courses</a>
+    <a href="#">Search</a>
+  </div>
+  <div class="nav-right">
+    <button id="modeBtn" class="mode-btn"><i class="fa-solid fa-moon"></i></button>
+    <button id="logoutNavBtn" class="logout-nav-btn"><i class="fa-solid fa-right-from-bracket"></i></button>
+    <div class="menu">
+      <i class="fa-solid fa-bars" id="menuIcon"></i>
+      <div class="menu-dropdown" id="menuDropdown">
+        <a href="#">Profile</a>
+    <a href="../teacher-dashboard.html">Dashboard</a>
+        <a href="#" id="logoutBtn">Logout</a>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="welcome-box">
+  <div><h3 id="teacherName">Loading...</h3></div>
+  <div class="welcome-right">
+    <h6 id="teacherInstitution"></h6>
+    <p id="teacherDate"></p>
+  </div>
+</div>
+<div class="main-container">
+  <div class="form-section">
+    <h3><i class="fa-solid fa-upload"></i> Upload Study Material</h3>
+    <form id="uploadForm">
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" id="materialTitle" required placeholder="e.g., Chapter 5 Notes">
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="materialDesc" rows="2" placeholder="Brief description (optional)"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Team</label>
+        <select id="teamSelect" required>
+          <option value="">Select team</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Material Type</label>
+        <select id="materialType">
+          <option value="file">Upload File</option>
+          <option value="link">Video Link</option>
+        </select>
+      </div>
+      <div id="fileUploadSection">
+        <div class="form-group">
+          <label>File (PDF, PPT, PPTX, DOCX)</label>
+          <div class="upload-area" id="dropZone">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <p>Click or drag file here</p>
+            <input type="file" id="fileInput" accept=".pdf,.ppt,.pptx,.docx" style="display:none">
+          </div>
+          <p id="fileName" style="margin-top:8px;font-size:13px;color:#2f6df6"></p>
+        </div>
+      </div>
+      <div id="linkUploadSection" style="display:none">
+        <div class="form-group">
+          <label>Video URL</label>
+          <input type="url" id="videoUrl" placeholder="https://youtube.com/watch?v=...">
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary w-100 mt-3"><i class="fa-solid fa-upload"></i> Upload</button>
+    </form>
+  </div>
+  <div class="form-section">
+    <h3><i class="fa-solid fa-book"></i> Your Materials</h3>
+    <div id="materialsContainer" class="materials-grid"></div>
+  </div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded",async function(){
+const SUPABASE_URL="https://zwpjavmrgveckswnobhg.supabase.co";
+const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw";
+const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const{data:{user}}=await supabase.auth.getUser();
+if(!user){window.location.href="../login.html";return}
+const{data:profile}=await supabase.from("users").select("name,institution,role").eq("id",user.id).single();
+if(!profile||profile.role!=="teacher"){window.location.href="../login.html";return}
+document.getElementById("teacherName").innerText="Welcome, "+profile.name;
+document.getElementById("teacherInstitution").innerText=profile.institution;
+document.getElementById("teacherDate").innerText=new Date().toLocaleDateString("en-IN",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+const{data:teams}=await supabase.from("teams").select("id,name").eq("teacher_id",user.id);
+const select=document.getElementById("teamSelect");
+teams?.forEach(t=>{const o=document.createElement("option");o.value=t.id;o.textContent=t.name;select.appendChild(o)});
+document.getElementById("materialType").addEventListener("change",function(){
+  const isFile=this.value==="file";
+  document.getElementById("fileUploadSection").style.display=isFile?"block":"none";
+  document.getElementById("linkUploadSection").style.display=isFile?"none":"block";
+});
+const dropZone=document.getElementById("dropZone");
+const fileInput=document.getElementById("fileInput");
+dropZone.addEventListener("click",()=>fileInput.click());
+dropZone.addEventListener("dragover",e=>{e.preventDefault();dropZone.style.borderColor="#2f6df6"});
+dropZone.addEventListener("dragleave",()=>{dropZone.style.borderColor="rgba(47,109,246,0.3)"});
+dropZone.addEventListener("drop",e=>{e.preventDefault();dropZone.style.borderColor="rgba(47,109,246,0.3)";if(e.dataTransfer.files.length){fileInput.files=e.dataTransfer.files;document.getElementById("fileName").innerText=e.dataTransfer.files[0].name}});
+fileInput.addEventListener("change",()=>{if(fileInput.files.length)document.getElementById("fileName").innerText=fileInput.files[0].name});
+document.getElementById("uploadForm").addEventListener("submit",async function(e){
+  e.preventDefault();
+  const title=document.getElementById("materialTitle").value.trim();
+  const desc=document.getElementById("materialDesc").value.trim();
+  const teamId=document.getElementById("teamSelect").value;
+  const matType=document.getElementById("materialType").value;
+  if(!teamId){alert("Select a team");return}
+  let fileUrl="",fileType="",fileSize=0;
+  if(matType==="file"){
+    const file=fileInput.files[0];
+    if(!file){alert("Select a file");return}
+    const ext=file.name.split(".").pop().toLowerCase();
+    const allowed=["pdf","ppt","pptx","docx"];
+    if(!allowed.includes(ext)){alert("Only PDF, PPT, PPTX, DOCX allowed");return}
+    const filePath=`${teamId}/${Date.now()}_${file.name}`;
+    const{error:uploadError}=await supabase.storage.from("study-materials").upload(filePath,file);
+    if(uploadError){alert("Upload failed: "+uploadError.message);return}
+    const{data:{publicUrl}}=supabase.storage.from("study-materials").getPublicUrl(filePath);
+    fileUrl=publicUrl;fileType=ext;fileSize=file.size;
+  }else{
+    fileUrl=document.getElementById("videoUrl").value.trim();
+    if(!fileUrl){alert("Enter a video URL");return}
+    fileType="video";
+  }
+  const{error}=await supabase.from("study_materials").insert({team_id:teamId,teacher_id:user.id,title:title,description:desc,file_url:fileUrl,material_type:matType,file_type:fileType,file_size:fileSize});
+  if(error){alert("Error: "+error.message);return}
+  alert("Material uploaded!");
+  document.getElementById("uploadForm").reset();
+  document.getElementById("fileName").innerText="";
+  loadMaterials();
+});
+async function loadMaterials(){
+  const{data:materials}=await supabase.from("study_materials").select("*").eq("teacher_id",user.id).order("created_at",{ascending:false});
+  const container=document.getElementById("materialsContainer");
+  container.innerHTML="";
+  if(!materials||materials.length===0){container.innerHTML='<div class="empty-state"><i class="fa-solid fa-book-open"></i><h4>No materials yet</h4><p>Upload your first study material</p></div>';return}
+  materials.forEach(m=>{
+    const typeIcon=m.file_type==="pdf"?"fa-file-pdf":m.file_type==="video"?"fa-video":["ppt","pptx"].includes(m.file_type)?"fa-file-powerpoint":"fa-file-word";
+    container.innerHTML+=`<div class="material-card"><h4><i class="fa-solid ${typeIcon}"></i> ${m.title}</h4><p>${m.description||""}</p><div class="material-meta"><span class="meta-tag">${m.file_type?.toUpperCase()}</span><span class="meta-tag">${m.material_type==="link"?"LINK":"FILE"}</span></div><div style="display:flex;gap:10px"><a href="${m.file_url}" target="_blank" class="btn btn-secondary btn-sm"><i class="fa-solid fa-eye"></i> View</a><button class="btn btn-danger btn-sm" onclick="deleteMaterial('${m.id}')"><i class="fa-solid fa-trash"></i></button></div><small style="opacity:0.5">${new Date(m.created_at).toLocaleDateString()}</small></div>`;
+  });
+}
+window.deleteMaterial=async function(id){
+  if(!confirm("Delete this material?"))return;
+  const{error}=await supabase.from("study_materials").delete().eq("id",id);
+  if(error){alert("Delete failed");return}
+  loadMaterials();
+};
+loadMaterials();
+document.getElementById("menuIcon").addEventListener("click",function(){document.getElementById("menuDropdown").classList.toggle("show-menu")});
+document.getElementById("logoutBtn").addEventListener("click",async function(e){e.preventDefault();await supabase.auth.signOut();window.location.href="../login.html"});
+document.getElementById("logoutNavBtn").addEventListener("click",async function(e){e.preventDefault();await supabase.auth.signOut();window.location.href="../login.html"});
+document.getElementById("logoBtn").addEventListener("click",function(){window.location.href="../teacher-dashboard.html"});
+});
+</script>
+</body>
+</html>

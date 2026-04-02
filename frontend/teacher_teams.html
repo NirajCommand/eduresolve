@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Teams | EduResolve</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="teacher_style.css">
+  <script src="theme.js"></script>
+</head>
+
+<body>
+
+<nav class="navbar-custom">
+  <div class="nav-left">
+    <span class="logo">
+      <i class="fa-solid fa-graduation-cap"></i> EduResolve
+    </span>
+  </div>
+
+  <div class="nav-center">
+    <a href="teacher-dashboard.html">Dashboard</a>
+    <a href="#">My Courses</a>
+  </div>
+
+  <div class="nav-right">
+    <button class="mode-toggle" onclick="toggleMode()">
+      <i class="fa-solid fa-moon"></i>
+    </button>
+  </div>
+</nav>
+
+<div class="teams-container">
+
+  <div class="create-team-card">
+    <h4>Create New Team</h4>
+
+    <input type="text" id="teamName" class="form-control mt-3" placeholder="Enter Team Name">
+
+    <button onclick="createTeam()">Create Team</button>
+  </div>
+
+  <div class="teams-list mt-5">
+    <h4>Your Teams</h4>
+    <div id="teamsGrid" class="teams-grid"></div>
+  </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+/* =========================
+   SUPABASE CONFIG
+========================= */
+
+const SUPABASE_URL = "https://jaetijisqgecxqgcqget.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphZXRpamlzcWdlY3hxZ2NxZ2V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2NTIxMDcsImV4cCI6MjA4NjIyODEwN30.9N66bJYHvB2JJIUESX-EQLtQM2Grk9R9xSY04dnexXk";
+
+const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
+/* =========================
+   AUTH PROTECTION
+========================= */
+
+async function protectTeacherPage() {
+
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    window.location.href = "login.html";
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("users")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (error || data.role !== "teacher") {
+    window.location.href = "login.html";
+    return null;
+  }
+
+  return user;
+}
+
+/* =========================
+   GENERATE TEAM CODE
+========================= */
+
+function generateTeamCode() {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return code;
+}
+
+/* =========================
+   CREATE TEAM
+========================= */
+
+async function createTeam() {
+
+  const user = await protectTeacherPage();
+  if (!user) return;
+
+  const input = document.getElementById("teamName");
+  const teamName = input.value.trim();
+
+  if (!teamName) {
+    alert("Enter team name");
+    return;
+  }
+
+  const teamCode = generateTeamCode();
+
+  const { error } = await supabase
+    .from("teams")
+    .insert([{
+      name: teamName,
+      teacher_id: user.id,
+      team_code: teamCode
+    }]);
+
+  if (error) {
+    console.log(error);
+    alert("Error creating team");
+    return;
+  }
+
+  input.value = "";
+  loadTeams();
+}
+
+/* =========================
+   LOAD TEAMS
+========================= */
+
+async function loadTeams() {
+
+  const user = await protectTeacherPage();
+  if (!user) return;
+
+  const { data: teams, error } = await supabase
+    .from("teams")
+    .select("id, name, team_code")
+    .eq("teacher_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.log(error);
+    return;
+  }
+
+  const container = document.getElementById("teamsGrid");
+  container.innerHTML = "";
+
+  if (!teams || teams.length === 0) {
+    container.innerHTML = "<p>No teams created yet.</p>";
+    return;
+  }
+
+  for (let team of teams) {
+
+    const card = document.createElement("div");
+    card.className = "team-card";
+
+    card.innerHTML = `
+      <h5>${team.name}</h5>
+      <p>Team Code: <strong>${team.team_code}</strong></p>
+    `;
+
+    container.appendChild(card);
+  }
+}
+
+/* =========================
+   INIT
+========================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadTeams();
+});
+
+</script>
+</body>
+</html>

@@ -10,9 +10,10 @@
 <link rel="stylesheet" href="teacher_style.css">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="theme.js"></script>
 </head>
 
-<body class="dark-mode">
+<body>
 
 <!-- ================= NAVBAR ================= -->
 
@@ -30,6 +31,9 @@
   <div class="nav-right">
     <button id="modeBtn" class="mode-btn">
       <i class="fa-solid fa-moon"></i>
+    </button>
+    <button id="logoutNavBtn" class="logout-nav-btn">
+      <i class="fa-solid fa-right-from-bracket"></i>
     </button>
 
     <div class="menu">
@@ -86,19 +90,24 @@
 <h5>Solution Feedback</h5>
 </div>
 
-      <div class="card-box">
+      <div class="card-box" onclick="window.location.href='study-material/teacher-materials.html'">
         <i class="fa-solid fa-book"></i>
         <h5>Study Materials</h5>
       </div>
 
-      <div class="card-box">
+      <div class="card-box" onclick="window.location.href='quiz/teacher-quiz-list.html'">
         <i class="fa-solid fa-pen"></i>
         <h5>My Quizzes</h5>
       </div>
 
-      <div class="card-box">
+      <div class="card-box" onclick="window.location.href='assignment/teacher-assignment-list.html'">
         <i class="fa-solid fa-file-lines"></i>
         <h5>Assignments</h5>
+      </div>
+
+      <div class="card-box" onclick="window.location.href='coding-exam/teacher-exam-list.html'">
+        <i class="fa-solid fa-laptop-code"></i>
+        <h5>Coding Exams</h5>
       </div>
 
       <div class="card-box">
@@ -197,14 +206,6 @@ new Date().toLocaleDateString(
 {weekday:"long",year:"numeric",month:"long",day:"numeric"}
 );
 
-/* MODE */
-
-document.getElementById("modeBtn")
-.addEventListener("click",function(){
-document.body.classList.toggle("dark-mode");
-document.body.classList.toggle("light-mode");
-});
-
 /* MENU */
 
 document.getElementById("menuIcon")
@@ -214,6 +215,13 @@ document.getElementById("menuDropdown")
 });
 
 document.getElementById("logoutBtn")
+.addEventListener("click",async function(e){
+e.preventDefault();
+await supabase.auth.signOut();
+window.location.href="login.html";
+});
+
+document.getElementById("logoutNavBtn")
 .addEventListener("click",async function(e){
 e.preventDefault();
 await supabase.auth.signOut();

@@ -224,6 +224,16 @@ border-radius:8px;
 cursor:pointer;
 }
 
+.logout-nav-btn{
+width:34px;
+height:34px;
+border:none;
+background:#1f2937;
+color:white;
+border-radius:8px;
+cursor:pointer;
+}
+
 
 /*==========*/
 .sender{

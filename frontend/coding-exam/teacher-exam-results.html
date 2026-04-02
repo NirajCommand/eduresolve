@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Exam Results | EduResolve</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="exam.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../theme.js"></script>
+</head>
+<body>
+
+<nav class="navbar-custom">
+  <div class="logo" onclick="window.location.href='teacher-exam-list.html'">
+    <i class="fa-solid fa-graduation-cap"></i> EduResolve
+  </div>
+  <div class="nav-center">
+    <a href="teacher-exam-list.html">My Exams</a>
+    <a href="teacher-exam-create.html">Create Exam</a>
+  </div>
+  <div class="nav-right">
+    <button id="modeBtn" class="mode-btn"><i class="fa-solid fa-moon"></i></button>
+    <button id="logoutNavBtn" class="logout-nav-btn"><i class="fa-solid fa-right-from-bracket"></i></button>
+    <div class="menu">
+      <i class="fa-solid fa-bars" id="menuIcon"></i>
+      <div class="menu-dropdown" id="menuDropdown">
+        <a href="#">Profile</a>
+        <a href="#" id="logoutBtn">Logout</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="welcome-box">
+  <div>
+    <h3 id="examTitle">Loading Exam...</h3>
+    <p style="margin:5px 0 0;opacity:0.8;font-size:14px" id="examSubtitle">Viewing submissions and results</p>
+  </div>
+  <div class="welcome-right">
+    <h6 id="teacherInstitution"></h6>
+    <p id="todayDate"></p>
+  </div>
+</div>
+
+<div class="main-container">
+  <div class="stats-box" id="statsBox"></div>
+  <div class="form-section">
+    <h3><i class="fa-solid fa-users"></i> Student Submissions</h3>
+    <div class="submission-list" id="submissionList"></div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://zwpjavmrgveckswnobhg.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let currentUser = null;
+let examId = null;
+let exam = null;
+let codeViewers = {};
+
+document.addEventListener("DOMContentLoaded", async function() {
+  const params = new URLSearchParams(window.location.search);
+  examId = params.get("id");
+  if (!examId) { window.location.href = "teacher-exam-list.html"; return; }
+
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) { window.location.href = "../login.html"; return; }
+  currentUser = user;
+  const { data: p } = await db.from("users").select("name,institution,role").eq("id", user.id).single();
+  if (!p || p.role !== "teacher") { window.location.href = "../login.html"; return; }
+  document.getElementById("teacherInstitution").innerText = p.institution;
+  document.getElementById("todayDate").innerText = new Date().toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+
+  const { data: examData } = await db.from("coding_exams").select("*").eq("id", examId).single();
+  if (!examData) { alert("Exam not found"); window.location.href = "teacher-exam-list.html"; return; }
+  if (examData.teacher_id !== user.id) { alert("Unauthorized"); window.location.href = "teacher-exam-list.html"; return; }
+  exam = examData;
+  document.getElementById("examTitle").innerText = exam.title;
+  document.getElementById("examSubtitle").innerText = `${exam.time_limit} min • ${exam.status}`;
+
+  loadSubmissions();
+  setupUI();
+});
+
+function setupUI() {
+  document.getElementById("menuIcon").addEventListener("click", function() {
+    document.getElementById("menuDropdown").classList.toggle("show-menu");
+  });
+  document.getElementById("logoutBtn").addEventListener("click", async function(e) {
+    e.preventDefault();
+    await db.auth.signOut();
+    window.location.href = "../login.html";
+  });
+  document.getElementById("logoutNavBtn").addEventListener("click", async function(e){
+    e.preventDefault();
+    await db.auth.signOut();
+    window.location.href="../login.html";
+  });
+}
+
+async function loadSubmissions() {
+  const { data: submissions } = await db.from("coding_exam_submissions")
+    .select("*, users(name, email)").eq("exam_id", examId).order("submitted_at", { ascending: false });
+
+  const { data: questions } = await db.from("coding_exam_questions").select("id,title,points").eq("exam_id", examId).order("order_index");
+  const maxScore = questions?.reduce((sum, q) => sum + q.points, 0) || 0;
+
+  const statsBox = document.getElementById("statsBox");
+  const list = document.getElementById("submissionList");
+
+  if (!submissions || submissions.length === 0) {
+    statsBox.innerHTML = `<div class="stat-card"><h3>0</h3><p>Submissions</p></div><div class="stat-card"><h3>-</h3><p>Avg Score</p></div><div class="stat-card"><h3>-</h3><p>Highest</p></div><div class="stat-card"><h3>0</h3><p>Malpractice</p></div>`;
+    list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-inbox"></i><h4>No submissions yet</h4><p>Students haven't submitted their answers</p></div>`;
+    return;
+  }
+
+  const submitted = submissions.filter(s => s.status === "submitted").length;
+  const inProgress = submissions.filter(s => s.status === "in_progress").length;
+  const scores = submissions.filter(s => s.status === "submitted").map(s => s.score);
+  const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+  const highest = scores.length > 0 ? Math.max(...scores) : 0;
+  const malpracticeCount = submissions.filter(s => s.malpractice_count > 0).length;
+
+  statsBox.innerHTML = `
+    <div class="stat-card"><h3>${submissions.length}</h3><p>Total Submissions</p></div>
+    <div class="stat-card"><h3>${submitted}</h3><p>Submitted</p></div>
+    <div class="stat-card"><h3>${inProgress}</h3><p>In Progress</p></div>
+    <div class="stat-card"><h3>${avgScore}/${maxScore}</h3><p>Avg Score</p></div>
+    <div class="stat-card"><h3>${highest}/${maxScore}</h3><p>Highest Score</p></div>
+    <div class="stat-card"><h3>${malpracticeCount}</h3><p>Malpractice Flags</p></div>
+  `;
+
+  list.innerHTML = "";
+  for (const sub of submissions) {
+    const { data: answers } = await db.from("coding_exam_answers").select("*, coding_exam_questions(title,points)").eq("submission_id", sub.id);
+    const { data: malpracticeLogs } = await db.from("exam_malpractice").select("*").eq("submission_id", sub.id).order("timestamp", { ascending: true });
+
+    const studentName = sub.users?.name || "Unknown";
+    const initials = studentName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+    const malpracticeClass = sub.malpractice_count === 0 ? "clean" : sub.malpractice_count <= 3 ? "warning" : "danger";
+    const malpracticeLabel = sub.malpractice_count === 0 ? "Clean" : `${sub.malpractice_count} violations`;
+
+    const card = document.createElement("div");
+    card.className = "submission-card fade-in";
+    card.innerHTML = `
+      <div class="submission-header">
+        <div class="student-info">
+          <div class="student-avatar">${initials}</div>
+          <div>
+            <h4 style="margin:0">${studentName}</h4>
+            <p style="margin:4px 0 0;font-size:13px;opacity:0.6">${sub.users?.email || ""}</p>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div class="score-display">${sub.score}/${maxScore}</div>
+          <span class="malpractice-badge ${malpracticeClass}"><i class="fa-solid fa-shield-halved"></i> ${malpracticeLabel}</span>
+          <div style="font-size:12px;opacity:0.6;margin-top:5px">
+            ${sub.status === "submitted" ? `Submitted: ${new Date(sub.submitted_at).toLocaleString()}` : "In Progress"}
+          </div>
+        </div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${maxScore > 0 ? (sub.score / maxScore * 100) : 0}%"></div></div>
+      <div style="display:flex;gap:10px;margin-bottom:15px">
+        <button class="btn-secondary" style="padding:8px 16px;border-radius:8px;border:none;font-size:12px;cursor:pointer" onclick="toggleAnswers('${sub.id}')">
+          <i class="fa-solid fa-code"></i> View Code
+        </button>
+        ${malpracticeLogs && malpracticeLogs.length > 0 ? `<button class="btn-danger" style="padding:8px 16px;border-radius:8px;border:none;font-size:12px;cursor:pointer" onclick="toggleMalpractice('${sub.id}')">
+          <i class="fa-solid fa-triangle-exclamation"></i> Malpractice (${malpracticeLogs.length})
+        </button>` : ""}
+      </div>
+      <div id="answers-${sub.id}" style="display:none"></div>
+      <div id="malpractice-${sub.id}" style="display:none"></div>
+    `;
+    list.appendChild(card);
+
+    if (answers && answers.length > 0) {
+      const answersDiv = document.getElementById(`answers-${sub.id}`);
+      answers.forEach((ans, idx) => {
+        const viewerId = `code-${sub.id}-${idx}`;
+        const ta = document.createElement("textarea");
+        ta.id = viewerId;
+        ta.value = ans.code;
+        answersDiv.innerHTML += `
+          <div class="code-viewer" style="margin-bottom:15px">
+            <div class="code-viewer-header">
+              <span><i class="fa-solid fa-file-code"></i> ${ans.coding_exam_questions?.title || "Question " + (idx + 1)}</span>
+              <span>${ans.language} • ${ans.points_earned}/${ans.coding_exam_questions?.points || 0} pts</span>
+            </div>
+          </div>
+        `;
+        answersDiv.querySelector(".code-viewer:last-child").appendChild(ta);
+        setTimeout(() => {
+          codeViewers[viewerId] = CodeMirror.fromTextArea(ta, {
+            lineNumbers: true,
+            readOnly: true,
+            theme: "material-darker",
+            tabSize: 2
+          });
+          codeViewers[viewerId].setSize("100%", "auto");
+        }, 100);
+      });
+    }
+
+    if (malpracticeLogs && malpracticeLogs.length > 0) {
+      const malDiv = document.getElementById(`malpractice-${sub.id}`);
+      malDiv.innerHTML = `
+        <div class="malpractice-log">
+          <h5><i class="fa-solid fa-triangle-exclamation"></i> Malpractice Log</h5>
+          ${malpracticeLogs.map(log => `
+            <div class="violation-item">
+              <span class="violation-type">${log.violation_type}</span>
+              <span>${log.details || ""}</span>
+              <span class="violation-time">${new Date(log.timestamp).toLocaleTimeString()}</span>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+  }
+}
+
+function toggleAnswers(subId) {
+  const el = document.getElementById(`answers-${subId}`);
+  el.style.display = el.style.display === "none" ? "block" : "none";
+}
+
+function toggleMalpractice(subId) {
+  const el = document.getElementById(`malpractice-${subId}`);
+  el.style.display = el.style.display === "none" ? "block" : "none";
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Coding Exams | EduResolve</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="exam.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../theme.js"></script>
+</head>
+<body>
+
+<nav class="navbar-custom">
+  <div class="logo" onclick="window.location.href='../teacher-dashboard.html'">
+    <i class="fa-solid fa-graduation-cap"></i> EduResolve
+  </div>
+  <div class="nav-center">
+    <a href="../teacher-dashboard.html">Dashboard</a>
+    <a href="teacher-exam-list.html">My Exams</a>
+    <a href="teacher-exam-create.html">Create Exam</a>
+  </div>
+  <div class="nav-right">
+    <button id="modeBtn" class="mode-btn"><i class="fa-solid fa-moon"></i></button>
+    <button id="logoutNavBtn" class="logout-nav-btn"><i class="fa-solid fa-right-from-bracket"></i></button>
+    <div class="menu">
+      <i class="fa-solid fa-bars" id="menuIcon"></i>
+      <div class="menu-dropdown" id="menuDropdown">
+        <a href="#">Profile</a>
+        <a href="#" id="logoutBtn">Logout</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="welcome-box">
+  <div>
+    <h3 id="teacherName">My Coding Exams</h3>
+    <p style="margin:5px 0 0;opacity:0.8;font-size:14px">Manage and monitor your coding exams</p>
+  </div>
+  <div class="welcome-right">
+    <h6 id="teacherInstitution"></h6>
+    <p id="todayDate"></p>
+  </div>
+</div>
+
+<div class="main-container">
+  <div class="stats-box" id="statsBox"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:25px">
+    <h3 style="margin:0">All Exams</h3>
+    <button class="btn-success" style="padding:10px 20px;border-radius:10px;border:none;font-size:14px;font-weight:600;cursor:pointer" onclick="window.location.href='teacher-exam-create.html'">
+      <i class="fa-solid fa-plus"></i> Create New Exam
+    </button>
+  </div>
+  <div class="exams-grid" id="examsGrid"></div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://zwpjavmrgveckswnobhg.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let currentUser = null;
+
+document.addEventListener("DOMContentLoaded", async function() {
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) { window.location.href = "../login.html"; return; }
+  currentUser = user;
+  const { data: p } = await db.from("users").select("name,institution,role").eq("id", user.id).single();
+  if (!p || p.role !== "teacher") { window.location.href = "../login.html"; return; }
+  document.getElementById("teacherName").innerText = "My Exams, " + p.name;
+  document.getElementById("teacherInstitution").innerText = p.institution;
+  document.getElementById("todayDate").innerText = new Date().toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+  loadExams();
+  setupUI();
+});
+
+function setupUI() {
+  document.getElementById("menuIcon").addEventListener("click", function() {
+    document.getElementById("menuDropdown").classList.toggle("show-menu");
+  });
+  document.getElementById("logoutBtn").addEventListener("click", async function(e) {
+    e.preventDefault();
+    await db.auth.signOut();
+    window.location.href = "../login.html";
+  });
+  document.getElementById("logoutNavBtn").addEventListener("click", async function(e){
+    e.preventDefault();
+    await db.auth.signOut();
+    window.location.href="../login.html";
+  });
+}
+
+async function loadExams() {
+  const { data: exams, error } = await db.from("coding_exams").select("*").eq("teacher_id", currentUser.id).order("created_at", { ascending: false });
+  console.log("Exams query - data:", exams, "error:", error);
+  const grid = document.getElementById("examsGrid");
+  const statsBox = document.getElementById("statsBox");
+
+  if (!exams || exams.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><i class="fa-solid fa-file-circle-question"></i><h4>No exams yet</h4><p>Create your first coding exam to get started</p></div>`;
+    statsBox.innerHTML = `<div class="stat-card"><h3>0</h3><p>Total Exams</p></div><div class="stat-card"><h3>0</h3><p>Active</p></div><div class="stat-card"><h3>0</h3><p>Submissions</p></div>`;
+    return;
+  }
+
+  let totalSubmissions = 0;
+  let activeCount = 0;
+  const now = new Date();
+
+  for (const exam of exams) {
+    const { count } = await db.from("coding_exam_submissions").select("*", { count: "exact", head: true }).eq("exam_id", exam.id);
+    totalSubmissions += count || 0;
+    const start = exam.start_time ? new Date(exam.start_time) : new Date(exam.created_at);
+    const end = exam.end_time ? new Date(exam.end_time) : new Date(start.getTime() + 24 * 60 * 60 * 1000);
+    if (now >= start && now <= end) activeCount++;
+  }
+
+  statsBox.innerHTML = `
+    <div class="stat-card"><h3>${exams.length}</h3><p>Total Exams</p></div>
+    <div class="stat-card"><h3>${activeCount}</h3><p>Active Now</p></div>
+    <div class="stat-card"><h3>${totalSubmissions}</h3><p>Total Submissions</p></div>
+  `;
+
+  grid.innerHTML = "";
+  for (const exam of exams) {
+    const start = exam.start_time ? new Date(exam.start_time) : new Date(exam.created_at);
+    const end = exam.end_time ? new Date(exam.end_time) : new Date(start.getTime() + 24 * 60 * 60 * 1000);
+    let statusBadge = "";
+    if (now < start) statusBadge = `<span class="badge badge-upcoming">Upcoming</span>`;
+    else if (now > end) statusBadge = `<span class="badge badge-expired">Expired</span>`;
+    else statusBadge = `<span class="badge badge-active">Active</span>`;
+
+    const { count: subCount } = await db.from("coding_exam_submissions").select("*", { count: "exact", head: true }).eq("exam_id", exam.id);
+    const { count: qCount } = await db.from("coding_exam_questions").select("*", { count: "exact", head: true }).eq("exam_id", exam.id);
+    const { data: teamData } = await db.from("teams").select("name").eq("id", exam.team_id).single();
+    const teamName = teamData?.name || "";
+
+    const card = document.createElement("div");
+    card.className = "exam-card fade-in";
+    card.innerHTML = `
+      <h4>${exam.title}</h4>
+      <p>${exam.description || "No description"}</p>
+      <div class="exam-meta">
+        ${statusBadge}
+        <span class="meta-tag"><i class="fa-solid fa-clock"></i> ${exam.time_limit} min</span>
+        <span class="meta-tag"><i class="fa-solid fa-list"></i> ${qCount || 0} questions</span>
+        <span class="meta-tag"><i class="fa-solid fa-users"></i> ${subCount || 0} submissions</span>
+        ${teamName ? `<span class="meta-tag"><i class="fa-solid fa-users"></i> ${teamName}</span>` : ""}
+        ${exam.password ? `<span class="meta-tag"><i class="fa-solid fa-lock"></i> Password</span>` : ""}
+      </div>
+      <div style="font-size:12px;opacity:0.6;margin-bottom:15px">
+        <i class="fa-solid fa-calendar"></i> ${start.toLocaleDateString()} - ${end.toLocaleDateString()}
+      </div>
+      <div class="exam-actions">
+        <button class="btn-primary" onclick="window.location.href='teacher-exam-results.html?id=${exam.id}'">
+          <i class="fa-solid fa-chart-bar"></i> Results
+        </button>
+        <button class="btn-secondary" onclick="window.location.href='teacher-exam-create.html?edit=${exam.id}'">
+          <i class="fa-solid fa-pen"></i> Edit
+        </button>
+        <button class="btn-danger" onclick="deleteExam('${exam.id}')">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+    `;
+    grid.appendChild(card);
+  }
+}
+
+async function deleteExam(id) {
+  if (!confirm("Delete this exam and all its submissions?")) return;
+  await db.from("coding_exam_answers").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+  await db.from("coding_exam_submissions").delete().eq("exam_id", id);
+  await db.from("coding_exam_questions").delete().eq("exam_id", id);
+  await db.from("coding_exams").delete().eq("id", id);
+  loadExams();
+}
+</script>
+</body>
+</html>

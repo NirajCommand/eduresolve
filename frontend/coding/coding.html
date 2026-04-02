@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Code Practice | EduResolve</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="coding.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/eclipse.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/go/go.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/rust/rust.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/php/php.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/ruby/ruby.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/swift/swift.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/shell/shell.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/r/r.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/comment/comment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldgutter.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/brace-fold.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/indent-fold.min.js"></script>
+<script src="../theme.js"></script>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar-custom">
+  <div class="logo" id="logoBtn">
+    <i class="fa-solid fa-graduation-cap"></i> EduResolve
+  </div>
+  <div class="nav-center">
+    <a href="#">Practice</a>
+    <a href="#">Languages</a>
+    <a href="../student-dashboard.html">Dashboard</a>
+  </div>
+  <div class="nav-right">
+    <button id="modeBtn" class="mode-btn">
+      <i class="fa-solid fa-moon"></i>
+    </button>
+    <button id="logoutBtn" class="logout-nav-btn">
+      <i class="fa-solid fa-right-from-bracket"></i>
+    </button>
+    <div class="menu">
+      <i class="fa-solid fa-bars" id="menuIcon"></i>
+      <div class="menu-dropdown" id="menuDropdown">
+        <a href="#">Profile</a>
+        <a href="#">Settings</a>
+        <a href="#">Help</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+<div class="coding-page">
+  <div class="coding-header">
+    <h2><span>Code</span> Practice</h2>
+    <p>Write, compile, and run your code in multiple languages</p>
+  </div>
+
+  <div class="controls-bar">
+    <div class="control-group">
+      <label for="languageSelect"><i class="fa-solid fa-code"></i> Language:</label>
+      <select id="languageSelect" class="language-select">
+        <option value="">Loading languages...</option>
+      </select>
+    </div>
+    <button id="resetBtn" class="reset-btn">
+      <i class="fa-solid fa-rotate-right"></i> Reset
+    </button>
+    <button id="runBtn" class="run-btn">
+      <i class="fa-solid fa-play"></i> Run Code
+    </button>
+  </div>
+
+
+  <div class="coding-container">
+
+    <div class="editor-panel">
+      <div class="panel-header">
+        <span><i class="fa-solid fa-file-code"></i> Editor</span>
+        <span id="languageLabel">Select a language</span>
+      </div>
+      <div class="editor-wrapper">
+        <textarea id="codeEditor" class="code-editor" spellcheck="false"></textarea>
+      </div>
+      <div class="input-section">
+        <label for="customInput"><i class="fa-solid fa-keyboard"></i> Custom Input (stdin)</label>
+        <textarea id="customInput" class="custom-input" placeholder="Enter input for your program (optional)..."></textarea>
+      </div>
+    </div>
+
+
+    <div class="output-panel">
+      <div class="panel-header">
+        <span><i class="fa-solid fa-terminal"></i> Output</span>
+        <span id="executionTime"></span>
+      </div>
+      <div class="output-content" id="outputContent">
+        <div class="output-placeholder">
+          <i class="fa-solid fa-terminal"></i>
+          <p>Click "Run Code" to see output here</p>
+        </div>
+      </div>
+      <div class="status-bar">
+        <div class="status-indicator">
+          <div class="status-dot" id="statusDot"></div>
+          <span id="statusText">Ready</span>
+        </div>
+        <span id="memoryUsage"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const JUDGE0_API = "https://judge0-ce.p.rapidapi.com";
+const RAPIDAPI_KEY = ""; 
+
+
+const JUDGE0_INSTANCES = [
+  "https://judge0-ce.p.rapidapi.com",
+  "https://demo.judge0.com",
+  "https://ce.judge0.com"
+];
+
+let currentApiUrl = JUDGE0_INSTANCES[0];
+let languages = [];
+let isRunning = false;
+let editor = null;
+
+
+const codeTemplates = {
+  "Python (3.8.1)": `# Write your Python code here
+def main():
+    print("Hello, World!")
+    
+if __name__ == "__main__":
+    main()`,
+  "JavaScript (Node.js 12.14.0)": `// Write your JavaScript code here
+console.log("Hello, World!");`,
+  "Java (OpenJDK 13.0.1)": `public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}`,
+  "C (GCC 9.2.0)": `#include <stdio.h>
+
+int main() {
+    printf("Hello, World!\\n");
+    return 0;
+}`,
+  "C++ (GCC 9.2.0)": `#include <iostream>
+using namespace std;
+
+int main() {
+    cout << "Hello, World!" << endl;
+    return 0;
+}`,
+  "C# (Mono 6.6.0.161)": `using System;
+
+class Program {
+    static void Main() {
+        Console.WriteLine("Hello, World!");
+    }
+}`,
+  "Go (1.13.5)": `package main
+
+import "fmt"
+
+func main() {
+    fmt.Println("Hello, World!")
+}`,
+  "Rust (1.40.0)": `fn main() {
+    println!("Hello, World!");
+}`,
+  "PHP (7.4.1)": `<?php
+echo "Hello, World!\\n";
+?>`,
+  "Ruby (2.7.0)": `# Write your Ruby code here
+puts "Hello, World!"`,
+  "Kotlin (1.3.70)": `fun main() {
+    println("Hello, World!")
+}`,
+  "Swift (5.2.3)": `print("Hello, World!")`,
+  "TypeScript (3.7.4)": `console.log("Hello, World!");`,
+  "Bash (5.0.0)": `#!/bin/bash
+echo "Hello, World!"`,
+  "R (4.0.0)": `cat("Hello, World!\\n")`
+};
+
+const languageModes = {
+  "Python": "python",
+  "JavaScript": "javascript",
+  "Java": "text/x-java",
+  "C (": "text/x-csrc",
+  "C++": "text/x-c++src",
+  "C#": "text/x-csharp",
+  "Go": "go",
+  "Rust": "rust",
+  "PHP": "php",
+  "Ruby": "ruby",
+  "Kotlin": "text/x-kotlin",
+  "Swift": "swift",
+  "TypeScript": "javascript",
+  "Bash": "shell",
+  "R (": "r"
+};
+
+
+const statusDescriptions = {
+  1: "In Queue",
+  2: "Processing",
+  3: "Accepted",
+  4: "Wrong Answer",
+  5: "Time Limit Exceeded",
+  6: "Compilation Error",
+  7: "Runtime Error (SIGSEGV)",
+  8: "Runtime Error (SIGXFSZ)",
+  9: "Runtime Error (SIGFPE)",
+  10: "Runtime Error (SIGABRT)",
+  11: "Runtime Error (NZEC)",
+  12: "Runtime Error (Other)",
+  13: "Internal Error",
+  14: "Exec Format Error"
+};
+
+
+document.addEventListener("DOMContentLoaded", async function() {
+  loadLanguages();
+  setupEditor();
+  setupEventListeners();
+});
+
+
+async function loadLanguages() {
+  const select = document.getElementById("languageSelect");
+  
+  for (const instance of JUDGE0_INSTANCES) {
+    try {
+      const response = await fetch(`${instance}/languages`, {
+        headers: RAPIDAPI_KEY ? {
+          "X-RapidAPI-Key": RAPIDAPI_KEY,
+          "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com"
+        } : {}
+      });
+      
+      if (response.ok) {
+        currentApiUrl = instance;
+        languages = await response.json();
+        populateLanguages(select);
+        return;
+      }
+    } catch (e) {
+      console.log(`Failed to connect to ${instance}`);
+    }
+  }
+  
+  
+  select.innerHTML = "";
+  const fallbackLanguages = [
+    { id: 71, name: "Python (3.8.1)" },
+    { id: 63, name: "JavaScript (Node.js 12.14.0)" },
+    { id: 62, name: "Java (OpenJDK 13.0.1)" },
+    { id: 50, name: "C (GCC 9.2.0)" },
+    { id: 54, name: "C++ (GCC 9.2.0)" },
+    { id: 51, name: "C# (Mono 6.6.0.161)" },
+    { id: 60, name: "Go (1.13.5)" },
+    { id: 73, name: "Rust (1.40.0)" },
+    { id: 68, name: "PHP (7.4.1)" },
+    { id: 72, name: "Ruby (2.7.0)" }
+  ];
+  languages = fallbackLanguages;
+  populateLanguages(select);
+}
+
+
+function populateLanguages(select) {
+  select.innerHTML = "";
+  
+
+  languages.sort((a, b) => a.name.localeCompare(b.name));
+  
+  languages.forEach(lang => {
+    const option = document.createElement("option");
+    option.value = lang.id;
+    option.textContent = lang.name;
+    select.appendChild(option);
+  });
+  
+
+  const pythonLang = languages.find(l => l.name.includes("Python"));
+  if (pythonLang) {
+    select.value = pythonLang.id;
+    updateEditorTemplate();
+  }
+}
+
+
+function setupEditor() {
+  editor = CodeMirror.fromTextArea(document.getElementById("codeEditor"), {
+    lineNumbers: true,
+    tabSize: 2,
+    indentUnit: 2,
+    indentWithTabs: false,
+    smartIndent: true,
+    autoCloseBrackets: true,
+    matchBrackets: true,
+    styleActiveLine: true,
+    theme: "material-darker",
+    lineWrapping: false,
+    extraKeys: {
+      "Ctrl-Enter": function() { runCode(); },
+      "Cmd-Enter": function() { runCode(); },
+      "Tab": function(cm) {
+        if (cm.somethingSelected()) {
+          cm.indentSelection("add");
+        } else {
+          cm.replaceSelection("  ", "end");
+        }
+      },
+      "Shift-Tab": function(cm) {
+        cm.indentSelection("subtract");
+      },
+      "Ctrl-/": function(cm) {
+        cm.toggleComment();
+      },
+      "Cmd-/": function(cm) {
+        cm.toggleComment();
+      }
+    }
+  });
+  
+  editor.setSize("100%", "100%");
+}
+
+
+function setupEventListeners() {
+  document.getElementById("languageSelect").addEventListener("change", updateEditorTemplate);
+  document.getElementById("runBtn").addEventListener("click", runCode);
+  document.getElementById("resetBtn").addEventListener("click", resetEditor);
+  
+
+  document.getElementById("menuIcon").addEventListener("click", function() {
+    document.getElementById("menuDropdown").classList.toggle("show-menu");
+  });
+  
+  document.getElementById("logoutBtn").addEventListener("click", async function(e){
+    e.preventDefault();
+    await supabase.auth.signOut();
+    window.location.href = "../login.html";
+  });
+
+  document.getElementById("logoBtn").addEventListener("click", function() {
+    window.location.href = "../student-dashboard.html";
+  });
+}
+
+
+function updateEditorTemplate() {
+  const select = document.getElementById("languageSelect");
+  const selectedLang = select.options[select.selectedIndex]?.text;
+  
+  document.getElementById("languageLabel").textContent = selectedLang || "Select a language";
+  
+  let template = `// Write your code here\n`;
+  if (codeTemplates[selectedLang]) {
+    template = codeTemplates[selectedLang];
+  }
+  
+  editor.setValue(template);
+  editor.refresh();
+  editor.focus();
+  
+
+  let mode = "text/plain";
+  for (const [key, val] of Object.entries(languageModes)) {
+    if (selectedLang.includes(key)) {
+      mode = val;
+      break;
+    }
+  }
+  editor.setOption("mode", mode);
+}
+
+
+function resetEditor() {
+  const customInput = document.getElementById("customInput");
+  
+  editor.setValue("");
+  customInput.value = "";
+  updateEditorTemplate();
+  
+  document.getElementById("outputContent").innerHTML = `
+    <div class="output-placeholder">
+      <i class="fa-solid fa-terminal"></i>
+      <p>Click "Run Code" to see output here</p>
+    </div>
+  `;
+  document.getElementById("statusDot").className = "status-dot";
+  document.getElementById("statusText").textContent = "Ready";
+  document.getElementById("executionTime").textContent = "";
+  document.getElementById("memoryUsage").textContent = "";
+}
+
+
+
+async function runCode() {
+  if (isRunning) return;
+  
+  const select = document.getElementById("languageSelect");
+  const languageId = select.value;
+  const sourceCode = editor.getValue();
+  const stdin = document.getElementById("customInput").value;
+  
+  if (!languageId) {
+    showOutput("Please select a language first.", "error");
+    return;
+  }
+  
+  if (!sourceCode.trim()) {
+    showOutput("Please write some code first.", "error");
+    return;
+  }
+  
+  isRunning = true;
+  updateUIState("running");
+  
+  try {
+
+    const submission = await submitCode(languageId, sourceCode, stdin);
+    
+    if (!submission || !submission.token) {
+      throw new Error("Failed to submit code");
+    }
+    
+
+    const result = await pollForResult(submission.token);
+    displayResult(result);
+    
+  } catch (error) {
+    console.error("Execution error:", error);
+    showOutput(`Error: ${error.message}\n\nIf the API is unavailable, please check your internet connection or try again later.`, "error");
+    updateUIState("error");
+  } finally {
+    isRunning = false;
+    updateUIState("ready");
+  }
+}
+
+
+async function submitCode(languageId, sourceCode, stdin) {
+  const payload = {
+    source_code: sourceCode,
+    language_id: parseInt(languageId),
+    stdin: stdin || "",
+    cpu_time_limit: 5,
+    memory_limit: 128000
+  };
+  
+  const headers = {
+    "Content-Type": "application/json"
+  };
+  
+  if (RAPIDAPI_KEY && currentApiUrl.includes("rapidapi")) {
+    headers["X-RapidAPI-Key"] = RAPIDAPI_KEY;
+    headers["X-RapidAPI-Host"] = "judge0-ce.p.rapidapi.com";
+  }
+  
+  const response = await fetch(`${currentApiUrl}/submissions`, {
+    method: "POST",
+    headers: headers,
+    body: JSON.stringify(payload)
+  });
+  
+  if (!response.ok) {
+    throw new Error(`API error: ${response.status} ${response.statusText}`);
+  }
+  
+  return await response.json();
+}
+
+
+async function pollForResult(token, maxAttempts = 30) {
+  const headers = RAPIDAPI_KEY && currentApiUrl.includes("rapidapi") ? {
+    "X-RapidAPI-Key": RAPIDAPI_KEY,
+    "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com"
+  } : {};
+  
+  for (let i = 0; i < maxAttempts; i++) {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    const response = await fetch(`${currentApiUrl}/submissions/${token}`, {
+      headers: headers
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to get result: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    
+
+    if (result.status.id > 2) {
+      return result;
+    }
+  }
+  
+  throw new Error("Execution timed out");
+}
+
+
+function displayResult(result) {
+  const statusId = result.status.id;
+  const statusDesc = statusDescriptions[statusId] || "Unknown";
+  const time = result.time ? `${parseFloat(result.time).toFixed(3)}s` : "N/A";
+  const memory = result.memory ? `${result.memory} KB` : "N/A";
+  
+  document.getElementById("executionTime").textContent = `Time: ${time}`;
+  document.getElementById("memoryUsage").textContent = `Memory: ${memory}`;
+  
+  let output = "";
+  
+  if (statusId === 3) {
+
+    output = result.stdout || "Program executed successfully (no output)";
+    updateUIState("success");
+  } else if (statusId === 6) {
+
+    output = `Compilation Error:\n${result.compile_output || "Unknown compilation error"}`;
+    updateUIState("error");
+  } else if (statusId >= 4 && statusId <= 12) {
+
+    output = `${statusDesc}:\n${result.stderr || result.compile_output || "No additional details"}`;
+    updateUIState("error");
+  } else if (statusId === 13) {
+
+    output = `Internal Error: ${result.message || "Something went wrong on the server"}`;
+    updateUIState("error");
+  } else {
+    output = `${statusDesc}`;
+    updateUIState("error");
+  }
+  
+  showOutput(output, statusId === 3 ? "success" : "error");
+}
+
+
+function showOutput(text, type) {
+  const outputContent = document.getElementById("outputContent");
+  outputContent.innerHTML = `<pre class="output-${type}">${escapeHtml(text)}</pre>`;
+}
+
+
+function updateUIState(state) {
+  const runBtn = document.getElementById("runBtn");
+  const statusDot = document.getElementById("statusDot");
+  const statusText = document.getElementById("statusText");
+  
+  switch (state) {
+    case "running":
+      runBtn.disabled = true;
+      runBtn.innerHTML = '<span class="spinner"></span> Running...';
+      statusDot.className = "status-dot running";
+      statusText.textContent = "Running...";
+      break;
+    case "success":
+      runBtn.disabled = false;
+      runBtn.innerHTML = '<i class="fa-solid fa-play"></i> Run Code';
+      statusDot.className = "status-dot success";
+      statusText.textContent = "Success";
+      break;
+    case "error":
+      runBtn.disabled = false;
+      runBtn.innerHTML = '<i class="fa-solid fa-play"></i> Run Code';
+      statusDot.className = "status-dot error";
+      statusText.textContent = "Error";
+      break;
+    case "ready":
+      runBtn.disabled = false;
+      runBtn.innerHTML = '<i class="fa-solid fa-play"></i> Run Code';
+      statusDot.className = "status-dot";
+      statusText.textContent = "Ready";
+      break;
+  }
+}
+
+
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
+</script>
+
+</body>
+</html>

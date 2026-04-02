@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Take Exam | EduResolve</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="exam.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/eclipse.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/go/go.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/rust/rust.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/php/php.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/ruby/ruby.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/swift/swift.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/shell/shell.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/r/r.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../theme.js"></script>
+</head>
+<body>
+
+<div id="examTimer" class="exam-timer" style="display:none">
+  <i class="fa-solid fa-clock"></i>
+  <span id="timerDisplay">00:00:00</span>
+</div>
+
+<div class="exam-container" id="examContainer">
+  <div id="questionArea"></div>
+  <div class="exam-sidebar" id="questionSidebar">
+    <h4 style="margin:0 0 15px;font-size:14px">Questions</h4>
+    <div class="question-nav" id="questionNav"></div>
+    <div style="margin-top:20px;padding-top:15px;border-top:1px solid rgba(255,255,255,0.1)">
+      <div style="font-size:12px;opacity:0.7;margin-bottom:10px">
+        <span style="color:#22c55e">●</span> Answered &nbsp;
+        <span style="color:#2f6df6">●</span> Current &nbsp;
+        <span style="color:#6b7280">●</span> Unanswered
+      </div>
+      <button class="btn-success" style="width:100%;padding:12px;border-radius:10px;border:none;font-size:14px;font-weight:600;cursor:pointer" onclick="submitExam()">
+        <i class="fa-solid fa-paper-plane"></i> Submit Exam
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="startModal">
+  <div class="modal-box">
+    <h3><i class="fa-solid fa-shield-halved"></i> Anti-Cheat Active</h3>
+    <p style="text-align:left;font-size:13px;line-height:1.6">
+      <strong>Before you begin, please note:</strong><br><br>
+      <i class="fa-solid fa-ban" style="color:#ef4444"></i> <strong>Tab switching</strong> is logged<br>
+      <i class="fa-solid fa-ban" style="color:#ef4444"></i> <strong>Copy/Paste</strong> is disabled<br>
+      <i class="fa-solid fa-ban" style="color:#ef4444"></i> <strong>Right-click</strong> is disabled<br>
+      <i class="fa-solid fa-ban" style="color:#ef4444"></i> <strong>Keyboard shortcuts</strong> (Ctrl+C, Ctrl+V, Ctrl+Shift+I, etc.) are blocked<br>
+      <i class="fa-solid fa-ban" style="color:#ef4444"></i> <strong>Screen capture</strong> attempts are logged<br>
+      <i class="fa-solid fa-ban" style="color:#ef4444"></i> <strong>Leaving fullscreen</strong> is logged<br>
+      <i class="fa-solid fa-ban" style="color:#ef4444"></i> <strong>DevTools</strong> opening attempts are logged<br><br>
+      All violations are reported to your teacher.
+    </p>
+    <button class="btn-success" style="width:100%;padding:14px;border-radius:10px;border:none;font-size:15px;font-weight:600;cursor:pointer" onclick="beginExam()">
+      <i class="fa-solid fa-play"></i> I Understand, Start Exam
+    </button>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://zwpjavmrgveckswnobhg.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser = null;
+let exam = null;
+let questions = [];
+let submission = null;
+let answers = {};
+let editors = {};
+let currentQuestion = 0;
+let timerInterval = null;
+let timeRemaining = 0;
+let malpracticeCount = 0;
+let malpracticeLogs = [];
+let isExamActive = false;
+
+const ALL_LANGUAGES = [
+  { id: 71, name: "Python 3.8", mode: "python" },
+  { id: 63, name: "JavaScript", mode: "javascript" },
+  { id: 62, name: "Java", mode: "text/x-java" },
+  { id: 50, name: "C", mode: "text/x-csrc" },
+  { id: 54, name: "C++", mode: "text/x-c++src" },
+  { id: 51, name: "C#", mode: "text/x-csharp" },
+  { id: 60, name: "Go", mode: "go" },
+  { id: 73, name: "Rust", mode: "rust" },
+  { id: 68, name: "PHP", mode: "php" },
+  { id: 72, name: "Ruby", mode: "ruby" },
+  { id: 78, name: "Kotlin", mode: "text/x-kotlin" },
+  { id: 83, name: "Swift", mode: "swift" },
+  { id: 74, name: "TypeScript", mode: "javascript" },
+  { id: 70, name: "Bash", mode: "shell" },
+  { id: 80, name: "R", mode: "r" }
+];
+
+const langModes = {};
+ALL_LANGUAGES.forEach(l => langModes[l.id] = l.mode);
+
+document.addEventListener("DOMContentLoaded", async function() {
+  const params = new URLSearchParams(window.location.search);
+  const examId = params.get("id");
+  if (!examId) { window.location.href = "student-exam-list.html"; return; }
+
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) { window.location.href = "../login.html"; return; }
+  currentUser = user;
+
+  const { data: examData } = await db.from("coding_exams").select("*").eq("id", examId).single();
+  if (!examData) { alert("Exam not found"); window.location.href = "student-exam-list.html"; return; }
+
+  const now = new Date();
+  if (now < new Date(examData.start_time)) { alert("Exam hasn't started yet"); window.location.href = "student-exam-list.html"; return; }
+  if (now > new Date(examData.end_time)) { alert("Exam has expired"); window.location.href = "student-exam-list.html"; return; }
+
+  await loadExam(examData);
+});
+
+async function loadExam(examData) {
+  exam = examData;
+  const { data: qData } = await db.from("coding_exam_questions").select("*").eq("exam_id", exam.id).order("order_index");
+  questions = qData || [];
+  if (questions.length === 0) { alert("No questions in this exam"); window.location.href = "student-exam-list.html"; return; }
+
+  for (let i = 0; i < questions.length; i++) {
+    const { data: tcData } = await db.from("coding_exam_test_cases").select("*").eq("question_id", questions[i].id).eq("is_hidden", false).order("order_index");
+    questions[i].test_cases = tcData || [];
+    const { data: htData } = await db.from("coding_exam_test_cases").select("*").eq("question_id", questions[i].id).eq("is_hidden", true).order("order_index");
+    questions[i].hidden_test_cases = htData || [];
+  }
+
+  let { data: existingSub } = await db.from("coding_exam_submissions").select("*").eq("exam_id", exam.id).eq("student_id", currentUser.id).single();
+  if (existingSub && existingSub.status === "submitted") {
+    alert("You've already submitted this exam. You cannot retake it.");
+    window.location.href = "student-exam-list.html";
+    return;
+  }
+  if (!existingSub) {
+    const { data: newSub } = await db.from("coding_exam_submissions").insert({
+      exam_id: exam.id,
+      student_id: currentUser.id,
+      status: "in_progress",
+      max_score: questions.reduce((sum, q) => sum + q.points, 0)
+    }).select().single();
+    existingSub = newSub;
+  }
+  submission = existingSub;
+
+  const { data: existingAnswers } = await db.from("coding_exam_answers").select("*").eq("submission_id", submission.id);
+  existingAnswers?.forEach(ans => {
+    answers[ans.question_id] = { code: ans.code, language: ans.language };
+  });
+
+  timeRemaining = exam.time_limit * 60;
+  if (submission.started_at) {
+    const elapsed = Math.floor((Date.now() - new Date(submission.started_at).getTime()) / 1000);
+    timeRemaining = Math.max(0, timeRemaining - elapsed);
+  }
+
+  document.getElementById("startModal").style.display = "flex";
+}
+
+function beginExam() {
+  document.getElementById("startModal").style.display = "none";
+  isExamActive = true;
+  enableAntiCheat();
+  startTimer();
+  renderExam();
+}
+
+function renderExam() {
+  renderQuestionNav();
+  showQuestion(0);
+}
+
+function renderQuestionNav() {
+  const nav = document.getElementById("questionNav");
+  nav.innerHTML = "";
+  questions.forEach((q, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "question-nav-btn" + (idx === currentQuestion ? " active" : "") + (answers[q.id] ? " answered" : "");
+    btn.textContent = `Q${idx + 1}: ${q.title.substring(0, 25)}${q.title.length > 25 ? "..." : ""}`;
+    btn.onclick = () => showQuestion(idx);
+    nav.appendChild(btn);
+  });
+}
+
+function showQuestion(idx) {
+  currentQuestion = idx;
+  const q = questions[idx];
+  const area = document.getElementById("questionArea");
+  const allowedLangs = exam.allowed_languages || ALL_LANGUAGES.map(l => l.id);
+  const availableLangs = ALL_LANGUAGES.filter(l => allowedLangs.includes(l.id));
+
+  const currentAnswer = answers[q.id] || { code: q.starter_code || "", language: availableLangs[0]?.id || 71 };
+
+  area.innerHTML = `
+    <div class="form-section fade-in" style="margin-right:280px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <h3 style="margin:0;border:none;padding:0"><i class="fa-solid fa-question-circle"></i> Q${idx + 1}: ${q.title}</h3>
+        <div>
+          <span class="badge badge-${q.difficulty}">${q.difficulty}</span>
+          <span class="meta-tag" style="margin-left:8px">${q.points} points</span>
+        </div>
+      </div>
+      <div style="background:rgba(47,109,246,0.05);padding:20px;border-radius:12px;margin-bottom:20px;white-space:pre-wrap;line-height:1.7;font-size:14px">${q.description || "No description"}</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Language</label>
+          <select id="langSelect" onchange="changeLanguage('${q.id}')">
+            ${availableLangs.map(l => `<option value="${l.id}" ${currentAnswer.language == l.id ? "selected" : ""}>${l.name}</option>`).join("")}
+          </select>
+        </div>
+        <div class="form-group" style="display:flex;align-items:end;gap:8px">
+          <button class="btn-primary" style="padding:12px 20px;border-radius:10px;border:none;font-size:14px;cursor:pointer" onclick="saveAnswer('${q.id}')">
+            <i class="fa-solid fa-save"></i> Save
+          </button>
+          <button id="runCodeBtn" class="btn-success" style="padding:12px 20px;border-radius:10px;border:none;font-size:14px;cursor:pointer" onclick="runCode('${q.id}')">
+            <i class="fa-solid fa-play"></i> Run Code
+          </button>
+        </div>
+      </div>
+      <div id="editor-container-${q.id}" style="height:300px;border-radius:10px;overflow:hidden"></div>
+      <div style="margin-top:15px">
+        <h4 style="margin:0 0 10px;font-size:14px"><i class="fa-solid fa-terminal"></i> Output</h4>
+        <div id="output-panel-${q.id}" style="background:#0f172a;color:#e2e8f0;padding:15px;border-radius:10px;min-height:100px;max-height:200px;overflow:auto;font-family:Consolas,monospace;font-size:13px;white-space:pre-wrap">Click "Run Code" to see output...</div>
+      </div>
+    </div>
+  `;
+
+  const ta = document.createElement("textarea");
+  ta.id = `editor-ta-${q.id}`;
+  ta.value = currentAnswer.code;
+  document.getElementById(`editor-container-${q.id}`).appendChild(ta);
+
+  const langMode = langModes[currentAnswer.language] || "python";
+  editors[q.id] = CodeMirror.fromTextArea(ta, {
+    lineNumbers: true,
+    tabSize: 2,
+    indentUnit: 2,
+    smartIndent: true,
+    autoCloseBrackets: true,
+    matchBrackets: true,
+    styleActiveLine: true,
+    theme: "material-darker",
+    mode: langMode,
+    extraKeys: {
+      "Tab": function(cm) {
+        if (cm.somethingSelected()) cm.indentSelection("add");
+        else cm.replaceSelection("  ", "end");
+      },
+      "Ctrl-Enter": function() { saveAnswer('${q.id}'); },
+      "Cmd-Enter": function() { saveAnswer('${q.id}'); }
+    }
+  });
+  editors[q.id].setSize("100%", "100%");
+  renderQuestionNav();
+}
+
+function changeLanguage(qId) {
+  const langId = parseInt(document.getElementById("langSelect").value);
+  const mode = langModes[langId] || "python";
+  if (editors[qId]) {
+    editors[qId].setOption("mode", mode);
+    if (answers[qId]) answers[qId].language = langId;
+  }
+}
+
+const JUDGE0_URL = "https://ce.judge0.com";
+
+async function runCode(qId) {
+  console.log("runCode called for qId:", qId);
+  if (!editors[qId]) {
+    console.error("No editor found for qId:", qId);
+    return;
+  }
+  const code = editors[qId].getValue();
+  const langId = parseInt(document.getElementById("langSelect")?.value || 71);
+  const outputPanel = document.getElementById("output-panel-" + qId);
+  const runBtn = document.getElementById("runCodeBtn");
+
+  console.log("Code length:", code.length, "Language ID:", langId);
+
+  if (!code.trim()) {
+    outputPanel.innerHTML = '<span style="color:#ef4444">Error: Code is empty</span>';
+    return;
+  }
+
+  runBtn.disabled = true;
+  runBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Running...';
+  outputPanel.innerHTML = '<span style="color:#e2e8f0">Running test cases...</span>';
+
+  const q = questions.find(q => q.id === qId);
+  if (!q) {
+    outputPanel.innerHTML = '<span style="color:#ef4444">Question not found</span>';
+    runBtn.disabled = false;
+    runBtn.innerHTML = '<i class="fa-solid fa-play"></i> Run Code';
+    return;
+  }
+
+  console.log("Question:", q.title, "Test cases:", q.test_cases?.length, "Hidden:", q.hidden_test_cases?.length);
+
+  const allTestCases = (q.test_cases || []).concat(q.hidden_test_cases || []);
+  if (allTestCases.length === 0) {
+    outputPanel.innerHTML = '<span style="color:#f59e0b">No test cases defined for this question. Running code without input...</span>';
+    const result = await submitToJudge0(code, langId, "");
+    console.log("Judge0 result (no input):", result);
+    if (result) {
+      let out = "";
+      if (result.stdout) out += atob_safe(result.stdout);
+      if (result.stderr) out += "\nError:\n" + atob_safe(result.stderr);
+      if (result.compile_output) out += "Compile:\n" + atob_safe(result.compile_output);
+      if (!out && result.status) out = "Status: " + result.status.description;
+      outputPanel.innerHTML = out ? '<pre style="margin:0;white-space:pre-wrap;color:#e2e8f0">' + escapeHtml(out) + '</pre>' : '<span style="color:#22c55e">Ran successfully (no output)</span>';
+    } else {
+      outputPanel.innerHTML = '<span style="color:#ef4444">Failed to connect to Judge0 server. Check console for details.</span>';
+    }
+    runBtn.disabled = false;
+    runBtn.innerHTML = '<i class="fa-solid fa-play"></i> Run Code';
+    return;
+  }
+
+  let passedVisible = 0;
+  let failedVisible = 0;
+  let passedHidden = 0;
+  let failedHidden = 0;
+  let html = '<div style="font-size:13px">';
+
+  for (let i = 0; i < allTestCases.length; i++) {
+    const tc = allTestCases[i];
+    const isHidden = tc.is_hidden;
+    const label = isHidden ? `Hidden TC #${i + 1 - q.test_cases.length}` : `Test Case #${i + 1}`;
+
+    html += `<div style="margin-bottom:8px;padding:8px 12px;border-radius:6px;background:${isHidden ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.03)'}">`;
+    html += `<strong style="color:${isHidden ? '#f59e0b' : '#94a3b8'}">${label}</strong> `;
+
+    if (!isHidden) {
+      html += `<div style="font-size:11px;color:#64748b;margin-top:4px">Input: <code style="color:#e2e8f0">${escapeHtml(tc.input || "(empty)")}</code></div>`;
+    }
+
+    console.log(`Running TC ${i + 1}, isHidden: ${isHidden}`);
+    const result = await submitToJudge0(code, langId, tc.input || "");
+    console.log(`TC ${i + 1} result:`, result);
+
+    if (!result) {
+      html += `<span style="color:#ef4444"> Failed to run</span>`;
+      if (!isHidden) failedVisible++; else failedHidden++;
+    } else if (result.status && result.status.id === 3) {
+      const actualOutput = result.stdout ? atob_safe(result.stdout).trim() : "";
+      const expectedOutput = (tc.expected_output || "").trim();
+
+      console.log(`TC ${i + 1} - Expected: "${expectedOutput}", Got: "${actualOutput}"`);
+
+      if (actualOutput === expectedOutput) {
+        html += `<span style="color:#22c55e"> Passed</span>`;
+        if (!isHidden) passedVisible++; else passedHidden++;
+      } else {
+        html += `<span style="color:#ef4444"> Wrong Answer</span>`;
+        if (!isHidden) {
+          failedVisible++;
+          html += `<div style="font-size:11px;color:#64748b;margin-top:4px">Expected: <code style="color:#22c55e">${escapeHtml(expectedOutput || "(empty)")}</code></div>`;
+          html += `<div style="font-size:11px;color:#64748b">Got: <code style="color:#ef4444">${escapeHtml(actualOutput || "(empty)")}</code></div>`;
+        } else {
+          failedHidden++;
+        }
+      }
+    } else {
+      const statusDesc = result.status ? result.status.description : "Unknown error";
+      html += `<span style="color:#ef4444"> ${escapeHtml(statusDesc)}</span>`;
+      if (!isHidden) failedVisible++; else failedHidden++;
+    }
+
+    html += `</div>`;
+  }
+
+  const totalPassed = passedVisible + passedHidden;
+  const totalFailed = failedVisible + failedHidden;
+  const total = allTestCases.length;
+
+  html += `<div style="margin-top:12px;padding:10px 14px;border-radius:8px;background:rgba(47,109,246,0.1);border:1px solid rgba(47,109,246,0.2)">`;
+  html += `<strong style="color:#e2e8f0">Results: ${totalPassed}/${total} passed</strong> `;
+  html += `<span style="color:#22c55e">(${passedVisible} visible, ${passedHidden} hidden)</span> `;
+  html += `<span style="color:#ef4444">(${failedVisible} failed visible, ${failedHidden} failed hidden)</span>`;
+  html += `</div></div>`;
+
+  outputPanel.innerHTML = html;
+  runBtn.disabled = false;
+  runBtn.innerHTML = '<i class="fa-solid fa-play"></i> Run Code';
+}
+
+async function submitToJudge0(sourceCode, languageId, stdin) {
+  try {
+    console.log("Submitting to Judge0:", { languageId, stdinLength: stdin.length, codeLength: sourceCode.length });
+
+    const stdinB64 = btoa(unescape(encodeURIComponent(stdin || "")));
+    const sourceB64 = btoa(unescape(encodeURIComponent(sourceCode)));
+
+    const res = await fetch(`${JUDGE0_URL}/submissions?base64_encoded=true&wait=true`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        source_code: sourceB64,
+        language_id: languageId,
+        stdin: stdinB64,
+        cpu_time_limit: 5,
+        memory_limit: 128000
+      })
+    });
+
+    console.log("Judge0 response status:", res.status);
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error("Judge0 HTTP error:", res.status, errText);
+      return null;
+    }
+
+    const data = await res.json();
+    console.log("Judge0 response data:", data);
+    return data;
+  } catch (e) {
+    console.error("Judge0 network error:", e);
+    return null;
+  }
+}
+
+function escapeHtml(str) {
+  if (!str) return "";
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function atob_safe(str) {
+  try { return atob(str); } catch(e) { return str; }
+}
+
+function saveAnswer(qId) {
+  if (editors[qId]) {
+    const code = editors[qId].getValue();
+    const lang = parseInt(document.getElementById("langSelect")?.value || 71);
+    answers[qId] = { code, language: lang };
+    renderQuestionNav();
+  }
+}
+
+function startTimer() {
+  const timerEl = document.getElementById("examTimer");
+  const display = document.getElementById("timerDisplay");
+  timerEl.style.display = "flex";
+
+  timerInterval = setInterval(() => {
+    timeRemaining--;
+    if (timeRemaining <= 0) {
+      clearInterval(timerInterval);
+      alert("Time's up! Submitting your exam...");
+      submitExam();
+      return;
+    }
+
+    const hours = Math.floor(timeRemaining / 3600);
+    const mins = Math.floor((timeRemaining % 3600) / 60);
+    const secs = timeRemaining % 60;
+    display.textContent = `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+
+    timerEl.className = "exam-timer";
+    if (timeRemaining < 300) timerEl.classList.add("danger");
+    else if (timeRemaining < 600) timerEl.classList.add("warning");
+  }, 1000);
+}
+
+function enableAntiCheat() {
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+  document.addEventListener("contextmenu", e => e.preventDefault());
+  document.addEventListener("keydown", handleKeyDown);
+  document.addEventListener("copy", e => e.preventDefault());
+  document.addEventListener("cut", e => e.preventDefault());
+  document.addEventListener("paste", e => e.preventDefault());
+  document.addEventListener("keyup", handleKeyUp);
+
+  window.addEventListener("blur", handleWindowBlur);
+  window.addEventListener("focus", handleWindowFocus);
+
+  if (navigator.mediaDevices) {
+    navigator.mediaDevices.addEventListener("devicechange", () => {
+      logMalpractice("Screen Capture", "Media device change detected");
+    });
+  }
+
+  setInterval(checkFullscreen, 2000);
+}
+
+function handleVisibilityChange() {
+  if (document.hidden && isExamActive) {
+    logMalpractice("Tab Switch", "User switched to another tab");
+  }
+}
+
+function handleWindowBlur() {
+  if (isExamActive) {
+    logMalpractice("Window Lost Focus", "User clicked outside the exam window");
+  }
+}
+
+function handleWindowFocus() {
+  if (isExamActive) {
+  }
+}
+
+function handleKeyDown(e) {
+  if (!isExamActive) return;
+  if (e.ctrlKey && (e.key === "c" || e.key === "C" || e.key === "v" || e.key === "V" || e.key === "x" || e.key === "X")) {
+    e.preventDefault();
+    logMalpractice("Keyboard Shortcut", `Blocked Ctrl+${e.key.toUpperCase()}`);
+  }
+  if (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "i" || e.key === "J" || e.key === "j" || e.key === "C" || e.key === "c")) {
+    e.preventDefault();
+    logMalpractice("DevTools Attempt", `Blocked Ctrl+Shift+${e.key.toUpperCase()}`);
+  }
+  if (e.key === "F12") {
+    e.preventDefault();
+    logMalpractice("DevTools Attempt", "Blocked F12 key");
+  }
+  if (e.altKey && e.key === "Tab") {
+    e.preventDefault();
+    logMalpractice("Alt+Tab", "User tried to switch applications");
+  }
+  if (e.metaKey) {
+    e.preventDefault();
+    logMalpractice("Meta Key", "Command/Windows key pressed");
+  }
+  if (e.key === "PrintScreen") {
+    e.preventDefault();
+    logMalpractice("Screenshot", "PrintScreen key pressed");
+  }
+}
+
+function handleKeyUp(e) {
+  if (!isExamActive) return;
+  if (e.key === "PrintScreen") {
+    navigator.clipboard?.writeText("").catch(() => {});
+    logMalpractice("Screenshot", "Clipboard cleared after PrintScreen");
+  }
+}
+
+function checkFullscreen() {
+  if (!isExamActive) return;
+  if (!document.fullscreenElement) {
+    logMalpractice("Fullscreen Exit", "User exited fullscreen mode");
+    try { document.documentElement.requestFullscreen(); } catch(e) {}
+  }
+}
+
+function logMalpractice(type, details) {
+  malpracticeCount++;
+  const log = { type, details, timestamp: new Date().toISOString() };
+  malpracticeLogs.push(log);
+  console.log("Malpractice:", type, details);
+}
+
+async function submitExam() {
+  if (!confirm("Are you sure you want to submit? You cannot undo this.")) return;
+  isExamActive = false;
+  clearInterval(timerInterval);
+
+  document.removeEventListener("visibilitychange", handleVisibilityChange);
+  document.removeEventListener("contextmenu", e => e.preventDefault());
+  document.removeEventListener("keydown", handleKeyDown);
+  document.removeEventListener("copy", e => e.preventDefault());
+  document.removeEventListener("cut", e => e.preventDefault());
+  document.removeEventListener("paste", e => e.preventDefault());
+  window.removeEventListener("blur", handleWindowBlur);
+  window.removeEventListener("focus", handleWindowFocus);
+
+  for (const qId in answers) {
+    const ans = answers[qId];
+    const existing = await db.from("coding_exam_answers").select("id").eq("submission_id", submission.id).eq("question_id", qId).single();
+    const answerData = {
+      submission_id: submission.id,
+      question_id: qId,
+      code: ans.code,
+      language: ALL_LANGUAGES.find(l => l.id === ans.language)?.name || "Python",
+      points_earned: 0
+    };
+    if (existing.data) {
+      await db.from("coding_exam_answers").update(answerData).eq("id", existing.data.id);
+    } else {
+      await db.from("coding_exam_answers").insert(answerData);
+    }
+  }
+
+  let totalScore = 0;
+  const maxScore = questions.reduce((s, q) => s + q.points, 0);
+
+  for (const q of questions) {
+    const ans = answers[q.id];
+    if (!ans || !ans.code) continue;
+    const allTestCases = (q.test_cases || []).concat(q.hidden_test_cases || []);
+    if (allTestCases.length === 0) continue;
+
+    console.log("Grading Q:", q.title, "code length:", ans.code.length, "lang:", ans.language);
+    const results = await gradeSubmission(ans.code, ans.language, allTestCases);
+    console.log("Results for Q:", q.title, results);
+
+    if (results && results.length > 0) {
+      const passed = results.filter(r => r.passed).length;
+      const total = results.length;
+      const points = Math.round((passed / total) * q.points);
+      totalScore += points;
+      console.log("Q points:", points, "/", q.points, "passed:", passed, "/", total);
+      await db.from("coding_exam_answers").update({ points_earned: points, test_results: results }).eq("submission_id", submission.id).eq("question_id", q.id);
+    }
+  }
+
+  console.log("Total score:", totalScore, "/", maxScore);
+
+  await db.from("coding_exam_submissions").update({
+    status: "submitted",
+    score: totalScore,
+    submitted_at: new Date().toISOString()
+  }).eq("id", submission.id);
+
+  if (document.fullscreenElement) document.exitFullscreen();
+  alert(`Exam submitted! Score: ${totalScore}/${maxScore}`);
+  window.location.href = "student-exam-list.html";
+}
+
+async function gradeSubmission(sourceCode, languageId, testCases) {
+  try {
+    const results = [];
+    for (const tc of testCases) {
+      const result = await submitToJudge0(sourceCode, parseInt(languageId), tc.input || "");
+      if (result) {
+        const actualOutput = result.stdout ? atob_safe(result.stdout).trim() : "";
+        const expectedOutput = (tc.expected_output || "").trim();
+        results.push({
+          input: tc.input,
+          expected: tc.expected_output,
+          actual: actualOutput,
+          passed: result.status && result.status.id === 3 && actualOutput === expectedOutput,
+          status: result.status ? result.status.description : "Unknown"
+        });
+      }
+    }
+    return results;
+  } catch (e) {
+    console.error("Auto-grading error:", e);
+    return null;
+  }
+}
+</script>
+</body>
+</html>

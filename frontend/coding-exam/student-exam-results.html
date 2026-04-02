@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Exam Results | EduResolve</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="exam.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../theme.js"></script>
+</head>
+<body>
+
+<nav class="navbar-custom">
+  <div class="logo" onclick="window.location.href='student-exam-list.html'">
+    <i class="fa-solid fa-graduation-cap"></i> EduResolve
+  </div>
+  <div class="nav-center">
+    <a href="student-exam-list.html">My Exams</a>
+  </div>
+  <div class="nav-right">
+    <button id="modeBtn" class="mode-btn"><i class="fa-solid fa-moon"></i></button>
+    <button id="logoutNavBtn" class="logout-nav-btn"><i class="fa-solid fa-right-from-bracket"></i></button>
+    <div class="menu">
+      <i class="fa-solid fa-bars" id="menuIcon"></i>
+      <div class="menu-dropdown" id="menuDropdown">
+        <a href="#">Profile</a>
+        <a href="#" id="logoutBtn">Logout</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="welcome-box">
+  <div>
+    <h3 id="examTitle">Loading Results...</h3>
+    <p style="margin:5px 0 0;opacity:0.8;font-size:14px" id="examSubtitle"></p>
+  </div>
+  <div class="welcome-right">
+    <h6 id="studentInstitution"></h6>
+    <p id="todayDate"></p>
+  </div>
+</div>
+
+<div class="main-container">
+  <div class="stats-box" id="statsBox"></div>
+  <div class="form-section">
+    <h3><i class="fa-solid fa-file-code"></i> Your Answers</h3>
+    <div id="answersContainer"></div>
+  </div>
+  <div class="form-section" id="malpracticeSection" style="display:none">
+    <h3><i class="fa-solid fa-triangle-exclamation" style="color:#ef4444"></i> Malpractice Log</h3>
+    <div id="malpracticeContainer"></div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://zwpjavmrgveckswnobhg.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let currentUser = null;
+
+document.addEventListener("DOMContentLoaded", async function() {
+  const params = new URLSearchParams(window.location.search);
+  const submissionId = params.get("id");
+  if (!submissionId) { window.location.href = "student-exam-list.html"; return; }
+
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) { window.location.href = "../login.html"; return; }
+  currentUser = user;
+
+  const { data: sub } = await db.from("coding_exam_submissions").select("*, coding_exams(title,description,time_limit,show_results)").eq("id", submissionId).single();
+  if (!sub || sub.student_id !== user.id) { window.location.href = "student-exam-list.html"; return; }
+
+  document.getElementById("examTitle").innerText = sub.coding_exams?.title || "Exam Results";
+  document.getElementById("examSubtitle").innerText = sub.coding_exams?.description || "";
+  document.getElementById("studentInstitution").innerText = "Results";
+  document.getElementById("todayDate").innerText = `Submitted: ${new Date(sub.submitted_at).toLocaleString()}`;
+
+  const { data: questions } = await db.from("coding_exam_questions").select("*").eq("exam_id", sub.exam_id).order("order_index");
+  const { data: answers } = await db.from("coding_exam_answers").select("*, coding_exam_questions(title,points)").eq("submission_id", submissionId);
+  const maxScore = questions?.reduce((sum, q) => sum + q.points, 0) || 0;
+
+  document.getElementById("statsBox").innerHTML = `
+    <div class="stat-card"><h3>${sub.score}/${maxScore}</h3><p>Your Score</p></div>
+    <div class="stat-card"><h3>${Math.round(sub.score / maxScore * 100)}%</h3><p>Percentage</p></div>
+    <div class="stat-card"><h3>${answers?.length || 0}/${questions?.length || 0}</h3><p>Questions Answered</p></div>
+    <div class="stat-card"><h3>${sub.malpractice_count}</h3><p>Violations</p></div>
+  `;
+
+  const container = document.getElementById("answersContainer");
+  if (sub.coding_exams?.show_results && answers) {
+    for (const ans of answers) {
+      const ta = document.createElement("textarea");
+      ta.value = ans.code;
+      const qTitle = ans.coding_exam_questions?.title || "Unknown";
+      const points = ans.coding_exam_questions?.points || 0;
+      container.innerHTML += `
+        <div class="code-viewer" style="margin-bottom:20px">
+          <div class="code-viewer-header">
+            <span><i class="fa-solid fa-file-code"></i> ${qTitle}</span>
+            <span>${ans.language} • ${ans.points_earned}/${points} pts</span>
+          </div>
+        </div>
+      `;
+      container.querySelector(".code-viewer:last-child").appendChild(ta);
+      setTimeout(() => {
+        CodeMirror.fromTextArea(ta, {
+          lineNumbers: true,
+          readOnly: true,
+          theme: "material-darker",
+          tabSize: 2
+        });
+      }, 100);
+    }
+  } else {
+    container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-eye-slash"></i><h4>Results not available</h4><p>Your teacher hasn't released results yet</p></div>`;
+  }
+
+  if (sub.malpractice_count > 0) {
+    document.getElementById("malpracticeSection").style.display = "block";
+    const { data: logs } = await db.from("exam_malpractice").select("*").eq("submission_id", submissionId).order("timestamp");
+    const malContainer = document.getElementById("malpracticeContainer");
+    malContainer.innerHTML = `<div class="malpractice-log">${logs?.map(log => `
+      <div class="violation-item">
+        <span class="violation-type">${log.violation_type}</span>
+        <span>${log.details || ""}</span>
+        <span class="violation-time">${new Date(log.timestamp).toLocaleString()}</span>
+      </div>
+    `).join("") || ""}</div>`;
+  }
+
+  setupUI();
+});
+
+function setupUI() {
+  document.getElementById("menuIcon").addEventListener("click", function() {
+    document.getElementById("menuDropdown").classList.toggle("show-menu");
+  });
+  document.getElementById("logoutBtn").addEventListener("click", async function(e) {
+    e.preventDefault();
+    await db.auth.signOut();
+    window.location.href = "../login.html";
+  });
+  document.getElementById("logoutNavBtn").addEventListener("click", async function(e){
+    e.preventDefault();
+    await db.auth.signOut();
+    window.location.href="../login.html";
+  });
+}
+</script>
+</body>
+</html>

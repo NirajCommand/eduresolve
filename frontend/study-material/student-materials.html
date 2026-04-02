@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Study Materials | EduResolve</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+body{margin:0;font-family:'Segoe UI',sans-serif;transition:0.3s ease}
+body.dark-mode{background:#0f172a;color:#fff}
+body.light-mode{background:#f4f6fa;color:#111827}
+.navbar-custom{height:65px;padding:0 60px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#111827,#1f2937);box-shadow:0 6px 18px rgba(0,0,0,0.4);position:fixed;top:0;left:0;right:0;z-index:1000}
+body.light-mode .navbar-custom{background:#fff;box-shadow:0 6px 20px rgba(0,0,0,0.08)}
+.logo{font-size:20px;font-weight:600;color:#f4c430;cursor:pointer}
+.nav-center{display:flex;gap:35px}
+.nav-center a{color:#d1d5db;text-decoration:none;font-size:14px}
+body.light-mode .nav-center a{color:#1f2937}
+.nav-right{display:flex;align-items:center;gap:20px}
+.mode-btn{width:36px;height:36px;border-radius:8px;border:none;background:#1e293b;color:#fff;cursor:pointer}
+.logout-nav-btn{width:36px;height:36px;border-radius:8px;border:none;background:#1e293b;color:#fff;cursor:pointer}
+.menu{position:relative}
+.menu-dropdown{display:none;position:absolute;right:0;top:45px;width:160px;background:#1e293b;border-radius:10px;box-shadow:0 10px 25px rgba(0,0,0,0.4)}
+body.light-mode .menu-dropdown{background:#fff;box-shadow:0 10px 25px rgba(0,0,0,0.1)}
+.menu-dropdown a{display:block;padding:12px 16px;text-decoration:none;color:#fff;font-size:14px}
+body.light-mode .menu-dropdown a{color:#1f2937}
+.menu-dropdown a:hover{background:#2f6df6}
+.show-menu{display:block}
+.welcome-section{margin:90px 60px 30px;padding:30px 40px;border-radius:18px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#2f6df6,#1e4fc4);box-shadow:0 12px 35px rgba(47,109,246,0.4)}
+.welcome-section h3{margin:0;font-weight:600}
+.welcome-right{text-align:right}
+.welcome-right h5{margin:0 0 4px;opacity:0.9}
+.welcome-right p{margin:0;font-size:13px;opacity:0.7}
+.dashboard-container{padding:20px 60px 80px;max-width:1400px;margin:auto}
+.team-filter{margin-bottom:30px}
+.team-filter select{padding:10px 16px;border-radius:10px;border:2px solid rgba(47,109,246,0.15);font-size:14px}
+body.dark-mode .team-filter select{background:#1e293b;color:#fff;border-color:rgba(47,109,246,0.2)}
+body.light-mode .team-filter select{background:#fff;color:#111827;border-color:#e2e8f0}
+.materials-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:25px}
+.material-card{padding:25px;border-radius:16px;transition:0.35s ease}
+body.dark-mode .material-card{background:#1e293b;box-shadow:0 12px 30px rgba(0,0,0,0.3)}
+body.light-mode .material-card{background:#fff;box-shadow:0 12px 30px rgba(0,0,0,0.08)}
+.material-card:hover{transform:translateY(-5px)}
+.material-card h4{margin:0 0 10px;font-size:18px}
+.material-card p{margin:0 0 15px;font-size:14px;opacity:0.7}
+.material-meta{display:flex;gap:12px;font-size:12px;margin-bottom:15px;flex-wrap:wrap}
+.meta-tag{padding:4px 10px;border-radius:20px;font-weight:500}
+body.dark-mode .meta-tag{background:rgba(47,109,246,0.15);color:#93c5fd}
+body.light-mode .meta-tag{background:rgba(47,109,246,0.1);color:#2f6df6}
+.empty-state{text-align:center;padding:60px 20px;opacity:0.5}
+.empty-state i{font-size:64px;margin-bottom:20px;color:#2f6df6}
+.btn-view{background:linear-gradient(135deg,#2f6df6,#1e4fc4);color:#fff;border:none;padding:10px 20px;border-radius:10px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block}
+.btn-view:hover{box-shadow:0 10px 25px rgba(47,109,246,0.4);color:#fff}
+@media(max-width:768px){.navbar-custom{padding:0 20px}.nav-center{display:none}.welcome-section{margin:90px 20px 20px;padding:20px;flex-direction:column;text-align:center;gap:15px}.dashboard-container{padding:20px}.materials-grid{grid-template-columns:1fr}}
+</style>
+<script src="../theme.js"></script>
+</head>
+<body>
+<nav class="navbar-custom">
+  <div class="logo" id="logoBtn"><i class="fa-solid fa-graduation-cap"></i> EduResolve</div>
+  <div class="nav-center">
+    <a href="../student-dashboard.html">Dashboard</a>
+    <a href="../student-teams.html">My Courses</a>
+    <a href="#">Search</a>
+  </div>
+  <div class="nav-right">
+    <button id="modeBtn" class="mode-btn"><i class="fa-solid fa-moon"></i></button>
+    <button id="logoutNavBtn" class="logout-nav-btn"><i class="fa-solid fa-right-from-bracket"></i></button>
+    <div class="menu">
+      <i class="fa-solid fa-bars" id="menuIcon"></i>
+      <div class="menu-dropdown" id="menuDropdown">
+        <a href="../student-dashboard.html">Dashboard</a>
+        <a href="#" id="logoutBtn">Logout</a>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="welcome-section">
+  <div class="welcome-left"><h3 id="welcomeText">Loading...</h3><p>Study Materials</p></div>
+  <div class="welcome-right"><h5 id="institutionName"></h5><p id="todayDate"></p></div>
+</div>
+<div class="dashboard-container">
+  <div class="team-filter">
+    <label style="margin-right:10px;font-weight:500">Filter by Team:</label>
+    <select id="teamFilter"><option value="all">All Teams</option></select>
+  </div>
+  <div id="materialsContainer" class="materials-grid"></div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded",async function(){
+const SUPABASE_URL="https://zwpjavmrgveckswnobhg.supabase.co";
+const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw";
+const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const{data:{user}}=await supabase.auth.getUser();
+if(!user){window.location.href="../login.html";return}
+const{data:profile}=await supabase.from("users").select("name,institution,role").eq("id",user.id).single();
+if(!profile||profile.role!=="student"){window.location.href="../login.html";return}
+document.getElementById("welcomeText").innerText="Welcome, "+profile.name;
+document.getElementById("institutionName").innerText=profile.institution;
+document.getElementById("todayDate").innerText=new Date().toLocaleDateString("en-IN",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+const{data:memberships}=await supabase.from("team_members").select("team_id,teams(name)").eq("student_id",user.id).eq("status","approved");
+const teamIds=memberships?.map(m=>m.team_id)||[];
+const teamFilter=document.getElementById("teamFilter");
+memberships?.forEach(m=>{const o=document.createElement("option");o.value=m.team_id;o.textContent=m.teams?.name||"Unknown Team";teamFilter.appendChild(o)});
+teamFilter.addEventListener("change",()=>loadMaterials());
+async function loadMaterials(){
+  const filter=teamFilter.value;
+  let query=supabase.from("study_materials").select("*,teams(name)").in("team_id",teamIds).order("created_at",{ascending:false});
+  if(filter!=="all")query=query.eq("team_id",filter);
+  const{data:materials}=await query;
+  const container=document.getElementById("materialsContainer");
+  container.innerHTML="";
+  if(!materials||materials.length===0){container.innerHTML='<div class="empty-state"><i class="fa-solid fa-book-open"></i><h4>No materials available</h4><p>Materials from your teams will appear here</p></div>';return}
+  materials.forEach(m=>{
+    const typeIcon=m.file_type==="pdf"?"fa-file-pdf":m.file_type==="video"?"fa-video":["ppt","pptx"].includes(m.file_type)?"fa-file-powerpoint":"fa-file-word";
+    const size=m.file_size?` ${(m.file_size/1024/1024).toFixed(2)} MB`:"";
+    container.innerHTML+=`<div class="material-card"><h4><i class="fa-solid ${typeIcon}"></i> ${m.title}</h4><p>${m.description||""}</p><div class="material-meta"><span class="meta-tag">${m.file_type?.toUpperCase()}</span><span class="meta-tag">${m.material_type==="link"?"LINK":"FILE"}</span><span class="meta-tag">${m.teams?.name||""}</span>${size?`<span class="meta-tag">${size}</span>`:""}</div><a href="${m.file_url}" target="_blank" class="btn-view"><i class="fa-solid fa-${m.file_type==="video"?"play":"download"}"></i> ${m.file_type==="video"?"Watch":"View/Download"}</a><br><small style="opacity:0.5">${new Date(m.created_at).toLocaleDateString()}</small></div>`;
+  });
+}
+loadMaterials();
+document.getElementById("menuIcon").addEventListener("click",function(){document.getElementById("menuDropdown").classList.toggle("show-menu")});
+document.getElementById("logoutBtn").addEventListener("click",async function(e){e.preventDefault();await supabase.auth.signOut();window.location.href="../login.html"});
+document.getElementById("logoutNavBtn").addEventListener("click",async function(e){e.preventDefault();await supabase.auth.signOut();window.location.href="../login.html"});
+document.getElementById("logoBtn").addEventListener("click",function(){window.location.href="../student-dashboard.html"});
+});
+</script>
+</body>
+</html>

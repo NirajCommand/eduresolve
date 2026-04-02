@@ -1,0 +1,803 @@
+:root {
+  --primary-gold: #d6b57a;
+  --primary-blue: #2f6df6;
+  --soft-blue: rgba(47,109,246,0.15);
+  --editor-bg: #1e293b;
+  --editor-gutter: #0f172a;
+  --output-bg: #0f172a;
+  --success: #22c55e;
+  --error: #ef4444;
+  --warning: #f59e0b;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+/* =====================================================
+   NAVBAR
+===================================================== */
+
+.navbar-custom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 40px;
+  background-color: #151618;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+.navbar-custom a {
+  color: #dddddd;
+  text-decoration: none;
+  font-size: 15px;
+}
+
+.nav-center {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+}
+
+.logo {
+  font-size: 20px;
+  color: wheat;
+  cursor: pointer;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.mode-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #f4c430;
+  padding: 6px;
+}
+
+.logout-nav-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #f4c430;
+  padding: 6px;
+  transition: color 0.2s ease;
+}
+
+.logout-nav-btn:hover {
+  color: #ff6b6b;
+}
+
+.menu {
+  position: relative;
+  cursor: pointer;
+}
+
+.menu i {
+  font-size: 18px;
+  color: white;
+}
+
+.menu-dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 28px;
+  min-width: 180px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  overflow: hidden;
+  z-index: 10;
+}
+
+.menu-dropdown a {
+  display: block;
+  padding: 10px 14px;
+  font-size: 14px;
+  text-decoration: none;
+  color: #1f2937;
+}
+
+.menu-dropdown a:hover {
+  background-color: #f4f6fa;
+}
+
+.menu:hover .menu-dropdown {
+  display: block;
+}
+
+.dark-mode .menu-dropdown {
+  background-color: #1b2a44;
+}
+
+.dark-mode .menu-dropdown a {
+  color: #ffffff;
+}
+
+.dark-mode .menu-dropdown a:hover {
+  background-color: #243553;
+}
+
+/* =====================================================
+   CODING PAGE LAYOUT
+===================================================== */
+
+.coding-page {
+  padding-top: 80px;
+  min-height: 100vh;
+  transition: background 0.3s ease;
+}
+
+.light-mode .coding-page {
+  background: #f4f6fa;
+}
+
+.light-mode .coding-header {
+  background: linear-gradient(135deg, #f8fafc, #eef2ff);
+  border: 1px solid #e2e8f0;
+}
+
+.dark-mode .coding-page {
+  background: #0f1a2b;
+}
+
+.coding-header {
+  padding: 30px 60px 20px;
+}
+
+.light-mode .coding-header {
+  background: linear-gradient(135deg, #f8fafc, #eef2ff);
+}
+
+.dark-mode .coding-header {
+  background: linear-gradient(135deg, #162136, #0f1a2b);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+}
+
+.coding-header h2 {
+  font-size: 26px;
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+
+.light-mode .coding-header h2 {
+  color: #1f2937;
+}
+
+.dark-mode .coding-header h2 {
+  color: #ffffff;
+}
+
+.light-mode .coding-header h2 span {
+  color: #2f6df6;
+}
+
+.dark-mode .coding-header h2 span {
+  color: #4f8cff;
+}
+
+.coding-header p {
+  font-size: 14px;
+  margin: 0;
+}
+
+.light-mode .coding-header p {
+  color: #4b5563;
+}
+
+.dark-mode .coding-header p {
+  color: #cbd5f5;
+}
+
+/* =====================================================
+   CONTROLS BAR
+===================================================== */
+
+.controls-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 60px;
+  flex-wrap: wrap;
+}
+
+.light-mode .controls-bar {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  margin: 0 60px;
+}
+
+.dark-mode .controls-bar {
+  background: #1b2a44;
+  border: 1px solid #243553;
+  border-radius: 12px;
+  margin: 0 60px;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.control-group label {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.light-mode .control-group label {
+  color: #374151;
+}
+
+.dark-mode .control-group label {
+  color: #cbd5f5;
+}
+
+.language-select {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 2px solid rgba(47,109,246,0.2);
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s ease;
+  min-width: 180px;
+}
+
+.light-mode .language-select {
+  background: #ffffff;
+  color: #1f2937;
+}
+
+.dark-mode .language-select {
+  background: #1e293b;
+  color: #ffffff;
+  border-color: rgba(79,140,255,0.3);
+}
+
+.language-select:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(47,109,246,0.2);
+}
+
+.run-btn {
+  padding: 10px 28px;
+  border-radius: 10px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.run-btn {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #ffffff;
+}
+
+.run-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(34,197,94,0.4);
+}
+
+.run-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.reset-btn {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 2px solid rgba(47,109,246,0.3);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.light-mode .reset-btn {
+  background: #ffffff;
+  color: #2f6df6;
+}
+
+.dark-mode .reset-btn {
+  background: #1b2a44;
+  color: #4f8cff;
+  border-color: rgba(79,140,255,0.3);
+}
+
+.reset-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(47,109,246,0.25);
+}
+
+/* =====================================================
+   EDITOR + OUTPUT LAYOUT
+===================================================== */
+
+.coding-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  padding: 0 60px 40px;
+  min-height: 500px;
+}
+
+.editor-panel,
+.output-panel {
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: 0.3s ease;
+}
+
+.light-mode .editor-panel,
+.light-mode .output-panel {
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+  border: 1px solid #e2e8f0;
+}
+
+.dark-mode .editor-panel,
+.dark-mode .output-panel {
+  background: #1b2a44;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.light-mode .panel-header {
+  background: #f1f5f9;
+  color: #374151;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dark-mode .panel-header {
+  background: #162136;
+  color: #cbd5f5;
+  border-bottom: 1px solid #243553;
+}
+
+.panel-header i {
+  margin-right: 8px;
+}
+
+.light-mode .panel-header i {
+  color: #2f6df6;
+}
+
+.dark-mode .panel-header i {
+  color: #4f8cff;
+}
+
+/* =====================================================
+   CODE EDITOR
+===================================================== */
+
+.editor-wrapper {
+  flex: 1;
+  position: relative;
+  display: flex;
+  min-height: 400px;
+}
+
+.editor-wrapper .CodeMirror {
+  height: 100%;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.line-numbers {
+  padding: 16px 8px 16px 16px;
+  text-align: right;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  user-select: none;
+  min-width: 40px;
+  overflow: hidden;
+}
+
+.light-mode .line-numbers {
+  background: #f8fafc;
+  color: #94a3b8;
+  border-right: 1px solid #e2e8f0;
+}
+
+.dark-mode .line-numbers {
+  background: #0f172a;
+  color: #64748b;
+  border-right: 1px solid #1e293b;
+}
+
+.code-editor {
+  flex: 1;
+  padding: 16px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  border: none;
+  resize: none;
+  outline: none;
+  tab-size: 2;
+  white-space: pre;
+  overflow: auto;
+}
+
+.light-mode .code-editor {
+  background: #ffffff;
+  color: #1f2937;
+}
+
+.dark-mode .code-editor {
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+/* =====================================================
+   INPUT PANEL
+===================================================== */
+
+.input-section {
+  padding: 16px 20px;
+  border-top: 1px solid;
+}
+
+.light-mode .input-section {
+  border-color: #e2e8f0;
+}
+
+.dark-mode .input-section {
+  border-color: #243553;
+}
+
+.input-section label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.light-mode .input-section label {
+  color: #6b7280;
+}
+
+.dark-mode .input-section label {
+  color: #94a3b8;
+}
+
+.custom-input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  resize: vertical;
+  min-height: 80px;
+  outline: none;
+  transition: 0.3s ease;
+  box-sizing: border-box;
+}
+
+.light-mode .custom-input {
+  background: #f8fafc;
+  color: #1f2937;
+  border-color: #e2e8f0;
+}
+
+.dark-mode .custom-input {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-color: #243553;
+}
+
+.custom-input:focus {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(47,109,246,0.15);
+}
+
+/* =====================================================
+   OUTPUT DISPLAY
+===================================================== */
+
+.output-content {
+  flex: 1;
+  padding: 16px 20px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-height: 300px;
+}
+
+.light-mode .output-content {
+  background: #f8fafc;
+  color: #1f2937;
+}
+
+.dark-mode .output-content {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+.output-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 250px;
+  text-align: center;
+  opacity: 0.5;
+}
+
+.output-placeholder i {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.light-mode .output-placeholder {
+  color: #94a3b8;
+}
+
+.dark-mode .output-placeholder {
+  color: #64748b;
+}
+
+.output-placeholder p {
+  font-size: 14px;
+  margin: 0;
+}
+
+/* =====================================================
+   OUTPUT STATUS BAR
+===================================================== */
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  font-size: 12px;
+  border-top: 1px solid;
+}
+
+.light-mode .status-bar {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #6b7280;
+}
+
+.dark-mode .status-bar {
+  background: #162136;
+  border-color: #243553;
+  color: #94a3b8;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-dot.success {
+  background: var(--success);
+}
+
+.status-dot.error {
+  background: var(--error);
+}
+
+.status-dot.running {
+  background: var(--warning);
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* =====================================================
+   LOADING SPINNER
+===================================================== */
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* =====================================================
+   ERROR/OUTPUT STYLING
+===================================================== */
+
+.output-error {
+  color: var(--error);
+}
+
+.output-success {
+  color: var(--success);
+}
+
+.output-info {
+  color: var(--primary-blue);
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 1200px) {
+  .coding-container {
+    grid-template-columns: 1fr;
+    padding: 0 30px 30px;
+  }
+  
+  .controls-bar {
+    padding: 20px 30px;
+  }
+  
+  .coding-header {
+    padding: 30px 30px 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar-custom {
+    padding: 0 20px;
+  }
+  
+  .nav-center {
+    display: none;
+  }
+  
+  .coding-header {
+    padding: 20px 20px 16px;
+  }
+  
+  .controls-bar {
+    padding: 16px 20px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .control-group {
+    width: 100%;
+  }
+  
+  .language-select {
+    flex: 1;
+  }
+  
+  .run-btn {
+    margin-left: 0;
+    justify-content: center;
+  }
+  
+  .reset-btn {
+    justify-content: center;
+  }
+  
+  .coding-container {
+    padding: 0 20px 20px;
+  }
+}
+
+/* =====================================================
+   CODEMIRROR OVERRIDES
+===================================================== */
+
+.light-mode .CodeMirror {
+  background: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+.light-mode .CodeMirror-gutters {
+  background: #f8fafc !important;
+  border-right: 1px solid #e2e8f0 !important;
+  color: #94a3b8 !important;
+}
+
+.light-mode .CodeMirror-linenumber {
+  color: #94a3b8 !important;
+}
+
+.light-mode .CodeMirror-cursor {
+  border-left-color: #2f6df6 !important;
+}
+
+.light-mode .CodeMirror-selected {
+  background: rgba(47,109,246,0.15) !important;
+}
+
+.light-mode .CodeMirror-activeline-background {
+  background: rgba(47,109,246,0.05) !important;
+}
+
+.dark-mode .CodeMirror {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+}
+
+.dark-mode .CodeMirror-gutters {
+  background: #0f172a !important;
+  border-right: 1px solid #1e293b !important;
+  color: #64748b !important;
+}
+
+.dark-mode .CodeMirror-linenumber {
+  color: #64748b !important;
+}
+
+.dark-mode .CodeMirror-cursor {
+  border-left-color: #4f8cff !important;
+}
+
+.dark-mode .CodeMirror-selected {
+  background: rgba(79,140,255,0.2) !important;
+}
+
+.dark-mode .CodeMirror-activeline-background {
+  background: rgba(79,140,255,0.08) !important;
+}
+
+.CodeMirror {
+  border-radius: 0;
+  padding: 0;
+}
+
+.CodeMirror-scroll {
+  min-height: 400px;
+}

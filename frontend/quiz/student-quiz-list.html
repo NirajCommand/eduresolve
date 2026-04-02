@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Quizzes | EduResolve</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+body{margin:0;font-family:'Segoe UI',sans-serif;transition:0.3s ease}
+body.dark-mode{background:#0f172a;color:#fff}
+body.light-mode{background:#f4f6fa;color:#111827}
+.navbar-custom{height:65px;padding:0 60px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#111827,#1f2937);box-shadow:0 6px 18px rgba(0,0,0,0.4);position:fixed;top:0;left:0;right:0;z-index:1000}
+body.light-mode .navbar-custom{background:#fff;box-shadow:0 6px 20px rgba(0,0,0,0.08)}
+.logo{font-size:20px;font-weight:600;color:#f4c430;cursor:pointer}
+.nav-center{display:flex;gap:35px}
+.nav-center a{color:#d1d5db;text-decoration:none;font-size:14px}
+body.light-mode .nav-center a{color:#1f2937}
+.nav-right{display:flex;align-items:center;gap:20px}
+.mode-btn{width:36px;height:36px;border-radius:8px;border:none;background:#1e293b;color:#fff;cursor:pointer}
+.logout-nav-btn{width:36px;height:36px;border-radius:8px;border:none;background:#1e293b;color:#fff;cursor:pointer}
+.menu{position:relative}
+.menu-dropdown{display:none;position:absolute;right:0;top:45px;width:160px;background:#1e293b;border-radius:10px;box-shadow:0 10px 25px rgba(0,0,0,0.4)}
+body.light-mode .menu-dropdown{background:#fff;box-shadow:0 10px 25px rgba(0,0,0,0.1)}
+.menu-dropdown a{display:block;padding:12px 16px;text-decoration:none;color:#fff;font-size:14px}
+body.light-mode .menu-dropdown a{color:#1f2937}
+.menu-dropdown a:hover{background:#2f6df6}
+.show-menu{display:block}
+.welcome-section{margin:90px 60px 30px;padding:30px 40px;border-radius:18px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#2f6df6,#1e4fc4);box-shadow:0 12px 35px rgba(47,109,246,0.4)}
+.welcome-section h3{margin:0;font-weight:600}
+.welcome-right{text-align:right}
+.welcome-right h5{margin:0 0 4px;opacity:0.9}
+.welcome-right p{margin:0;font-size:13px;opacity:0.7}
+.dashboard-container{padding:20px 60px 80px;max-width:1400px;margin:auto}
+.exams-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:25px;margin-bottom:40px}
+.exam-card{padding:25px;border-radius:16px;transition:0.35s ease}
+body.dark-mode .exam-card{background:#1e293b;box-shadow:0 12px 30px rgba(0,0,0,0.3)}
+body.light-mode .exam-card{background:#fff;box-shadow:0 12px 30px rgba(0,0,0,0.08)}
+.exam-card:hover{transform:translateY(-8px);box-shadow:0 18px 45px rgba(47,109,246,0.3)}
+.exam-card h4{margin:0 0 10px;font-size:18px;font-weight:600}
+.exam-card p{margin:0 0 15px;font-size:14px;opacity:0.7}
+.exam-meta{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;margin-bottom:15px}
+.meta-tag{padding:4px 10px;border-radius:20px;font-weight:500}
+body.dark-mode .meta-tag{background:rgba(47,109,246,0.15);color:#93c5fd}
+body.light-mode .meta-tag{background:rgba(47,109,246,0.1);color:#2f6df6}
+.exam-actions{display:flex;gap:10px}
+.exam-actions button{flex:1;padding:10px;border-radius:10px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:0.3s ease}
+.btn-primary{background:linear-gradient(135deg,#2f6df6,#1e4fc4);color:#fff}
+.btn-primary:hover{box-shadow:0 10px 25px rgba(47,109,246,0.4)}
+.btn-secondary{background:rgba(47,109,246,0.15);color:#2f6df6}
+.section-title{font-size:22px;font-weight:600;margin:30px 0 20px;padding-bottom:10px;border-bottom:2px solid rgba(47,109,246,0.2)}
+.empty-state{text-align:center;padding:60px 20px;opacity:0.5}
+.empty-state i{font-size:64px;margin-bottom:20px;color:#2f6df6}
+@media(max-width:768px){.navbar-custom{padding:0 20px}.nav-center{display:none}.welcome-section{margin:90px 20px 20px;padding:20px;flex-direction:column;text-align:center;gap:15px}.dashboard-container{padding:20px}.exams-grid{grid-template-columns:1fr}}
+</style>
+<script src="../theme.js"></script>
+</head>
+<body>
+<nav class="navbar-custom">
+  <div class="logo" id="logoBtn"><i class="fa-solid fa-graduation-cap"></i> EduResolve</div>
+  <div class="nav-center">
+    <a href="../student-dashboard.html">Dashboard</a>
+    <a href="../student-teams.html">My Courses</a>
+    <a href="#">Search</a>
+  </div>
+  <div class="nav-right">
+    <button id="modeBtn" class="mode-btn"><i class="fa-solid fa-moon"></i></button>
+    <button id="logoutNavBtn" class="logout-nav-btn"><i class="fa-solid fa-right-from-bracket"></i></button>
+    <div class="menu">
+      <i class="fa-solid fa-bars" id="menuIcon"></i>
+      <div class="menu-dropdown" id="menuDropdown">
+        <a href="../student-dashboard.html">Dashboard</a>
+        <a href="#" id="logoutBtn">Logout</a>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="welcome-section">
+  <div class="welcome-left"><h3 id="welcomeText">Loading...</h3><p>My Quizzes</p></div>
+  <div class="welcome-right"><h5 id="institutionName"></h5><p id="todayDate"></p></div>
+</div>
+<div class="dashboard-container">
+  <h3 class="section-title"><i class="fa-solid fa-pen-to-square"></i> Available Quizzes</h3>
+  <div id="availableQuizzes" class="exams-grid"></div>
+  <h3 class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> Your Submissions</h3>
+  <div id="mySubmissions" class="exams-grid"></div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded",async function(){
+const SUPABASE_URL="https://zwpjavmrgveckswnobhg.supabase.co";
+const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw";
+const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const{data:{user}}=await supabase.auth.getUser();
+if(!user){window.location.href="../login.html";return}
+const{data:profile}=await supabase.from("users").select("name,institution,role").eq("id",user.id).single();
+if(!profile||profile.role!=="student"){window.location.href="../login.html";return}
+document.getElementById("welcomeText").innerText="Welcome, "+profile.name;
+document.getElementById("institutionName").innerText=profile.institution;
+document.getElementById("todayDate").innerText=new Date().toLocaleDateString("en-IN",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+const{data:memberships}=await supabase.from("team_members").select("team_id").eq("student_id",user.id).eq("status","approved");
+const teamIds=memberships?.map(m=>m.team_id)||[];
+async function loadQuizzes(){
+  const{data:quizzes}=await supabase.from("quizzes").select("*,teams(name)").eq("status","published").in("team_id",teamIds).order("created_at",{ascending:false});
+  const container=document.getElementById("availableQuizzes");
+  container.innerHTML="";
+  if(!quizzes||quizzes.length===0){container.innerHTML='<div class="empty-state"><i class="fa-solid fa-pen-to-square"></i><h4>No quizzes available</h4><p>Quizzes from your teams will appear here</p></div>';return}
+  for(const q of quizzes){
+    const{count:qCount}=await supabase.from("quiz_questions").select("*",{count:"exact",head:true}).eq("quiz_id",q.id);
+    const{data:existingSub}=await supabase.from("quiz_submissions").select("id,status,score,max_score").eq("quiz_id",q.id).eq("student_id",user.id).single();
+    const isCompleted=existingSub?.status==="submitted";
+    const maxAttempts=q.max_attempts||1;
+    const{count:attemptCount}=await supabase.from("quiz_submissions").select("*",{count:"exact",head:true}).eq("quiz_id",q.id).eq("student_id",user.id);
+    const canAttempt=!isCompleted||(attemptCount||0)<maxAttempts;
+    let actionBtn="";
+    if(isCompleted){actionBtn=`<button class="btn-secondary" onclick="window.location.href='student-quiz-results.html?id=${existingSub.id}'"><i class="fa-solid fa-eye"></i> View Results</button>`}
+    else if(canAttempt){actionBtn=`<button class="btn-primary" onclick="window.location.href='student-quiz-take.html?id=${q.id}'"><i class="fa-solid fa-play"></i> Start Quiz</button>`}
+    else{actionBtn=`<button class="btn-secondary" disabled><i class="fa-solid fa-ban"></i> Max Attempts Reached</button>`}
+    const dueDate=q.end_time?new Date(q.end_time):null;
+    const isExpired=dueDate&&dueDate<new Date();
+    container.innerHTML+=`<div class="exam-card"><h4>${q.title}</h4><p>${q.description||""}</p><div class="exam-meta"><span class="meta-tag">${qCount||0} Questions</span><span class="meta-tag">${q.time_limit||30} min</span><span class="meta-tag">${q.teams?.name||""}</span><span class="meta-tag">Attempt ${(attemptCount||0)}/${maxAttempts}</span></div><div class="exam-actions">${isExpired?'<button class="btn-secondary" disabled>Expired</button>':actionBtn}</div></div>`;
+  }
+}
+async function loadSubmissions(){
+  const{data:submissions}=await supabase.from("quiz_submissions").select("*,quizzes(title,time_limit)").eq("student_id",user.id).order("submitted_at",{ascending:false});
+  const container=document.getElementById("mySubmissions");
+  container.innerHTML="";
+  if(!submissions||submissions.length===0){container.innerHTML='<div class="empty-state"><i class="fa-solid fa-clock-rotate-left"></i><h4>No submissions yet</h4></div>';return}
+  submissions.forEach(s=>{
+    const pct=s.max_score>0?Math.round(s.score/s.max_score*100):0;
+    container.innerHTML+=`<div class="exam-card"><h4>${s.quizzes?.title||"Unknown Quiz"}</h4><div class="exam-meta"><span class="meta-tag">Score: ${s.score}/${s.max_score} (${pct}%)</span><span class="meta-tag">Attempt #${s.attempt_number}</span></div><div class="exam-actions"><button class="btn-secondary" onclick="window.location.href='student-quiz-results.html?id=${s.id}'"><i class="fa-solid fa-eye"></i> View Results</button></div><small style="opacity:0.5">${s.submitted_at?new Date(s.submitted_at).toLocaleString():""}</small></div>`;
+  });
+}
+loadQuizzes();
+loadSubmissions();
+document.getElementById("menuIcon").addEventListener("click",function(){document.getElementById("menuDropdown").classList.toggle("show-menu")});
+document.getElementById("logoutBtn").addEventListener("click",async function(e){e.preventDefault();await supabase.auth.signOut();window.location.href="../login.html"});
+document.getElementById("logoutNavBtn").addEventListener("click",async function(e){e.preventDefault();await supabase.auth.signOut();window.location.href="../login.html"});
+document.getElementById("logoBtn").addEventListener("click",function(){window.location.href="../student-dashboard.html"});
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Submit Assignment | EduResolve</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+body{margin:0;font-family:'Segoe UI',sans-serif;transition:0.3s ease}
+body.dark-mode{background:#0f172a;color:#fff}
+body.light-mode{background:#f4f6fa;color:#111827}
+.navbar-custom{height:65px;padding:0 60px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#111827,#1f2937);box-shadow:0 6px 18px rgba(0,0,0,0.4);position:fixed;top:0;left:0;right:0;z-index:1000}
+body.light-mode .navbar-custom{background:#fff;box-shadow:0 6px 20px rgba(0,0,0,0.08)}
+.logo{font-size:20px;font-weight:600;color:#f4c430;cursor:pointer}
+.nav-center{display:flex;gap:35px}
+.nav-center a{color:#d1d5db;text-decoration:none;font-size:14px}
+body.light-mode .nav-center a{color:#1f2937}
+.nav-right{display:flex;align-items:center;gap:20px}
+.mode-btn{width:36px;height:36px;border-radius:8px;border:none;background:#1e293b;color:#fff;cursor:pointer}
+.logout-nav-btn{width:36px;height:36px;border-radius:8px;border:none;background:#1e293b;color:#fff;cursor:pointer}
+.menu{position:relative}
+.menu-dropdown{display:none;position:absolute;right:0;top:45px;width:160px;background:#1e293b;border-radius:10px;box-shadow:0 10px 25px rgba(0,0,0,0.4)}
+body.light-mode .menu-dropdown{background:#fff;box-shadow:0 10px 25px rgba(0,0,0,0.1)}
+.menu-dropdown a{display:block;padding:12px 16px;text-decoration:none;color:#fff;font-size:14px}
+body.light-mode .menu-dropdown a{color:#1f2937}
+.menu-dropdown a:hover{background:#2f6df6}
+.show-menu{display:block}
+.welcome-box{margin:90px 60px 30px;padding:30px 40px;border-radius:18px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#2f6df6,#1e4fc4);box-shadow:0 12px 35px rgba(47,109,246,0.4)}
+.welcome-box h3{margin:0;font-weight:600}
+.welcome-right{text-align:right}
+.welcome-right h6{margin:0 0 4px;opacity:0.9}
+.welcome-right p{margin:0;font-size:13px;opacity:0.7}
+.main-container{padding:20px 60px 80px;max-width:1400px;margin:auto}
+.form-section{padding:30px;border-radius:16px;margin-bottom:30px}
+body.dark-mode .form-section{background:#1e293b;box-shadow:0 12px 30px rgba(0,0,0,0.3)}
+body.light-mode .form-section{background:#fff;box-shadow:0 12px 30px rgba(0,0,0,0.08)}
+.form-section h3{margin:0 0 25px;font-size:20px;font-weight:600;padding-bottom:15px;border-bottom:2px solid rgba(47,109,246,0.2)}
+.btn-primary{background:linear-gradient(135deg,#2f6df6,#1e4fc4);color:#fff;border:none;padding:10px 20px;border-radius:10px;font-weight:600;cursor:pointer}
+.btn-primary:hover{box-shadow:0 10px 25px rgba(47,109,246,0.4)}
+.upload-area{border:2px dashed rgba(47,109,246,0.3);border-radius:12px;padding:30px;text-align:center;cursor:pointer;transition:0.3s}
+.upload-area:hover{border-color:#2f6df6;background:rgba(47,109,246,0.05)}
+.upload-area i{font-size:48px;color:#2f6df6;margin-bottom:10px}
+.upload-area p{margin:0;opacity:0.7}
+.assignment-file{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-radius:10px;margin-bottom:10px}
+body.dark-mode .assignment-file{background:#0f172a}
+body.light-mode .assignment-file{background:#f8fafc}
+.assignment-file a{color:#2f6df6;text-decoration:none;font-weight:500}
+.meta-tag{padding:4px 10px;border-radius:20px;font-weight:500;font-size:12px}
+body.dark-mode .meta-tag{background:rgba(47,109,246,0.15);color:#93c5fd}
+body.light-mode .meta-tag{background:rgba(47,109,246,0.1);color:#2f6df6}
+.info-box{padding:15px 20px;border-radius:10px;margin-bottom:20px}
+body.dark-mode .info-box{background:rgba(34,197,94,0.1);border-left:4px solid #22c55e}
+body.light-mode .info-box{background:rgba(34,197,94,0.05);border-left:4px solid #22c55e}
+@media(max-width:768px){.navbar-custom{padding:0 20px}.nav-center{display:none}.welcome-box{margin:90px 20px 20px;padding:20px;flex-direction:column;text-align:center;gap:15px}.main-container{padding:20px}}
+</style>
+<script src="../theme.js"></script>
+</head>
+<body>
+<nav class="navbar-custom">
+  <div class="logo" id="logoBtn"><i class="fa-solid fa-graduation-cap"></i> EduResolve</div>
+  <div class="nav-center">
+    <a href="../student-dashboard.html">Dashboard</a>
+    <a href="student-assignment-list.html">Assignments</a>
+  </div>
+  <div class="nav-right">
+    <button id="modeBtn" class="mode-btn"><i class="fa-solid fa-moon"></i></button>
+    <button id="logoutNavBtn" class="logout-nav-btn"><i class="fa-solid fa-right-from-bracket"></i></button>
+    <div class="menu">
+      <i class="fa-solid fa-bars" id="menuIcon"></i>
+      <div class="menu-dropdown" id="menuDropdown">
+        <a href="../student-dashboard.html">Dashboard</a>
+        <a href="#" id="logoutBtn">Logout</a>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="welcome-box">
+  <div><h3 id="assignTitle">Loading...</h3><p id="assignDesc"></p></div>
+  <div class="welcome-right"><h6 id="studentName"></h6><p id="todayDate"></p></div>
+</div>
+<div class="main-container">
+  <div class="form-section">
+    <h3><i class="fa-solid fa-paperclip"></i> Assignment Files</h3>
+    <div id="assignFilesContainer"></div>
+  </div>
+  <div class="form-section">
+    <h3><i class="fa-solid fa-upload"></i> Submit Your Work</h3>
+    <div id="currentSubmission"></div>
+    <div class="upload-area" id="dropZone">
+      <i class="fa-solid fa-cloud-arrow-up"></i>
+      <p>Upload your solution (PDF or Word file)</p>
+      <input type="file" id="fileInput" accept=".pdf,.doc,.docx" style="display:none">
+    </div>
+    <p id="fileName" style="margin-top:8px;font-size:13px;color:#2f6df6"></p>
+    <button class="btn btn-primary w-100 mt-3" onclick="submitFile()"><i class="fa-solid fa-paper-plane"></i> Submit Assignment</button>
+  </div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded",async function(){
+const SUPABASE_URL="https://zwpjavmrgveckswnobhg.supabase.co";
+const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw";
+const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const{data:{user}}=await supabase.auth.getUser();
+if(!user){window.location.href="../login.html";return}
+const{data:profile}=await supabase.from("users").select("name,institution,role").eq("id",user.id).single();
+if(!profile||profile.role!=="student"){window.location.href="../login.html";return}
+document.getElementById("studentName").innerText=profile.name;
+document.getElementById("todayDate").innerText=new Date().toLocaleDateString("en-IN",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+const params=new URLSearchParams(window.location.search);
+const assignId=params.get("id");
+if(!assignId){alert("No assignment selected");window.location.href="student-assignment-list.html";return}
+const{data:assign}=await supabase.from("assignments").select("*").eq("id",assignId).eq("status","published").single();
+if(!assign){alert("Assignment not found");window.location.href="student-assignment-list.html";return}
+document.getElementById("assignTitle").innerText=assign.title;
+document.getElementById("assignDesc").innerText=assign.description||"";
+const dueDate=assign.due_date?new Date(assign.due_date):null;
+const isExpired=dueDate&&dueDate<new Date();
+const{data:files}=await supabase.from("assignment_files").select("*").eq("assignment_id",assignId);
+const filesContainer=document.getElementById("assignFilesContainer");
+filesContainer.innerHTML="";
+if(!files||files.length===0){filesContainer.innerHTML="<p>No files attached to this assignment.</p>"}
+else{files.forEach(f=>{const size=f.file_size?(f.file_size/1024).toFixed(1)+" KB":"";filesContainer.innerHTML+=`<div class="assignment-file"><span><i class="fa-solid fa-file"></i> ${f.file_name} ${size}</span><a href="${f.file_url}" target="_blank"><i class="fa-solid fa-download"></i> Download</a></div>`})}
+const{data:mySub}=await supabase.from("assignment_submissions").select("*").eq("assignment_id",assignId).eq("student_id",user.id).order("submitted_at",{ascending:false}).limit(1);
+const subContainer=document.getElementById("currentSubmission");
+if(mySub&&mySub.length>0){
+  const s=mySub[0];
+  const marks=s.marks_obtained!==null&&s.marks_obtained!==undefined?`${s.marks_obtained}/${assign.max_marks||100}`:"Pending evaluation";
+  subContainer.innerHTML=`<div class="info-box"><strong>Your Submission:</strong> ${s.file_name}<br><strong>Marks:</strong> ${marks}<br><strong>Submitted:</strong> ${new Date(s.submitted_at).toLocaleString()}<br>${s.feedback?`<strong>Feedback:</strong> ${s.feedback}`:""}</div>`;
+}
+if(isExpired){subContainer.innerHTML+='<div class="info-box" style="border-left-color:#ef4444;background:rgba(239,68,68,0.1)"><strong>Deadline has passed.</strong> You can still resubmit but it will be marked as late.</div>'}
+const dropZone=document.getElementById("dropZone");
+const fileInput=document.getElementById("fileInput");
+dropZone.addEventListener("click",()=>fileInput.click());
+dropZone.addEventListener("dragover",e=>{e.preventDefault();dropZone.style.borderColor="#2f6df6"});
+dropZone.addEventListener("dragleave",()=>{dropZone.style.borderColor="rgba(47,109,246,0.3)"});
+dropZone.addEventListener("drop",e=>{e.preventDefault();dropZone.style.borderColor="rgba(47,109,246,0.3)";if(e.dataTransfer.files.length){fileInput.files=e.dataTransfer.files;document.getElementById("fileName").innerText=e.dataTransfer.files[0].name}});
+fileInput.addEventListener("change",()=>{if(fileInput.files.length)document.getElementById("fileName").innerText=fileInput.files[0].name});
+window.submitFile=async function(){
+  const file=fileInput.files[0];
+  if(!file){alert("Select a file to upload");return}
+  const ext=file.name.split(".").pop().toLowerCase();
+  if(!["pdf","doc","docx"].includes(ext)){alert("Only PDF, DOC, DOCX files allowed");return}
+  const filePath=`${assignId}/${user.id}/${Date.now()}_${file.name}`;
+  const{error:uploadError}=await supabase.storage.from("assignment-submissions").upload(filePath,file);
+  if(uploadError){alert("Upload failed: "+uploadError.message);return}
+  const{data:{publicUrl}}=supabase.storage.from("assignment-submissions").getPublicUrl(filePath);
+  const{data:existing}=await supabase.from("assignment_submissions").select("id").eq("assignment_id",assignId).eq("student_id",user.id).single();
+  let error;
+  if(existing){
+    ({error}=await supabase.from("assignment_submissions").update({file_url:publicUrl,file_name:file.name,file_type:ext,file_size:file.size,submitted_at:new Date().toISOString(),marks_obtained:null,feedback:null,evaluated_at:null,evaluated_by:null}).eq("id",existing.id));
+  }else{
+    ({error}=await supabase.from("assignment_submissions").insert({assignment_id:assignId,student_id:user.id,file_url:publicUrl,file_name:file.name,file_type:ext,file_size:file.size}));
+  }
+  if(error){alert("Submit failed: "+error.message);return}
+  alert("Assignment submitted successfully!");
+  location.reload();
+};
+document.getElementById("menuIcon").addEventListener("click",function(){document.getElementById("menuDropdown").classList.toggle("show-menu")});
+document.getElementById("logoutBtn").addEventListener("click",async function(e){e.preventDefault();await supabase.auth.signOut();window.location.href="../login.html"});
+document.getElementById("logoutNavBtn").addEventListener("click",async function(e){e.preventDefault();await supabase.auth.signOut();window.location.href="../login.html"});
+document.getElementById("logoBtn").addEventListener("click",function(){window.location.href="../student-dashboard.html"});
+});
+</script>
+</body>
+</html>

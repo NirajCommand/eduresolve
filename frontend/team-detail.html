@@ -7,8 +7,9 @@
 <link rel="stylesheet" href="team_detail.css">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="theme.js"></script>
 </head>
-<body class="dark-mode">
+<body>
 <nav class="navbar-custom">
 <div class="logo" id="logoBtn">
 <i class="fa-solid fa-graduation-cap"></i> EduResolve
@@ -20,6 +21,7 @@
 <button id="modeBtn" class="mode-btn">
 <i class="fa-solid fa-moon"></i>
 </button>
+<button id="logoutNavBtn" class="logout-nav-btn"><i class="fa-solid fa-right-from-bracket"></i></button>
 </div>
 </nav>
 <div class="team-header">
@@ -76,25 +78,6 @@ const { data: profile } = await client
 .select("role")
 .eq("id", user.id)
 .single();
-
-
-/* MODE TOGGLE */
-
-document.getElementById("modeBtn")
-.addEventListener("click", function(){
-
-document.body.classList.toggle("dark-mode");
-document.body.classList.toggle("light-mode");
-
-const icon = this.querySelector("i");
-
-if(document.body.classList.contains("dark-mode")){
-icon.className = "fa-solid fa-sun";
-}else{
-icon.className = "fa-solid fa-moon";
-}
-
-});
 
 
 /* LOGO NAVIGATION */
@@ -288,6 +271,17 @@ container.appendChild(div);
 container.scrollTop = container.scrollHeight;
 
 }
+
+
+/* LOGOUT NAV BTN */
+
+document.getElementById("logoutNavBtn")
+.addEventListener("click", async function(){
+
+await client.auth.signOut();
+window.location.href = "login.html";
+
+});
 
 
 });

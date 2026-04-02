@@ -74,6 +74,16 @@ body.light-mode {
   cursor: pointer;
 }
 
+.logout-nav-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  background: #1e293b;
+  color: white;
+  cursor: pointer;
+}
+
 /* ---------- MENU ---------- */
 
 .menu {

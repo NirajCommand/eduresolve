@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Create Coding Exam | EduResolve</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="exam.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../theme.js"></script>
+</head>
+<body>
+
+<nav class="navbar-custom">
+  <div class="logo" onclick="window.location.href='teacher-exam-list.html'">
+    <i class="fa-solid fa-graduation-cap"></i> EduResolve
+  </div>
+  <div class="nav-center">
+    <a href="teacher-exam-list.html">My Exams</a>
+    <a href="teacher-exam-create.html">Create Exam</a>
+  </div>
+  <div class="nav-right">
+    <button id="modeBtn" class="mode-btn"><i class="fa-solid fa-moon"></i></button>
+    <button id="logoutNavBtn" class="logout-nav-btn"><i class="fa-solid fa-right-from-bracket"></i></button>
+    <div class="menu">
+      <i class="fa-solid fa-bars" id="menuIcon"></i>
+      <div class="menu-dropdown" id="menuDropdown">
+        <a href="#">Profile</a>
+        <a href="#" id="logoutBtn">Logout</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="welcome-box">
+  <div>
+    <h3 id="teacherName">Create Coding Exam</h3>
+    <p style="margin:5px 0 0;opacity:0.8;font-size:14px">Configure exam settings and add questions</p>
+  </div>
+  <div class="welcome-right">
+    <h6 id="teacherInstitution"></h6>
+    <p id="todayDate"></p>
+  </div>
+</div>
+
+<div class="main-container">
+  <div class="form-section fade-in">
+    <h3><i class="fa-solid fa-gear"></i> Exam Settings</h3>
+    <div class="form-group">
+      <label>Exam Title *</label>
+      <input type="text" id="examTitle" placeholder="e.g., Python Mid-Term Exam">
+    </div>
+    <div class="form-group">
+      <label>Team *</label>
+      <select id="teamSelect" required>
+        <option value="">Select team</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea id="examDesc" rows="3" placeholder="Brief description of the exam..."></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Time Limit (minutes)</label>
+        <input type="number" id="timeLimit" value="60" min="5" max="480">
+      </div>
+      <div class="form-group">
+        <label>Max Attempts</label>
+        <input type="number" id="maxAttempts" value="1" min="1" max="5">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Available From</label>
+        <input type="datetime-local" id="startTime">
+      </div>
+      <div class="form-group">
+        <label>Available Until</label>
+        <input type="datetime-local" id="endTime">
+      </div>
+    </div>
+    <div class="form-check">
+      <input type="checkbox" id="showResults" checked>
+      <label for="showResults">Show results to students after submission</label>
+    </div>
+  </div>
+
+  <div class="form-section fade-in">
+    <h3><i class="fa-solid fa-code"></i> Allowed Languages</h3>
+    <p style="font-size:13px;opacity:0.7;margin:0 0 15px">Uncheck below to pick specific languages.</p>
+    <div class="form-check">
+      <input type="checkbox" id="allLanguages" checked>
+      <label for="allLanguages">Allow all languages</label>
+    </div>
+    <div id="languageGrid" class="language-grid" style="display:none"></div>
+  </div>
+
+  <div class="form-section fade-in">
+    <h3><i class="fa-solid fa-list-ol"></i> Questions <span id="questionCount" style="font-weight:400;font-size:14px;opacity:0.7">(0 added)</span></h3>
+    <div id="questionsContainer"></div>
+    <button type="button" class="btn-primary" style="width:100%;padding:14px;border-radius:12px;border:none;font-size:15px;font-weight:600;cursor:pointer;margin-top:10px" id="addQuestionBtn">
+      <i class="fa-solid fa-plus"></i> Add Question
+    </button>
+  </div>
+
+  <div style="text-align:center;padding:30px 0">
+    <button type="button" class="btn-secondary" style="padding:14px 30px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;margin-right:15px" id="saveDraftBtn">
+      <i class="fa-solid fa-save"></i> Save Draft
+    </button>
+    <button type="button" class="btn-success" style="padding:14px 30px;border-radius:12px;border:none;font-size:15px;font-weight:600;cursor:pointer" id="publishExamBtn">
+      <i class="fa-solid fa-rocket"></i> Publish Exam
+    </button>
+  </div>
+</div>
+
+<script>
+(function() {
+  var SUPABASE_URL = "https://zwpjavmrgveckswnobhg.supabase.co";
+  var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw";
+  var db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  var currentUser = null;
+  var profile = null;
+  var questionCounter = 0;
+  var solutionEditors = {};
+  var draftExamId = null;
+
+  var ALL_LANGUAGES = [
+    { id: 71, name: "Python 3.8" },
+    { id: 63, name: "JavaScript" },
+    { id: 62, name: "Java" },
+    { id: 50, name: "C" },
+    { id: 54, name: "C++" },
+    { id: 51, name: "C#" },
+    { id: 60, name: "Go" },
+    { id: 73, name: "Rust" },
+    { id: 68, name: "PHP" },
+    { id: 72, name: "Ruby" },
+    { id: 78, name: "Kotlin" },
+    { id: 83, name: "Swift" },
+    { id: 74, name: "TypeScript" },
+    { id: 70, name: "Bash" },
+    { id: 80, name: "R" }
+  ];
+
+  function init() {
+    db.auth.getUser().then(function(r) {
+      var user = r.data.user;
+      if (!user) { window.location.href = "../login.html"; return; }
+      currentUser = user;
+      return db.from("users").select("name,institution,role").eq("id", user.id).single();
+    }).then(function(r) {
+      var p = r.data;
+      if (!p || p.role !== "teacher") { window.location.href = "../login.html"; return; }
+      profile = p;
+      document.getElementById("teacherName").innerText = "Create Exam, " + p.name;
+      document.getElementById("teacherInstitution").innerText = p.institution;
+      document.getElementById("todayDate").innerText = new Date().toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+      setDefaultTimes();
+      loadTeams();
+      setupLanguageGrid();
+      setupEventListeners();
+    }).catch(function(e) { console.error(e); });
+  }
+
+  function setDefaultTimes() {
+    var now = new Date();
+    var oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+    var oneDayLater = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    document.getElementById("startTime").value = toLocalISOString(now);
+    document.getElementById("endTime").value = toLocalISOString(oneDayLater);
+  }
+
+  function toLocalISOString(date) {
+    var offset = date.getTimezoneOffset();
+    var d = new Date(date.getTime() - offset * 60 * 1000);
+    return d.toISOString().split("T")[0] + "T" + d.toISOString().split("T")[1].substring(0, 5);
+  }
+
+  function loadTeams() {
+    db.from("teams").select("id,name").eq("teacher_id", currentUser.id).then(function(r) {
+      var select = document.getElementById("teamSelect");
+      r.data?.forEach(function(t) {
+        var o = document.createElement("option");
+        o.value = t.id;
+        o.textContent = t.name;
+        select.appendChild(o);
+      });
+    });
+  }
+
+  function setupLanguageGrid() {
+    var grid = document.getElementById("languageGrid");
+    ALL_LANGUAGES.forEach(function(lang) {
+      var div = document.createElement("div");
+      div.className = "language-option selected";
+      div.innerHTML = '<input type="checkbox" checked value="' + lang.id + '"><span>' + lang.name + '</span>';
+      div.addEventListener("click", function() {
+        var cb = this.querySelector("input");
+        cb.checked = !cb.checked;
+        this.classList.toggle("selected", cb.checked);
+      });
+      grid.appendChild(div);
+    });
+    document.getElementById("allLanguages").addEventListener("change", function() {
+      document.getElementById("languageGrid").style.display = this.checked ? "none" : "grid";
+    });
+  }
+
+  function setupEventListeners() {
+    document.getElementById("menuIcon").addEventListener("click", function() {
+      document.getElementById("menuDropdown").classList.toggle("show-menu");
+    });
+    document.getElementById("logoutBtn").addEventListener("click", function(e) {
+      e.preventDefault();
+      db.auth.signOut().then(function() { window.location.href = "../login.html"; });
+    });
+    document.getElementById("logoutNavBtn").addEventListener("click", async function(e){
+      e.preventDefault();
+      await db.auth.signOut();
+      window.location.href="../login.html";
+    });
+    document.getElementById("addQuestionBtn").addEventListener("click", addQuestion);
+    document.getElementById("saveDraftBtn").addEventListener("click", saveDraft);
+    document.getElementById("publishExamBtn").addEventListener("click", publishExam);
+  }
+
+  function addQuestion() {
+    questionCounter++;
+    var qNum = questionCounter;
+    var container = document.getElementById("questionsContainer");
+    var div = document.createElement("div");
+    div.className = "question-builder fade-in";
+    div.id = "question-" + qNum;
+
+    var langOptions = ALL_LANGUAGES.map(function(l) {
+      return '<option value="' + l.id + '">' + l.name + '</option>';
+    }).join("");
+
+    div.innerHTML =
+      '<div class="question-header">' +
+        '<h4><i class="fa-solid fa-question-circle"></i> Question ' + qNum + '</h4>' +
+        '<button type="button" class="remove-question-btn" data-qnum="' + qNum + '"><i class="fa-solid fa-trash"></i> Remove</button>' +
+      '</div>' +
+      '<div class="form-group">' +
+        '<label>Question Title *</label>' +
+        '<input type="text" class="q-title" placeholder="e.g., Find the Maximum Element">' +
+      '</div>' +
+      '<div class="form-group">' +
+        '<label>Problem Statement *</label>' +
+        '<textarea class="q-desc" rows="5" placeholder="Describe the problem, input format, output format, constraints..."></textarea>' +
+      '</div>' +
+      '<div class="form-row">' +
+        '<div class="form-group">' +
+          '<label>Difficulty</label>' +
+          '<select class="q-difficulty"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select>' +
+        '</div>' +
+        '<div class="form-group">' +
+          '<label>Points</label>' +
+          '<input type="number" class="q-points" value="10" min="1" max="100">' +
+        '</div>' +
+      '</div>' +
+      '<div class="form-group">' +
+        '<label>Starter Code (optional)</label>' +
+        '<textarea class="q-starter" rows="4" placeholder="// Starter code template..."></textarea>' +
+      '</div>' +
+      '<div class="form-check">' +
+        '<input type="checkbox" class="q-show-solution">' +
+        '<label>Show reference solution after exam</label>' +
+      '</div>' +
+      '<div class="form-group">' +
+        '<label>Reference Solution (optional, for auto-grading)</label>' +
+        '<div id="solution-editor-' + qNum + '" style="height:200px;margin-bottom:10px"></div>' +
+        '<div class="form-row">' +
+          '<div class="form-group">' +
+            '<label>Solution Language</label>' +
+            '<select class="q-sol-lang">' + langOptions + '</select>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="test-case-editor">' +
+        '<h5 style="margin:0 0 15px;font-size:14px"><i class="fa-solid fa-vial"></i> Visible Test Cases</h5>' +
+        '<div class="test-cases-visible" id="visible-tc-' + qNum + '"></div>' +
+        '<button type="button" class="btn-secondary" style="padding:8px 16px;border-radius:8px;border:none;font-size:12px;cursor:pointer;margin-top:10px" data-qnum="' + qNum + '" data-tctype="visible" class="add-tc-btn"><i class="fa-solid fa-plus"></i> Add Test Case</button>' +
+      '</div>' +
+      '<div class="test-case-editor" style="margin-top:25px">' +
+        '<h5 style="margin:0 0 15px;font-size:14px"><i class="fa-solid fa-eye-slash"></i> Hidden Test Cases</h5>' +
+        '<div class="test-cases-hidden" id="hidden-tc-' + qNum + '"></div>' +
+        '<button type="button" class="btn-secondary" style="padding:8px 16px;border-radius:8px;border:none;font-size:12px;cursor:pointer;margin-top:10px" data-qnum="' + qNum + '" data-tctype="hidden" class="add-tc-btn"><i class="fa-solid fa-plus"></i> Add Hidden Test Case</button>' +
+      '</div>';
+
+    container.appendChild(div);
+
+    div.querySelector(".remove-question-btn").addEventListener("click", function() {
+      removeQuestion(qNum);
+    });
+
+    div.querySelectorAll(".add-tc-btn").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        addTestCase(this.dataset.qnum, this.dataset.tctype);
+      });
+    });
+
+    updateQuestionCount();
+    initSolutionEditor(qNum);
+    addTestCase(qNum, "visible");
+    addTestCase(qNum, "hidden");
+  }
+
+  function initSolutionEditor(qNum) {
+    var container = document.getElementById("solution-editor-" + qNum);
+    if (!container) return;
+    var textarea = document.createElement("textarea");
+    textarea.id = "solution-ta-" + qNum;
+    container.appendChild(textarea);
+
+    if (typeof CodeMirror !== "undefined") {
+      try {
+        solutionEditors[qNum] = CodeMirror.fromTextArea(textarea, {
+          lineNumbers: true,
+          tabSize: 2,
+          indentUnit: 2,
+          smartIndent: true,
+          autoCloseBrackets: true,
+          matchBrackets: true,
+          theme: "material-darker",
+          extraKeys: {
+            "Tab": function(cm) {
+              if (cm.somethingSelected()) cm.indentSelection("add");
+              else cm.replaceSelection("  ", "end");
+            }
+          }
+        });
+        solutionEditors[qNum].setSize("100%", "200px");
+        solutionEditors[qNum].refresh();
+        return;
+      } catch(e) { console.warn("CodeMirror error, using fallback:", e); }
+    }
+
+    textarea.style.width = "100%";
+    textarea.style.height = "200px";
+    textarea.style.fontFamily = "Consolas, monospace";
+    textarea.style.fontSize = "14px";
+    textarea.style.padding = "12px";
+    textarea.style.background = "#1e293b";
+    textarea.style.color = "#e2e8f0";
+    textarea.style.border = "1px solid #334155";
+    textarea.style.borderRadius = "8px";
+    textarea.style.resize = "vertical";
+    textarea.style.outline = "none";
+    textarea.style.boxSizing = "border-box";
+  }
+
+  function removeQuestion(qNum) {
+    var el = document.getElementById("question-" + qNum);
+    if (el) {
+      el.remove();
+      delete solutionEditors[qNum];
+      updateQuestionCount();
+    }
+  }
+
+  function updateQuestionCount() {
+    var count = document.querySelectorAll(".question-builder").length;
+    document.getElementById("questionCount").textContent = "(" + count + " added)";
+  }
+
+  function addTestCase(qNum, type) {
+    var container = document.getElementById(type + "-tc-" + qNum);
+    var div = document.createElement("div");
+    div.className = "test-case-row";
+    div.innerHTML =
+      '<textarea class="tc-input" placeholder="Input..."></textarea>' +
+      '<textarea class="tc-output" placeholder="Expected Output..."></textarea>' +
+      '<button type="button" class="remove-tc-btn" style="padding:10px;border-radius:8px;border:none;background:rgba(239,68,68,0.15);color:#ef4444;cursor:pointer"><i class="fa-solid fa-times"></i></button>';
+    div.querySelector(".remove-tc-btn").addEventListener("click", function() {
+      div.remove();
+    });
+    container.appendChild(div);
+  }
+
+  function getSelectedLanguages() {
+    if (document.getElementById("allLanguages").checked) return null;
+    var selected = [];
+    document.querySelectorAll("#languageGrid input:checked").forEach(function(cb) {
+      selected.push(parseInt(cb.value));
+    });
+    return selected.length > 0 ? selected : null;
+  }
+
+  function collectQuestions() {
+    var questions = [];
+    document.querySelectorAll(".question-builder").forEach(function(builder, idx) {
+      var title = builder.querySelector(".q-title").value.trim();
+      var desc = builder.querySelector(".q-desc").value.trim();
+      var difficulty = builder.querySelector(".q-difficulty").value;
+      var points = parseInt(builder.querySelector(".q-points").value) || 10;
+      var starter = builder.querySelector(".q-starter").value.trim();
+      var showSolution = builder.querySelector(".q-show-solution").checked;
+      var solLang = parseInt(builder.querySelector(".q-sol-lang").value);
+      var qNum = builder.id.split("-")[1];
+      var solutionCode = solutionEditors[qNum] ? solutionEditors[qNum].getValue() : "";
+
+      var testCases = [];
+      builder.querySelectorAll("#visible-tc-" + qNum + " .test-case-row").forEach(function(row) {
+        var input = row.querySelector(".tc-input").value.trim();
+        var output = row.querySelector(".tc-output").value.trim();
+        if (input || output) testCases.push({ input: input, output: output, hidden: false });
+      });
+
+      var hiddenTestCases = [];
+      builder.querySelectorAll("#hidden-tc-" + qNum + " .test-case-row").forEach(function(row) {
+        var input = row.querySelector(".tc-input").value.trim();
+        var output = row.querySelector(".tc-output").value.trim();
+        if (input || output) hiddenTestCases.push({ input: input, output: output, hidden: true });
+      });
+
+      var refSolutions = [];
+      if (solutionCode.trim()) refSolutions.push({ language_id: solLang, code: solutionCode });
+
+      questions.push({
+        title: title,
+        description: desc,
+        difficulty: difficulty,
+        points: points,
+        starter_code: starter,
+        solution: solutionCode,
+        test_cases: testCases,
+        hidden_test_cases: hiddenTestCases,
+        order_index: idx
+      });
+    });
+    return questions;
+  }
+
+  async function saveExam(status) {
+    var title = document.getElementById("examTitle").value.trim();
+    var teamId = document.getElementById("teamSelect").value;
+    var desc = document.getElementById("examDesc").value.trim();
+    var timeLimit = parseInt(document.getElementById("timeLimit").value) || 60;
+    var maxAttempts = parseInt(document.getElementById("maxAttempts").value) || 1;
+    var showResults = document.getElementById("showResults").checked;
+    var allowedLangs = getSelectedLanguages();
+    var questions = collectQuestions();
+
+    if (!title) { alert("Exam title is required"); return null; }
+    if (!teamId) { alert("Please select a team"); return null; }
+    if (questions.length === 0) { alert("Add at least one question"); return null; }
+    for (var i = 0; i < questions.length; i++) {
+      if (!questions[i].title || !questions[i].description) {
+        alert("All questions must have a title and problem statement");
+        return null;
+      }
+    }
+
+    var startTimeVal = document.getElementById("startTime").value ? new Date(document.getElementById("startTime").value) : new Date();
+    var endTimeVal = document.getElementById("endTime").value ? new Date(document.getElementById("endTime").value) : new Date(startTimeVal.getTime() + 24 * 60 * 60 * 1000);
+
+    if (endTimeVal <= startTimeVal) { alert("End time must be after start time"); return null; }
+
+    var insertData = {
+      title: title,
+      description: desc,
+      teacher_id: currentUser.id,
+      team_id: teamId,
+      time_limit: timeLimit,
+      start_time: startTimeVal.toISOString(),
+      end_time: endTimeVal.toISOString(),
+      status: status
+    };
+
+    console.log("Inserting exam:", insertData);
+
+    var r = await db.from("coding_exams").insert(insertData).select().single();
+
+    console.log("Insert result:", r);
+
+    if (r.error) { console.error(r.error); alert("Failed to save exam: " + r.error.message); return null; }
+    var exam = r.data;
+
+    for (var j = 0; j < questions.length; j++) {
+      var q = questions[j];
+      var qr = await db.from("coding_exam_questions").insert({
+        exam_id: exam.id,
+        title: q.title,
+        description: q.description,
+        starter_code: q.starter_code,
+        solution: q.solution || "",
+        difficulty: q.difficulty,
+        points: q.points,
+        order_index: q.order_index
+      }).select().single();
+      if (qr.error) { console.error(qr.error); alert("Failed to save question: " + qr.error.message); return null; }
+      var qId = qr.data.id;
+
+      for (var t = 0; t < q.test_cases.length; t++) {
+        var tc = q.test_cases[t];
+        await db.from("coding_exam_test_cases").insert({
+          question_id: qId,
+          input: tc.input,
+          expected_output: tc.output,
+          is_hidden: false,
+          order_index: t
+        });
+      }
+      for (var h = 0; h < q.hidden_test_cases.length; h++) {
+        var ht = q.hidden_test_cases[h];
+        await db.from("coding_exam_test_cases").insert({
+          question_id: qId,
+          input: ht.input,
+          expected_output: ht.output,
+          is_hidden: true,
+          order_index: h
+        });
+      }
+    }
+    return exam;
+  }
+
+
+  async function saveDraft() {
+    var exam = await saveExam("draft");
+    if (exam) { alert("Draft saved!"); draftExamId = exam.id; }
+  }
+
+  async function publishExam() {
+    if (!confirm("Publish this exam? Students will be able to see it.")) return;
+    var exam = await saveExam("published");
+    if (exam) { alert("Exam published!"); window.location.href = "teacher-exam-list.html"; }
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
+})();
+</script>
+</body>
+</html>
