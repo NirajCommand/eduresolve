@@ -5,164 +5,204 @@
 <title>Profile | EduResolve</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
 <style>
 *{
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family:'Poppins',sans-serif;
+  transition:0.25s;
 }
 
-body{
-  background:linear-gradient(135deg,#667eea,#764ba2);
-  min-height:100vh;
+/* MODES */
+
+body.light-mode{
+  background:#f5f7fb;
+  color:#000;
+}
+
+body.dark-mode{
+  background:#121212;
+  color:#fff;
+}
+
+/* NAVBAR */
+
+.navbar-custom{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 20px;
+  background:inherit;
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(0,0,0,0.05);
+}
+
+.logo{
+  font-size:20px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.nav-right{
   display:flex;
   align-items:center;
-  justify-content:center;
+  gap:15px;
+}
+
+.mode-btn{
+  border:none;
+  background:none;
+  font-size:18px;
+  cursor:pointer;
 }
 
 /* CARD */
 
-.profile-card{
-  width:100%;
-  max-width:450px;
-  background:#fff;
-  border-radius:16px;
-  padding:30px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.2);
+.profile-container{
+  max-width:600px;
+  margin:50px auto;
+}
+
+.card-box{
+  padding:25px;
+  border-radius:12px;
+  background:rgba(255,255,255,0.7);
+  backdrop-filter:blur(15px);
+  box-shadow:0 8px 25px rgba(0,0,0,0.1);
+  animation:fadeUp 0.6s ease;
+}
+
+body.dark-mode .card-box{
+  background:rgba(255,255,255,0.05);
+}
+
+/* ANIMATION */
+
+@keyframes fadeUp{
+  from{
+    opacity:0;
+    transform:translateY(20px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
 }
 
 /* HEADER */
 
 .profile-header{
   text-align:center;
-  margin-bottom:25px;
+  margin-bottom:20px;
 }
 
 .avatar{
-  width:80px;
-  height:80px;
+  width:70px;
+  height:70px;
   border-radius:50%;
-  background:#667eea;
+  background:#007bff;
   color:#fff;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:28px;
-  font-weight:600;
+  font-size:24px;
   margin:0 auto 10px;
+  transition:0.3s;
 }
 
-.profile-header h3{
-  font-weight:600;
+.avatar:hover{
+  transform:scale(1.1) rotate(5deg);
 }
 
-.profile-header p{
-  color:#777;
-  font-size:14px;
-}
-
-/* INPUTS */
-
-.form-group{
-  margin-bottom:15px;
-}
-
-label{
-  font-size:13px;
-  color:#555;
-  margin-bottom:5px;
-  display:block;
-}
+/* INPUT */
 
 input{
   width:100%;
   padding:10px;
-  border-radius:8px;
+  margin-top:5px;
+  margin-bottom:15px;
+  border-radius:6px;
   border:1px solid #ddd;
-  outline:none;
-  transition:0.3s;
 }
 
-input:focus{
-  border-color:#667eea;
-  box-shadow:0 0 5px rgba(102,126,234,0.3);
-}
-
-input[disabled]{
-  background:#f1f1f1;
+body.dark-mode input{
+  background:#1e1e1e;
+  color:#fff;
+  border:1px solid #444;
 }
 
 /* BUTTON */
 
 button{
   width:100%;
-  padding:12px;
+  padding:10px;
   border:none;
-  border-radius:8px;
-  background:#667eea;
-  color:white;
-  font-weight:500;
+  border-radius:6px;
+  background:#007bff;
+  color:#fff;
   cursor:pointer;
-  transition:0.3s;
-  margin-top:10px;
 }
 
 button:hover{
-  background:#5a6fd8;
+  transform:scale(1.02);
+  background:#0056b3;
 }
 
-/* SMALL INFO */
-
-.info{
-  font-size:12px;
-  text-align:center;
-  margin-top:15px;
-  color:#888;
-}
 </style>
-
 </head>
 
 <body>
 
-<div class="profile-card">
+<div class="navbar-custom">
 
-  <div class="profile-header">
-    <div class="avatar" id="avatar">U</div>
-    <h3 id="displayName">User</h3>
-    <p id="displayRole">Role</p>
+  <div class="logo" onclick="goDashboard()">EduResolve</div>
+
+  <div class="nav-right">
+
+    <button class="btn btn-sm btn-primary" onclick="goDashboard()">
+      Dashboard
+    </button>
+
+    <button class="mode-btn" onclick="toggleMode()" id="modeIcon">
+      <i class="fa-solid fa-moon"></i>
+    </button>
+
   </div>
 
-  <form id="profileForm">
+</div>
 
-    <div class="form-group">
+<div class="profile-container">
+
+  <div class="card-box">
+
+    <div class="profile-header">
+      <div class="avatar" id="avatar">U</div>
+      <h4 id="displayName">User</h4>
+      <p id="displayRole"></p>
+    </div>
+
+    <form id="profileForm">
+
       <label>Name</label>
       <input type="text" id="name">
-    </div>
 
-    <div class="form-group">
       <label>Email</label>
       <input type="email" id="email" disabled>
-    </div>
 
-    <div class="form-group">
       <label>Role</label>
       <input type="text" id="role" disabled>
-    </div>
 
-    <div class="form-group">
       <label>Institution</label>
       <input type="text" id="institution" disabled>
-    </div>
 
-    <button type="submit">Update Profile</button>
+      <button type="submit">Update Profile</button>
 
-  </form>
+    </form>
 
-  <div class="info">Only name can be edited</div>
+  </div>
 
 </div>
 
@@ -173,6 +213,50 @@ const { createClient } = supabase;
 const client = createClient("https://zwpjavmrgveckswnobhg.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw");
 
 let userId = null;
+let userRole = "";
+
+/* ===== MODE SYSTEM ===== */
+
+function loadMode(){
+  const mode = localStorage.getItem("mode") || "light";
+  document.body.classList.add(mode + "-mode");
+  updateIcon(mode);
+}
+
+function toggleMode(){
+  const isDark = document.body.classList.contains("dark-mode");
+
+  document.body.classList.toggle("dark-mode");
+  document.body.classList.toggle("light-mode");
+
+  const newMode = isDark ? "light" : "dark";
+  localStorage.setItem("mode", newMode);
+
+  updateIcon(newMode);
+}
+
+function updateIcon(mode){
+  const icon = document.getElementById("modeIcon");
+  icon.innerHTML = mode === "dark"
+    ? '<i class="fa-solid fa-sun"></i>'
+    : '<i class="fa-solid fa-moon"></i>';
+}
+
+/* ===== NAV ===== */
+
+function goDashboard(){
+  if(userRole === "student"){
+    window.location.href = "student-dashboard.html";
+  }
+  else if(userRole === "teacher"){
+    window.location.href = "teacher-dashboard.html";
+  }
+  else{
+    window.location.href = "hod-dashboard.html";
+  }
+}
+
+/* ===== PROFILE ===== */
 
 async function loadProfile(){
 
@@ -191,7 +275,9 @@ async function loadProfile(){
     .eq("id", user.id)
     .single();
 
-  document.getElementById("name").value = profile.name || "";
+  userRole = profile.role;
+
+  document.getElementById("name").value = profile.name;
   document.getElementById("email").value = user.email;
   document.getElementById("role").value = profile.role;
   document.getElementById("institution").value = profile.institution;
@@ -199,8 +285,8 @@ async function loadProfile(){
   document.getElementById("displayName").innerText = profile.name;
   document.getElementById("displayRole").innerText = profile.role;
 
-  const firstLetter = profile.name ? profile.name.charAt(0).toUpperCase() : "U";
-  document.getElementById("avatar").innerText = firstLetter;
+  document.getElementById("avatar").innerText =
+    profile.name.charAt(0).toUpperCase();
 }
 
 document.getElementById("profileForm")
@@ -215,20 +301,18 @@ document.getElementById("profileForm")
     return;
   }
 
-  const { error } = await client
+  await client
     .from("users")
-    .update({ name: name })
+    .update({ name })
     .eq("id", userId);
-
-  if(error){
-    alert("Update failed");
-    return;
-  }
 
   alert("Profile updated");
   loadProfile();
 });
 
+/* INIT */
+
+loadMode();
 loadProfile();
 </script>
 
