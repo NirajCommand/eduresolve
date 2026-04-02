@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Profile | EduResolve</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
+
+body{
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* CARD */
+
+.profile-card{
+  width:100%;
+  max-width:450px;
+  background:#fff;
+  border-radius:16px;
+  padding:30px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.2);
+}
+
+/* HEADER */
+
+.profile-header{
+  text-align:center;
+  margin-bottom:25px;
+}
+
+.avatar{
+  width:80px;
+  height:80px;
+  border-radius:50%;
+  background:#667eea;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+  font-weight:600;
+  margin:0 auto 10px;
+}
+
+.profile-header h3{
+  font-weight:600;
+}
+
+.profile-header p{
+  color:#777;
+  font-size:14px;
+}
+
+/* INPUTS */
+
+.form-group{
+  margin-bottom:15px;
+}
+
+label{
+  font-size:13px;
+  color:#555;
+  margin-bottom:5px;
+  display:block;
+}
+
+input{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #ddd;
+  outline:none;
+  transition:0.3s;
+}
+
+input:focus{
+  border-color:#667eea;
+  box-shadow:0 0 5px rgba(102,126,234,0.3);
+}
+
+input[disabled]{
+  background:#f1f1f1;
+}
+
+/* BUTTON */
+
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  background:#667eea;
+  color:white;
+  font-weight:500;
+  cursor:pointer;
+  transition:0.3s;
+  margin-top:10px;
+}
+
+button:hover{
+  background:#5a6fd8;
+}
+
+/* SMALL INFO */
+
+.info{
+  font-size:12px;
+  text-align:center;
+  margin-top:15px;
+  color:#888;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="profile-card">
+
+  <div class="profile-header">
+    <div class="avatar" id="avatar">U</div>
+    <h3 id="displayName">User</h3>
+    <p id="displayRole">Role</p>
+  </div>
+
+  <form id="profileForm">
+
+    <div class="form-group">
+      <label>Name</label>
+      <input type="text" id="name">
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="email" disabled>
+    </div>
+
+    <div class="form-group">
+      <label>Role</label>
+      <input type="text" id="role" disabled>
+    </div>
+
+    <div class="form-group">
+      <label>Institution</label>
+      <input type="text" id="institution" disabled>
+    </div>
+
+    <button type="submit">Update Profile</button>
+
+  </form>
+
+  <div class="info">Only name can be edited</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const { createClient } = supabase;
+const client = createClient("https://zwpjavmrgveckswnobhg.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw");
+
+let userId = null;
+
+async function loadProfile(){
+
+  const { data:{ user } } = await client.auth.getUser();
+
+  if(!user){
+    window.location.href = "login.html";
+    return;
+  }
+
+  userId = user.id;
+
+  const { data: profile } = await client
+    .from("users")
+    .select("name, role, institution")
+    .eq("id", user.id)
+    .single();
+
+  document.getElementById("name").value = profile.name || "";
+  document.getElementById("email").value = user.email;
+  document.getElementById("role").value = profile.role;
+  document.getElementById("institution").value = profile.institution;
+
+  document.getElementById("displayName").innerText = profile.name;
+  document.getElementById("displayRole").innerText = profile.role;
+
+  const firstLetter = profile.name ? profile.name.charAt(0).toUpperCase() : "U";
+  document.getElementById("avatar").innerText = firstLetter;
+}
+
+document.getElementById("profileForm")
+.addEventListener("submit", async function(e){
+
+  e.preventDefault();
+
+  const name = document.getElementById("name").value.trim();
+
+  if(!name){
+    alert("Name required");
+    return;
+  }
+
+  const { error } = await client
+    .from("users")
+    .update({ name: name })
+    .eq("id", userId);
+
+  if(error){
+    alert("Update failed");
+    return;
+  }
+
+  alert("Profile updated");
+  loadProfile();
+});
+
+loadProfile();
+</script>
+
+</body>
+</html>
