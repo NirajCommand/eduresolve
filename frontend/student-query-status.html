@@ -3,9 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <title>Query Status</title>
+
 <link rel="stylesheet" href="student_query.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="theme.js"></script>
+
 </head>
 
 <body>
@@ -24,7 +26,6 @@ EduResolve
 
 </nav>
 
-
 <div class="page-container">
 
 <h2 class="page-title">My Queries</h2>
@@ -33,22 +34,17 @@ EduResolve
 
 </div>
 
-
 <script>
 
-document.addEventListener("DOMContentLoaded", async function(){
-
-const SUPABASE_URL = "https://zwpjavmrgveckswnobhg.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw";
+/* ===== GLOBAL CLIENT ===== */
 
 const { createClient } = supabase;
+const client = createClient("https://zwpjavmrgveckswnobhg.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw");
 
-const client = createClient(
-SUPABASE_URL,
-SUPABASE_ANON_KEY
-);
 
-/* AUTH CHECK */
+/* ===== LOAD DATA ===== */
+
+document.addEventListener("DOMContentLoaded", async function(){
 
 const { data:{ user } } = await client.auth.getUser();
 
@@ -57,7 +53,7 @@ window.location.href="login.html";
 return;
 }
 
-/* LOAD STUDENT QUERIES */
+/* FETCH QUERIES */
 
 const { data:queries, error } = await client
 .from("queries")
@@ -71,8 +67,9 @@ return;
 }
 
 const container = document.getElementById("queriesContainer");
-
 container.innerHTML = "";
+
+/* RENDER */
 
 queries?.forEach(q => {
 
@@ -103,7 +100,7 @@ ${q.status}
 </div>
 `;
 
-/* SHOW SOLUTION + FEEDBACK */
+/* ANSWER + FEEDBACK */
 
 if(q.status === "answered"){
 
@@ -143,19 +140,9 @@ container.innerHTML += html;
 });
 
 
-/* FEEDBACK FUNCTION */
+/* ===== FEEDBACK FUNCTION ===== */
 
 async function submitFeedback(queryId){
-
-const SUPABASE_URL = "YOUR_SUPABASE_URL";
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_KEY";
-
-const { createClient } = supabase;
-
-const client = createClient(
-SUPABASE_URL,
-SUPABASE_ANON_KEY
-);
 
 const text = document
 .getElementById("fb-"+queryId)
@@ -166,16 +153,22 @@ alert("Write feedback first");
 return;
 }
 
+/* UPDATE DB */
+
 const { error } = await client
 .from("queries")
-.update({feedback:text})
+.update({ feedback: text })
 .eq("id", queryId);
 
 if(error){
-alert("Feedback failed");
 console.log(error);
+alert("Feedback failed");
 return;
 }
+
+/* UI UPDATE */
+
+document.getElementById("fb-"+queryId).value = "";
 
 alert("Feedback submitted successfully");
 
