@@ -1,0 +1,95 @@
+<html>
+<head>
+    <title>FlowForge - Builder</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="topbar">
+        <h1>FlowForge</h1>
+        <div class="nav-buttons">
+            <a href="builder.html"><button>Create Form</button></a>
+            <a href="respond.html"><button>Answer Form</button></a>
+            <a href="analytics.html"><button>Analytics</button></a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="hero-box">
+            <h2>Form Builder</h2>
+            <p>Create a form, add questions, set compulsory fields, arrange question order, and publish it using a Form ID.</p>
+        </div>
+
+        <div class="grid">
+            <div>
+                <div class="card">
+                    <h3>Form Details</h3>
+
+                    <label>Form Title</label>
+                    <input type="text" id="formTitle" class="input-box" placeholder="Enter form title">
+
+                    <label>Form Description</label>
+                    <textarea id="formDesc" class="input-box" placeholder="Enter form description"></textarea>
+
+                    <button class="main-btn" onclick="saveFormDetails()">Save Form Details</button>
+                </div>
+
+                <div class="card">
+                    <h3>Add Question</h3>
+
+                    <label>Question</label>
+                    <input type="text" id="questionText" class="input-box" placeholder="Enter question text">
+
+                    <label>Question Type</label>
+                    <select id="questionType" class="input-box" onchange="showOptionArea()">
+                        <option value="single">Single Choice</option>
+                        <option value="multi">Multiple Choice</option>
+                        <option value="short">Short Answer</option>
+                        <option value="long">Written Answer</option>
+                        <option value="dropdown">Dropdown</option>
+                    </select>
+
+                    <div id="optionArea">
+                        <label>Options (one per line)</label>
+                        <textarea id="questionOptions" class="input-box" placeholder="Option 1&#10;Option 2&#10;Option 3"></textarea>
+                    </div>
+
+                    <div class="check-line">
+                        <input type="checkbox" id="questionRequired">
+                        <span>Make this compulsory</span>
+                    </div>
+
+                    <button class="main-btn" onclick="addQuestion()">Add Question</button>
+                </div>
+
+                <div class="card">
+                    <h3>Questions Added</h3>
+                    <div id="questionList"></div>
+                </div>
+            </div>
+
+            <div>
+                <div class="card">
+                    <h3>Publish Form</h3>
+                    <p><span class="tag">Form ID</span> <strong id="formIdText">Not generated</strong></p>
+
+                    <button class="main-btn" onclick="publishForm()">Generate / Update Form ID</button>
+
+                    <label>Generated Link</label>
+                    <input type="text" id="formLink" class="input-box" readonly>
+                </div>
+
+                <div class="card">
+                    <h3>Preview</h3>
+                    <p><strong id="previewTitle">Untitled Form</strong></p>
+                    <p id="previewDesc" class="light-text">No description added yet.</p>
+                    <div id="previewArea"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-text">Web Programming Project</div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

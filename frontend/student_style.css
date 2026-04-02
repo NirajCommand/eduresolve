@@ -1,7 +1,5 @@
 
-/* =====================================================
-   NAVBAR
-===================================================== */
+
 
 .navbar-custom {
   display: flex;
@@ -62,12 +60,10 @@
   color: #ef4444 !important;
 }
 
-/* =====================================================
-   DASHBOARD
-===================================================== */
 
 
-/* Welcome Section */
+
+
 
 .welcome-section {
   padding: 80px 40px 20px 50px;
@@ -90,7 +86,7 @@
   margin: 0;
 }
 
-/* ================= DASHBOARD LAYOUT ================= */
+
 
 
 
@@ -104,13 +100,13 @@
   transition: background 0.3s ease;
 }
 
-/* Light mode */
+
 .light-mode .welcome-section {
   background: linear-gradient(135deg, #f8fafc, #eef2ff);
   box-shadow: 0 12px 30px rgba(0,0,0,0.08);
 }
 
-/* Dark mode */
+
 .dark-mode .welcome-section {
   background: linear-gradient(135deg, #162136, #0f1a2b);
   box-shadow: 0 12px 30px rgba(0,0,0,0.6);
@@ -153,12 +149,9 @@
 .dark-mode .welcome-date {
   color: #cbd5f5;
 }
-/* Dark Mode */
 
-/*.dark-mode .welcome-section {
-  background-color: #162136;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-}*/
+
+
 
 .dark-mode .welcome-left p,
 .dark-mode .institution-label {
@@ -182,7 +175,7 @@
   box-sizing: border-box;
 }
 
-/* ================= LEFT PANEL ================= */
+
 
 .updates-panel {
   flex: 0 0 320px;
@@ -199,7 +192,7 @@
   transition: 0.2s ease;
 }
 
-/* ================= RIGHT GRID ================= */
+
 
 .actions-panel {
   flex: 1;
@@ -208,7 +201,7 @@
   gap: 35px;
 }
 
-/* ================= ACTION CARDS ================= */
+
 
 .action-card {
   border-radius: 22px;
@@ -234,12 +227,12 @@
   font-size: 14px;
 }
 
-/* Hover effect */
+
 .action-card:hover {
   transform: translateY(-10px) scale(1.02);
 }
 
-/* ================= LIGHT MODE ================= */
+
 
 .light-mode .dashboard-container {
   background-color: #f4f6fa;
@@ -268,7 +261,7 @@
   box-shadow: 0 18px 40px rgba(47,109,246,0.25);
 }
 
-/* ================= DARK MODE ================= */
+
 
 .dark-mode .dashboard-container {
   background-color: #0f1a2b;
@@ -299,7 +292,7 @@
   box-shadow: 0 18px 45px rgba(79,140,255,0.35);
 }
 
-/* Highlight card */
+
 
 .action-card.highlight {
   background: linear-gradient(135deg, #2f6df6, #1e4fc4);
@@ -333,10 +326,8 @@
 }
 
 
-/* =====================================================
-   DARKMODE
-===================================================== */
-/* Dark mode */
+
+
 .dark-mode .dashboard-container {
   background-color: #0f1a2b;
 }
@@ -359,7 +350,7 @@
   color: #ebf0f6;
 }
 
-/* Dark mode visibility */
+
 .dark-mode .mode-btn {
   color: #ffffff;
 }
@@ -367,9 +358,7 @@
 
 
 
-/* =====================================================
-   MENU
-===================================================== */
+
 
 .menu {
   position: relative;
@@ -404,7 +393,7 @@
 
 
 
-/* Dark mode menu */
+
 .dark-mode .menu-dropdown {
   background-color: #1b2a44;
 }
@@ -417,9 +406,7 @@
   background-color: #243553;
 }
 
-/* ==========================================
-   TEAMS PAGE
-========================================== */
+
 
 .teams-page {
   padding: 70px 80px;
@@ -428,13 +415,13 @@
   transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* Light mode */
+
 body.light-mode .teams-page {
   background-color: #f4f6fa;
   color: #1f2937;
 }
 
-/* Dark mode */
+
 body.dark-mode .teams-page {
   background-color: #0f1a2b;
   color: #ffffff;
@@ -483,9 +470,7 @@ body.light-mode .section-title {
   border-radius: 10px;
 }
 
-/* ==========================================
-   JOIN FORM
-========================================== */
+
 
 .large-form {
   display: flex;
@@ -534,9 +519,7 @@ body.light-mode .large-form input {
   box-shadow: 0 15px 30px rgba(47,109,246,0.4);
 }
 
-/* ==========================================
-   TEAMS GRID
-========================================== */
+
 
 .teams-grid {
   display: grid;
@@ -544,9 +527,7 @@ body.light-mode .large-form input {
   gap: 30px;
 }
 
-/* ==========================================
-   TEAM CARD
-========================================== */
+
 
 .team-card {
   padding: 30px;
@@ -596,9 +577,7 @@ body.light-mode .team-card {
   box-shadow: 0 10px 20px rgba(47,109,246,0.4);
 }
 
-/* ==========================================
-   PENDING REQUEST CARD
-========================================== */
+
 
 .request-card {
   padding: 18px 22px;
@@ -625,9 +604,7 @@ body.light-mode .request-card {
   margin-top: 5px;
 }
 
-/* ==========================================
-   RESPONSIVE
-========================================== */
+
 
 @media (max-width: 900px) {
 

@@ -71,7 +71,7 @@ return;
 }
 
 
-/* GET USER ROLE */
+
 
 const { data: profile } = await client
 .from("users")
@@ -80,7 +80,7 @@ const { data: profile } = await client
 .single();
 
 
-/* LOGO NAVIGATION */
+
 
 document.getElementById("logoBtn")
 .addEventListener("click", function(){
@@ -96,7 +96,7 @@ window.location.href = "teacher-dashboard.html";
 });
 
 
-/* TEAMS PAGE NAVIGATION */
+
 
 document.getElementById("teamsNav")
 .addEventListener("click", function(){
@@ -112,7 +112,7 @@ window.location.href = "teacher-teams.html";
 });
 
 
-/* LOAD TEAM INFO */
+
 
 const { data: team } = await client
 .from("teams")
@@ -134,7 +134,7 @@ document.getElementById("teamMeta").innerText =
 "Teacher: " + (teacher?.name || "Unknown");
 
 
-/* LOAD OLD MESSAGES */
+
 
 const { data: oldMessages } = await client
 .from("team_messages")
@@ -153,7 +153,7 @@ users(name)
 oldMessages?.forEach(m => addMessage(m));
 
 
-/* MARK MESSAGES AS READ */
+
 
 await client
 .from("team_messages")
@@ -163,7 +163,7 @@ await client
 
 
 
-/* REALTIME MESSAGE LISTENER */
+
 
 client
 .channel("room-" + teamId)
@@ -195,7 +195,7 @@ addMessage(payload.new);
 
 
 
-/* SEND MESSAGE */
+
 
 document.getElementById("sendBtn")
 .addEventListener("click", sendMessage);
@@ -236,7 +236,7 @@ input.value = "";
 
 
 
-/* RENDER MESSAGE */
+
 
 function addMessage(m){
 
@@ -273,7 +273,7 @@ container.scrollTop = container.scrollHeight;
 }
 
 
-/* LOGOUT NAV BTN */
+
 
 document.getElementById("logoutNavBtn")
 .addEventListener("click", async function(){

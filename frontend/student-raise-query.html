@@ -10,7 +10,7 @@
 
 <style>
 
-/* PAGE */
+
 
 body{
 margin:0;
@@ -19,7 +19,7 @@ background:#0f172a;
 color:white;
 }
 
-/* NAVBAR */
+
 
 .navbar-custom{
 display:flex;
@@ -51,7 +51,7 @@ font-size:14px;
 color:white;
 }
 
-/* PAGE WRAPPER */
+
 
 .page-wrapper{
 display:flex;
@@ -61,7 +61,7 @@ min-height:85vh;
 padding:40px;
 }
 
-/* FORM CARD */
+
 
 .query-card{
 width:520px;
@@ -76,7 +76,7 @@ margin:0 0 25px 0;
 font-size:24px;
 }
 
-/* FORM */
+
 
 .form-group{
 margin-bottom:20px;
@@ -112,7 +112,7 @@ min-height:120px;
 outline:2px solid #3b82f6;
 }
 
-/* BUTTON */
+
 
 .submit-btn{
 width:100%;
@@ -225,7 +225,7 @@ const { createClient } = supabase;
 
 const client = createClient("https://zwpjavmrgveckswnobhg.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw");
 
-/* AUTH CHECK */
+
 
 const { data:{ user } } = await client.auth.getUser();
 
@@ -234,7 +234,7 @@ window.location.href="login.html";
 return;
 }
 
-/* LOAD STUDENT TEAMS */
+
 
 const { data:teams } = await client
 .from("team_members")
@@ -259,7 +259,7 @@ select.appendChild(option);
 
 });
 
-/* SUBMIT QUERY */
+
 
 document.getElementById("queryForm")
 .addEventListener("submit", async function(e){

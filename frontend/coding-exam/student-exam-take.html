@@ -192,7 +192,8 @@ function renderQuestionNav() {
   nav.innerHTML = "";
   questions.forEach((q, idx) => {
     const btn = document.createElement("button");
-    btn.className = "question-nav-btn" + (idx === currentQuestion ? " active" : "") + (answers[q.id] ? " answered" : "");
+    const hasCode = !!answers[q.id]?.code?.trim();
+    btn.className = "question-nav-btn" + (idx === currentQuestion ? " active" : "") + (hasCode ? " answered" : "");
     btn.textContent = `Q${idx + 1}: ${q.title.substring(0, 25)}${q.title.length > 25 ? "..." : ""}`;
     btn.onclick = () => showQuestion(idx);
     nav.appendChild(btn);
@@ -200,6 +201,7 @@ function renderQuestionNav() {
 }
 
 function showQuestion(idx) {
+  persistCurrentQuestionState(false);
   currentQuestion = idx;
   const q = questions[idx];
   const area = document.getElementById("questionArea");
@@ -271,12 +273,53 @@ function showQuestion(idx) {
   renderQuestionNav();
 }
 
+function getDefaultLanguageId() {
+  const allowedLangs = exam?.allowed_languages || ALL_LANGUAGES.map(l => l.id);
+  return allowedLangs[0] || 71;
+}
+
+function buildAnswerState(qId) {
+  const currentAnswer = answers[qId] || {};
+  const editorCode = editors[qId] ? editors[qId].getValue() : currentAnswer.code;
+  const selectedLanguage = parseInt(document.getElementById("langSelect")?.value || currentAnswer.language || getDefaultLanguageId(), 10);
+
+  return {
+    code: editorCode || "",
+    language: selectedLanguage
+  };
+}
+
+function persistAnswerState(qId, rerenderNav) {
+  if (!qId) return null;
+
+  const answerState = buildAnswerState(qId);
+  answers[qId] = answerState;
+
+  if (rerenderNav) renderQuestionNav();
+  return answerState;
+}
+
+function persistCurrentQuestionState(rerenderNav = true) {
+  const current = questions[currentQuestion];
+  if (!current || !editors[current.id]) return null;
+  return persistAnswerState(current.id, rerenderNav);
+}
+
+function calculateQuestionPoints(totalPassed, totalCases, questionPoints) {
+  if (!totalCases || !questionPoints) return 0;
+
+  const earnedPoints = (totalPassed / totalCases) * questionPoints;
+
+  
+  return Number.isInteger(earnedPoints) ? earnedPoints : Math.round(earnedPoints);
+}
+
 function changeLanguage(qId) {
   const langId = parseInt(document.getElementById("langSelect").value);
   const mode = langModes[langId] || "python";
   if (editors[qId]) {
     editors[qId].setOption("mode", mode);
-    if (answers[qId]) answers[qId].language = langId;
+    persistAnswerState(qId, true);
   }
 }
 
@@ -288,8 +331,9 @@ async function runCode(qId) {
     console.error("No editor found for qId:", qId);
     return;
   }
-  const code = editors[qId].getValue();
-  const langId = parseInt(document.getElementById("langSelect")?.value || 71);
+  const currentAnswer = persistAnswerState(qId, true);
+  const code = currentAnswer.code;
+  const langId = currentAnswer.language;
   const outputPanel = document.getElementById("output-panel-" + qId);
   const runBtn = document.getElementById("runCodeBtn");
 
@@ -448,12 +492,7 @@ function atob_safe(str) {
 }
 
 function saveAnswer(qId) {
-  if (editors[qId]) {
-    const code = editors[qId].getValue();
-    const lang = parseInt(document.getElementById("langSelect")?.value || 71);
-    answers[qId] = { code, language: lang };
-    renderQuestionNav();
-  }
+  if (editors[qId]) persistAnswerState(qId, true);
 }
 
 function startTimer() {
@@ -574,6 +613,7 @@ async function submitExam() {
   if (!confirm("Are you sure you want to submit? You cannot undo this.")) return;
   isExamActive = false;
   clearInterval(timerInterval);
+  persistCurrentQuestionState(false);
 
   document.removeEventListener("visibilitychange", handleVisibilityChange);
   document.removeEventListener("contextmenu", e => e.preventDefault());
@@ -584,18 +624,21 @@ async function submitExam() {
   window.removeEventListener("blur", handleWindowBlur);
   window.removeEventListener("focus", handleWindowFocus);
 
-  for (const qId in answers) {
-    const ans = answers[qId];
-    const existing = await db.from("coding_exam_answers").select("id").eq("submission_id", submission.id).eq("question_id", qId).single();
+  for (const q of questions) {
+    const ans = q.id === questions[currentQuestion]?.id ? buildAnswerState(q.id) : answers[q.id];
+    if (!ans || !ans.code.trim()) continue;
+
+    answers[q.id] = ans;
+    const { data: existingAnswer } = await db.from("coding_exam_answers").select("id").eq("submission_id", submission.id).eq("question_id", q.id).maybeSingle();
     const answerData = {
       submission_id: submission.id,
-      question_id: qId,
+      question_id: q.id,
       code: ans.code,
       language: ALL_LANGUAGES.find(l => l.id === ans.language)?.name || "Python",
       points_earned: 0
     };
-    if (existing.data) {
-      await db.from("coding_exam_answers").update(answerData).eq("id", existing.data.id);
+    if (existingAnswer?.id) {
+      await db.from("coding_exam_answers").update(answerData).eq("id", existingAnswer.id);
     } else {
       await db.from("coding_exam_answers").insert(answerData);
     }
@@ -617,7 +660,7 @@ async function submitExam() {
     if (results && results.length > 0) {
       const passed = results.filter(r => r.passed).length;
       const total = results.length;
-      const points = Math.round((passed / total) * q.points);
+      const points = calculateQuestionPoints(passed, total, q.points);
       totalScore += points;
       console.log("Q points:", points, "/", q.points, "passed:", passed, "/", total);
       await db.from("coding_exam_answers").update({ points_earned: points, test_results: results }).eq("submission_id", submission.id).eq("question_id", q.id);

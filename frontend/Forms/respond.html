@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FlowForge - Respond</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="topbar">
+        <h1>FlowForge</h1>
+        <div class="nav-buttons">
+            <a href="builder.html"><button>Create Form</button></a>
+            <a href="respond.html"><button>Answer Form</button></a>
+            <a href="analytics.html"><button>Analytics</button></a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="hero-box">
+            <h2>Answer a Form</h2>
+            <p>Enter the Form ID or use the shared link to answer the form.</p>
+        </div>
+
+        <div class="card">
+            <div class="row-line">
+                <input type="text" id="joinId" class="input-box" placeholder="Enter Form ID">
+                <button class="main-btn" onclick="openForm()">Load Form</button>
+            </div>
+        </div>
+
+        <div id="answerArea"></div>
+
+        <div class="footer-text">Web Programming Project</div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

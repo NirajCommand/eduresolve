@@ -13,7 +13,7 @@ background:#f4f6fa;
 color:#111827;
 }
 
-/* NAVBAR */
+
 
 .navbar-custom{
 height:60px;
@@ -32,7 +32,7 @@ cursor:pointer;
 cursor:pointer;
 }
 
-/* TEAM HEADER */
+
 
 .team-header{
 padding:20px 40px;
@@ -51,7 +51,7 @@ font-size:13px;
 opacity:0.8;
 }
 
-/* CHAT CONTAINER */
+
 
 .chat-container{
 display:flex;
@@ -59,7 +59,7 @@ flex-direction:column;
 height:calc(100vh - 120px);
 }
 
-/* MESSAGES AREA */
+
 
 .messages{
 flex:1;
@@ -69,7 +69,7 @@ display:flex;
 flex-direction:column;
 }
 
-/* MESSAGE BUBBLE */
+
 
 .message{
 max-width:65%;
@@ -81,7 +81,7 @@ line-height:1.4;
 word-wrap:break-word;
 }
 
-/* SENT MESSAGE */
+
 
 .message.self{
 background:#2f6df6;
@@ -89,7 +89,7 @@ align-self:flex-end;
 color:white;
 }
 
-/* RECEIVED MESSAGE */
+
 
 .message.other{
 background:#1e293b;
@@ -97,13 +97,13 @@ align-self:flex-start;
 color:white;
 }
 
-/* MESSAGE TEXT */
+
 
 .msg-text{
 white-space:pre-wrap;
 }
 
-/* GROUPING EFFECT */
+
 
 .message.self + .message.self{
 margin-top:4px;
@@ -113,7 +113,7 @@ margin-top:4px;
 margin-top:4px;
 }
 
-/* TYPING INDICATOR */
+
 
 .typing-indicator{
 padding:0 40px 10px 40px;
@@ -122,7 +122,7 @@ opacity:0.7;
 min-height:20px;
 }
 
-/* CHAT INPUT */
+
 
 .chat-input{
 display:flex;
@@ -161,7 +161,7 @@ transition:0.2s;
 opacity:0.85;
 }
 
-/* SCROLLBAR */
+
 
 .messages::-webkit-scrollbar{
 width:6px;
@@ -176,7 +176,7 @@ border-radius:4px;
 background:transparent;
 }
 
-/* RESPONSIVE */
+
 
 @media(max-width:768px){
 
@@ -235,7 +235,7 @@ cursor:pointer;
 }
 
 
-/*==========*/
+
 .sender{
 font-size:12px;
 opacity:0.7;

@@ -46,6 +46,7 @@
         <a href="profile.html">Profile</a>
         <a href="teacher-list-hod.html">Teacher List</a>
         <a href="Create_courses-hod.html">Courses</a>
+        <a href="Forms/form-builder.html">Forms</a>
         <a href="#" onclick="logout()">Logout</a>
       </div>
     </div>
@@ -153,7 +154,7 @@ async function loadDashboard(){
   document.getElementById("institutionName").innerText =
     profile.institution;
 
-  /* ===== Pending Approvals ===== */
+  
 
   const { data: pendingUsers } = await client
     .from("users")
@@ -186,7 +187,7 @@ async function loadDashboard(){
     `;
   });
 
-  /* ===== Weekly Summary ===== */
+  
 
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
@@ -252,7 +253,7 @@ async function loadDashboard(){
     </div>
   `;
 
-  /* ===== Announcement History ===== */
+  
 
   const threeMonthsAgo = new Date();
   threeMonthsAgo.setMonth(
@@ -270,20 +271,47 @@ async function loadDashboard(){
   const historyContainer =
     document.getElementById("announcementHistory");
 
-  historyContainer.innerHTML = "";
+  function renderAnnouncementHistory(){
+    historyContainer.innerHTML = "";
+    announcements?.forEach(a=>{
+      historyContainer.innerHTML += `
+        <div class="report-card">
+          <h5>${a.title}</h5>
+          <p>${a.description}</p>
+          <small>
+            ${a.target_role || "both"} |
+            ${new Date(a.created_at).toLocaleString()}
+          </small>
+        </div>
+      `;
+    });
+  }
 
-  announcements?.forEach(a=>{
-    historyContainer.innerHTML += `
-      <div class="report-card">
-        <h5>${a.title}</h5>
-        <p>${a.description}</p>
-        <small>
-          ${a.target_role || "both"} |
-          ${new Date(a.created_at).toLocaleString()}
-        </small>
-      </div>
-    `;
-  });
+  renderAnnouncementHistory();
+
+  
+  client
+    .channel("hod-announcements-" + profile.institution)
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "announcements",
+        filter: "institution=eq." + profile.institution
+      },
+      (payload) => {
+        const newAnn = payload.new;
+        if(newAnn.role === "hod"){
+          announcements.unshift(newAnn);
+          announcements.sort((a,b)=>
+            new Date(b.created_at) - new Date(a.created_at)
+          );
+          renderAnnouncementHistory();
+        }
+      }
+    )
+    .subscribe();
 }
 
 async function approveUser(id){
@@ -295,7 +323,7 @@ async function approveUser(id){
   loadDashboard();
 }
 
-/* ===== Announcement Insert FIXED ===== */
+
 
 document.getElementById("announcementForm")
 .addEventListener("submit", async function(e){
@@ -348,7 +376,7 @@ document.getElementById("announcementForm")
   loadDashboard();
 });
 
-/* ===== Search FIXED SINGLE FUNCTION ===== */
+
 
 async function handleSearch(event){
 

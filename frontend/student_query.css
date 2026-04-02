@@ -5,7 +5,7 @@ background:#0f172a;
 color:white;
 }
 
-/* NAVBAR */
+
 
 .navbar-custom{
 display:flex;
@@ -37,7 +37,7 @@ font-size:14px;
 color:white;
 }
 
-/* PAGE */
+
 
 .page-container{
 max-width:900px;
@@ -50,7 +50,7 @@ font-size:24px;
 margin-bottom:30px;
 }
 
-/* QUERY FORM */
+
 
 .query-form{
 background:#1e293b;
@@ -91,7 +91,7 @@ cursor:pointer;
 background:#2563eb;
 }
 
-/* QUERY CARD */
+
 
 .query-card{
 background:#1e293b;
@@ -117,7 +117,7 @@ font-size:14px;
 margin-bottom:12px;
 }
 
-/* STATUS */
+
 
 .query-status{
 font-size:13px;
@@ -134,7 +134,7 @@ color:#f59e0b;
 font-weight:600;
 }
 
-/* SOLUTION */
+
 
 .solution-box{
 margin-top:15px;
@@ -144,7 +144,7 @@ border-radius:10px;
 font-size:14px;
 }
 
-/* FEEDBACK */
+
 
 .feedback-box{
 margin-top:15px;
@@ -174,7 +174,7 @@ cursor:pointer;
 background:#16a34a;
 }
 
-/* RESPONSIVE */
+
 
 @media(max-width:700px){
 

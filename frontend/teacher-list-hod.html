@@ -51,7 +51,7 @@ async function loadTeachers(){
 
   for (let teacher of teachers || []) {
 
-    // Get teams + course
+    
     const { data: teams } = await client
       .from("teams")
       .select(`

@@ -1,6 +1,4 @@
-/* ===============================
-   GLOBAL THEME
-================================ */
+
 
 body {
   margin: 0;
@@ -8,23 +6,21 @@ body {
   transition: 0.3s ease;
 }
 
-/* ---------- DARK MODE ---------- */
+
 
 body.dark-mode {
   background: #0f172a;
   color: #ffffff;
 }
 
-/* ---------- LIGHT MODE ---------- */
+
 
 body.light-mode {
   background: #f4f6fa;
   color: #111827;
 }
 
-/* ===============================
-   NAVBAR
-================================ */
+
 
 .navbar-custom {
   height: 65px;
@@ -84,7 +80,7 @@ body.light-mode {
   cursor: pointer;
 }
 
-/* ---------- MENU ---------- */
+
 
 .menu {
   position: relative;
@@ -117,9 +113,7 @@ body.light-mode {
   display: block;
 }
 
-/* ===============================
-   WELCOME BOX
-================================ */
+
 
 .welcome-box {
   margin: 30px 60px;
@@ -141,9 +135,7 @@ body.light-mode {
   text-align: right;
 }
 
-/* ===============================
-   MAIN LAYOUT
-================================ */
+
 
 .main-container {
   display: grid;
@@ -152,9 +144,7 @@ body.light-mode {
   padding: 20px 60px 80px;
 }
 
-/* ===============================
-   LEFT PANEL
-================================ */
+
 
 .updates-panel {
   padding: 25px;
@@ -163,9 +153,7 @@ body.light-mode {
   box-shadow: 0 12px 30px rgba(0,0,0,0.3);
 }
 
-/* ===============================
-   ACTION CARDS
-================================ */
+
 
 .actions-grid {
   display: grid;
@@ -194,9 +182,7 @@ body.light-mode {
   box-shadow: 0 18px 45px rgba(47,109,246,0.4);
 }
 
-/* ===============================
-   ANNOUNCEMENT SECTION
-================================ */
+
 
 .announcement-section {
   margin-top: 40px;
@@ -217,9 +203,7 @@ body.light-mode {
   border: none;
 }
 
-/* ===============================
-   LIGHT MODE OVERRIDES
-================================ */
+
 
 body.light-mode .navbar-custom {
   background: #ffffff;
@@ -250,13 +234,11 @@ body.light-mode .card-box:hover {
   background: linear-gradient(135deg, #2f6df6, #1e4fc4);
   color: white;
 }
-/*-----------------
-Teacher teams style
--------------------*/
 
 
-/* ---------- TEAMS PAGE ---------- */
-/* ================= TEAMS PAGE LAYOUT ================= */
+
+
+
 
 .teams-page {
   padding: 80px 100px;
@@ -291,7 +273,7 @@ Teacher teams style
   border-radius: 10px;
 }
 
-/* ================= LARGE FORM ================= */
+
 
 .large-form {
   display: flex;
@@ -340,7 +322,7 @@ body.dark-mode .large-form input {
   box-shadow: 0 18px 35px rgba(47,109,246,0.4);
 }
 
-/* ================= GRID ================= */
+
 
 .teams-grid {
   display: grid;
@@ -348,7 +330,7 @@ body.dark-mode .large-form input {
   gap: 35px;
 }
 
-/* ================= TEAM CARD ================= */
+
 
 .team-card {
   padding: 35px;
@@ -405,7 +387,7 @@ body.dark-mode .team-card {
   box-shadow: 0 12px 25px rgba(47,109,246,0.4);
 }
 
-/* ================= REQUEST CARD ================= */
+
 
 .request-card {
   padding: 25px;

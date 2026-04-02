@@ -70,7 +70,7 @@ const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 document.addEventListener("DOMContentLoaded", async function(){
 
-/* AUTH */
+
 
 const { data:{ user } } = await client.auth.getUser();
 
@@ -80,7 +80,7 @@ return;
 }
 
 
-/* GET TEACHER TEAMS */
+
 
 const { data:teams } = await client
 .from("teams")
@@ -90,7 +90,7 @@ const { data:teams } = await client
 const teamIds = teams?.map(t=>t.id) || [];
 
 
-/* LOAD QUERIES */
+
 
 const { data:queries } = await client
 .from("queries")

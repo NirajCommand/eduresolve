@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", async function(){
     SUPABASE_ANON_KEY
   );
 
-  /* ================= AUTH ================= */
+  
 
   const { data:{ user } } = await supabase.auth.getUser();
 
@@ -102,7 +102,7 @@ document.addEventListener("DOMContentLoaded", async function(){
     return;
   }
 
-  /* ================= MENU ================= */
+  
 
   document.getElementById("menuIcon")
   .addEventListener("click", function(){
@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", async function(){
     window.location.href="login.html";
   });
 
-  /* ================= JOIN TEAM ================= */
+  
 
   document.getElementById("joinBtn")
   .addEventListener("click", async function(){
@@ -171,7 +171,7 @@ document.addEventListener("DOMContentLoaded", async function(){
     loadTeams();
   });
 
-  /* ================= LOAD TEAMS ================= */
+  
 
   async function loadTeams(){
 

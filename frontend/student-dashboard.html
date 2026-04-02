@@ -10,14 +10,14 @@
 <script src="theme.js"></script>
 </head>
 <body>
-<!-- NAVBAR -->
+
 <nav class="navbar-custom">
   <div class="logo" id="logoBtn">
     <i class="fa-solid fa-graduation-cap"></i> EduResolve
   </div>
   <div class="nav-center">
-    <a href="profile.html">Account</a>
-    
+    <a href="#">Account</a>
+    <a href="#">Search</a>
     <a href="student-teams.html">My Courses</a>
   </div>
   <div class="nav-right">
@@ -32,7 +32,7 @@
   <i class="fa-solid fa-bars" id="menuIcon"></i>
 
   <div class="menu-dropdown" id="menuDropdown">
-    <a href="profile.html">Profile</a>
+    <a href="#">Profile</a>
     <a href="#">Registered Courses</a>
     <a href="#">Language</a>
     <a href="#" id="logoutBtn">Logout</a>
@@ -40,7 +40,7 @@
 </div>
   </div>
 </nav>
-<!-- WELCOME SECTION -->
+
 <div class="welcome-section">
   <div class="welcome-left">
     <h3 id="welcomeText">Loading...</h3>
@@ -51,14 +51,14 @@
     <p id="todayDate"></p>
   </div>
 </div>
-<!-- MAIN DASHBOARD -->
+
 <div class="dashboard-container">
-  <!-- LEFT 30% -->
+  
   <div class="updates-panel">
     <h4>Academic Updates</h4>
     <div id="updatesContainer">Loading...</div>
   </div>
-  <!-- RIGHT 70% -->
+  
   <div class="actions-panel">
 <div class="action-card" id="teamsCard">
   <i class="fa-solid fa-users"></i>
@@ -103,6 +103,11 @@
   <h5>Code Practice</h5>
 </div>
 
+<div class="action-card" id="formsCard">
+  <i class="fa-solid fa-file-lines"></i>
+  <h5>Forms</h5>
+</div>
+
 <div class="action-card">
   <i class="fa-solid fa-bell"></i>
   <h5>Notifications</h5>
@@ -120,7 +125,7 @@ document.addEventListener("DOMContentLoaded", async function(){
   const { createClient } = supabase;
   const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  /* AUTH CHECK */
+  
   const { data:{ user } } = await client.auth.getUser();
 
   if(!user){
@@ -139,7 +144,7 @@ document.addEventListener("DOMContentLoaded", async function(){
     return;
   }
 
-  /* WELCOME */
+  
   const messages = [
     "Stay consistent. Small progress daily leads to big results.",
     "Focus on understanding deeply.",
@@ -165,7 +170,7 @@ document.addEventListener("DOMContentLoaded", async function(){
       {weekday:"long",year:"numeric",month:"long",day:"numeric"}
     );
 
-  /* LOAD STUDENT APPROVED TEAMS */
+  
   const { data: memberships } = await client
     .from("team_members")
     .select("team_id")
@@ -174,22 +179,24 @@ document.addEventListener("DOMContentLoaded", async function(){
 
   const teamIds = memberships?.map(m => m.team_id) || [];
 
-  /* HOD ANNOUNCEMENTS */
+  
   const { data: hodAnnouncements } = await client
     .from("announcements")
-    .select("title, description, created_at, role")
+    .select("title, description, created_at, role, target_role")
     .eq("institution", profile.institution)
-    .eq("role","hod");
+    .eq("role","hod")
+    .or("target_role.eq.student,target_role.eq.both");
 
-  /* TEACHER ANNOUNCEMENTS */
+  
   let teacherAnnouncements = [];
 
   if(teamIds.length > 0){
     const { data } = await client
       .from("announcements")
-      .select("title, description, created_at, role")
+      .select("title, description, created_at, role, target_role")
       .in("team_id", teamIds)
-      .eq("role","teacher");
+      .eq("role","teacher")
+      .or("target_role.eq.student,target_role.eq.both");
 
     teacherAnnouncements = data || [];
   }
@@ -204,23 +211,59 @@ document.addEventListener("DOMContentLoaded", async function(){
   const updatesContainer =
     document.getElementById("updatesContainer");
 
-  updatesContainer.innerHTML="";
-
-  if(allAnnouncements.length === 0){
-    updatesContainer.innerHTML="No updates yet.";
-  } else {
-    allAnnouncements.slice(0,10).forEach(a=>{
-      updatesContainer.innerHTML += `
-        <div class="update-item">
-          <strong>${a.title}</strong>
-          <p>${a.description}</p>
-          <small>${a.role.toUpperCase()}</small>
-        </div>
-      `;
-    });
+  function renderAnnouncements(announcements){
+    updatesContainer.innerHTML="";
+    if(announcements.length === 0){
+      updatesContainer.innerHTML="No updates yet.";
+    } else {
+      announcements.slice(0,10).forEach(a=>{
+        updatesContainer.innerHTML += `
+          <div class="update-item">
+            <strong>${a.title}</strong>
+            <p>${a.description}</p>
+            <small>${a.role.toUpperCase()}</small>
+          </div>
+        `;
+      });
+    }
   }
 
-  /* BUTTON NAVIGATION */
+  renderAnnouncements(allAnnouncements);
+
+  
+  client
+    .channel("student-announcements-" + profile.institution)
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "announcements",
+        filter: "institution=eq." + profile.institution
+      },
+      (payload) => {
+        const newAnn = payload.new;
+        const isHod = newAnn.role === "hod";
+        const isTeacher = newAnn.role === "teacher";
+        const isTargetedToStudent = !newAnn.target_role ||
+          newAnn.target_role === "student" ||
+          newAnn.target_role === "both";
+        const isTeacherTeamRelevant = !newAnn.team_id ||
+          teamIds.includes(newAnn.team_id);
+
+        if((isHod && isTargetedToStudent) ||
+           (isTeacher && isTargetedToStudent && isTeacherTeamRelevant)){
+          allAnnouncements.unshift(newAnn);
+          allAnnouncements.sort((a,b)=>
+            new Date(b.created_at) - new Date(a.created_at)
+          );
+          renderAnnouncements(allAnnouncements);
+        }
+      }
+    )
+    .subscribe();
+
+  
   document.getElementById("teamsCard")
     .addEventListener("click", function(){
       window.location.href="student-teams.html";
@@ -231,14 +274,14 @@ document.addEventListener("DOMContentLoaded", async function(){
       window.location.href="student-dashboard.html";
     });
 
-  /* MENU */
+  
   document.getElementById("menuIcon")
     .addEventListener("click", function(){
       document.getElementById("menuDropdown")
         .classList.toggle("show-menu");
     });
 
-  /* LOGOUT */
+  
   document.getElementById("logoutBtn")
     .addEventListener("click", async function(e){
       e.preventDefault();
@@ -286,6 +329,11 @@ window.location.href="coding-exam/student-exam-list.html";
 document.getElementById("codePracticeCard")
 .addEventListener("click",function(){
 window.location.href="coding/coding.html";
+});
+
+document.getElementById("formsCard")
+.addEventListener("click",function(){
+window.location.href="Forms/form-builder.html";
 });
 
 });

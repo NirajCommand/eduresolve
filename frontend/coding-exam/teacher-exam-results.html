@@ -6,8 +6,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="exam.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../theme.js"></script>
 </head>
@@ -60,7 +58,6 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUser = null;
 let examId = null;
 let exam = null;
-let codeViewers = {};
 
 document.addEventListener("DOMContentLoaded", async function() {
   const params = new URLSearchParams(window.location.search);
@@ -153,6 +150,7 @@ async function loadSubmissions() {
           <div>
             <h4 style="margin:0">${studentName}</h4>
             <p style="margin:4px 0 0;font-size:13px;opacity:0.6">${sub.users?.email || ""}</p>
+            <p style="margin:6px 0 0;font-size:13px;font-weight:600;color:#60a5fa">Marks: ${sub.score}/${maxScore}</p>
           </div>
         </div>
         <div style="text-align:right">
@@ -164,11 +162,11 @@ async function loadSubmissions() {
         </div>
       </div>
       <div class="progress-bar"><div class="progress-fill" style="width:${maxScore > 0 ? (sub.score / maxScore * 100) : 0}%"></div></div>
-      <div style="display:flex;gap:10px;margin-bottom:15px">
-        <button class="btn-secondary" style="padding:8px 16px;border-radius:8px;border:none;font-size:12px;cursor:pointer" onclick="toggleAnswers('${sub.id}')">
+      <div class="exam-actions submission-actions">
+        <button id="toggle-code-btn-${sub.id}" class="btn-secondary code-toggle-btn" onclick="toggleAnswers('${sub.id}')">
           <i class="fa-solid fa-code"></i> View Code
         </button>
-        ${malpracticeLogs && malpracticeLogs.length > 0 ? `<button class="btn-danger" style="padding:8px 16px;border-radius:8px;border:none;font-size:12px;cursor:pointer" onclick="toggleMalpractice('${sub.id}')">
+        ${malpracticeLogs && malpracticeLogs.length > 0 ? `<button class="btn-danger" onclick="toggleMalpractice('${sub.id}')">
           <i class="fa-solid fa-triangle-exclamation"></i> Malpractice (${malpracticeLogs.length})
         </button>` : ""}
       </div>
@@ -179,30 +177,7 @@ async function loadSubmissions() {
 
     if (answers && answers.length > 0) {
       const answersDiv = document.getElementById(`answers-${sub.id}`);
-      answers.forEach((ans, idx) => {
-        const viewerId = `code-${sub.id}-${idx}`;
-        const ta = document.createElement("textarea");
-        ta.id = viewerId;
-        ta.value = ans.code;
-        answersDiv.innerHTML += `
-          <div class="code-viewer" style="margin-bottom:15px">
-            <div class="code-viewer-header">
-              <span><i class="fa-solid fa-file-code"></i> ${ans.coding_exam_questions?.title || "Question " + (idx + 1)}</span>
-              <span>${ans.language} • ${ans.points_earned}/${ans.coding_exam_questions?.points || 0} pts</span>
-            </div>
-          </div>
-        `;
-        answersDiv.querySelector(".code-viewer:last-child").appendChild(ta);
-        setTimeout(() => {
-          codeViewers[viewerId] = CodeMirror.fromTextArea(ta, {
-            lineNumbers: true,
-            readOnly: true,
-            theme: "material-darker",
-            tabSize: 2
-          });
-          codeViewers[viewerId].setSize("100%", "auto");
-        }, 100);
-      });
+      answersDiv._answerData = answers;
     }
 
     if (malpracticeLogs && malpracticeLogs.length > 0) {
@@ -225,12 +200,82 @@ async function loadSubmissions() {
 
 function toggleAnswers(subId) {
   const el = document.getElementById(`answers-${subId}`);
-  el.style.display = el.style.display === "none" ? "block" : "none";
+  const btn = document.getElementById(`toggle-code-btn-${subId}`);
+  const isOpening = el.style.display === "none";
+  el.style.display = isOpening ? "block" : "none";
+
+  if (btn) {
+    btn.innerHTML = isOpening
+      ? '<i class="fa-solid fa-eye-slash"></i> Hide Code'
+      : '<i class="fa-solid fa-code"></i> View Code';
+  }
+
+  if (isOpening && el._answerData && !el._initialized) {
+    el._answerData.forEach((ans, idx) => {
+      el.appendChild(createAnswerViewer(ans, idx));
+    });
+    el._initialized = true;
+  }
 }
 
 function toggleMalpractice(subId) {
   const el = document.getElementById(`malpractice-${subId}`);
   el.style.display = el.style.display === "none" ? "block" : "none";
+}
+
+function escapeHtml(str) {
+  if (!str) return "";
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;");
+}
+
+function createAnswerViewer(ans, idx) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "code-viewer";
+  wrapper.style.marginBottom = "15px";
+
+  const header = document.createElement("div");
+  header.className = "code-viewer-header";
+
+  const title = document.createElement("span");
+  title.innerHTML = `<i class="fa-solid fa-file-code"></i> ${escapeHtml(ans.coding_exam_questions?.title || "Question " + (idx + 1))}`;
+
+  const meta = document.createElement("span");
+  meta.textContent = `${ans.language} • ${ans.points_earned}/${ans.coding_exam_questions?.points || 0} pts`;
+
+  header.appendChild(title);
+  header.appendChild(meta);
+
+  const editorBox = document.createElement("div");
+  editorBox.className = "cm-fake-editor";
+
+  const gutter = document.createElement("div");
+  gutter.className = "cm-fake-gutter";
+
+  const content = document.createElement("pre");
+  content.className = "cm-fake-content";
+
+  const code = ans.code || "";
+  const lines = code.split("\n");
+
+  lines.forEach((line, i) => {
+    const ln = document.createElement("div");
+    ln.className = "cm-fake-line";
+    ln.textContent = line;
+    content.appendChild(ln);
+
+    const num = document.createElement("span");
+    num.className = "cm-fake-ln";
+    num.textContent = String(i + 1);
+    gutter.appendChild(num);
+  });
+
+  editorBox.appendChild(gutter);
+  editorBox.appendChild(content);
+
+  wrapper.appendChild(header);
+  wrapper.appendChild(editorBox);
+
+  return wrapper;
 }
 </script>
 </body>

@@ -15,7 +15,7 @@
 
 <body>
 
-<!-- ================= NAVBAR ================= -->
+
 
 <nav class="navbar-custom">
   <div class="logo">
@@ -23,9 +23,9 @@
   </div>
 
   <div class="nav-center">
-    <a href="profile.html">Account</a>
-    <a href="teacher-teams.html">My Courses</a>
-    
+    <a href="#">Account</a>
+    <a href="#">My Courses</a>
+    <a href="#">Search</a>
   </div>
 
   <div class="nav-right">
@@ -48,7 +48,7 @@
   </div>
 </nav>
 
-<!-- ================= WELCOME ================= -->
+
 
 <div class="welcome-box">
   <div>
@@ -60,17 +60,17 @@
   </div>
 </div>
 
-<!-- ================= MAIN ================= -->
+
 
 <div class="main-container">
 
-  <!-- LEFT 30% -->
+  
   <div class="updates-panel">
     <h4>Announcements by HOD</h4>
     <div id="hodAnnouncements">Loading...</div>
   </div>
 
-  <!-- RIGHT 70% -->
+  
   <div class="right-content">
 
     <div class="actions-grid">
@@ -110,6 +110,11 @@
         <h5>Coding Exams</h5>
       </div>
 
+      <div class="card-box" onclick="window.location.href='Forms/form-builder.html'">
+        <i class="fa-solid fa-file-lines"></i>
+        <h5>Forms</h5>
+      </div>
+
       <div class="card-box">
         <i class="fa-solid fa-bell"></i>
         <h5>Notifications</h5>
@@ -117,7 +122,7 @@
 
     </div>
 
-    <!-- TEACHER ANNOUNCEMENT FORM -->
+    
 
     <div class="announcement-section mt-5">
       <h4>Create Announcement for Team</h4>
@@ -166,7 +171,7 @@ const supabase = window.supabase.createClient(
   SUPABASE_ANON_KEY
 );
 
-/* ROLE PROTECTION */
+
 
 const { data:{ user } } = await supabase.auth.getUser();
 
@@ -192,7 +197,7 @@ if(!profile || profile.role !== "teacher"){
   return;
 }
 
-/* PROFILE */
+
 
 document.getElementById("teacherName").innerText =
 "Welcome, "+profile.name;
@@ -206,7 +211,7 @@ new Date().toLocaleDateString(
 {weekday:"long",year:"numeric",month:"long",day:"numeric"}
 );
 
-/* MENU */
+
 
 document.getElementById("menuIcon")
 .addEventListener("click",function(){
@@ -228,7 +233,9 @@ await supabase.auth.signOut();
 window.location.href="login.html";
 });
 
-/* LOAD HOD ANNOUNCEMENTS */
+
+
+let hodAnnouncementsList = [];
 
 const { data: hodAnnouncements, error: hodError } =
 await supabase
@@ -241,35 +248,61 @@ await supabase
 const hodContainer =
 document.getElementById("hodAnnouncements");
 
-hodContainer.innerHTML="";
-
-if(hodError){
-console.log(hodError);
-hodContainer.innerHTML="Error loading announcements";
-return;
-}
-
-if(!hodAnnouncements || hodAnnouncements.length===0){
-
-hodContainer.innerHTML="No announcements yet.";
-
-}else{
-
-hodAnnouncements.forEach(a=>{
-
-hodContainer.innerHTML+=`
+function renderHodAnnouncements(){
+  hodContainer.innerHTML="";
+  if(hodError){
+    console.log(hodError);
+    hodContainer.innerHTML="Error loading announcements";
+    return;
+  }
+  if(!hodAnnouncementsList || hodAnnouncementsList.length===0){
+    hodContainer.innerHTML="No announcements yet.";
+  }else{
+    hodAnnouncementsList.forEach(a=>{
+      hodContainer.innerHTML+=`
 <div style="margin-bottom:18px">
 <strong>${a.title}</strong>
 <p>${a.description}</p>
 <small>${new Date(a.created_at).toLocaleString()}</small>
 </div>
 `;
-
-});
-
+    });
+  }
 }
 
-/* LOAD TEACHER TEAMS */
+hodAnnouncementsList = hodAnnouncements || [];
+renderHodAnnouncements();
+
+
+supabase
+  .channel("teacher-announcements-" + profile.institution)
+  .on(
+    "postgres_changes",
+    {
+      event: "INSERT",
+      schema: "public",
+      table: "announcements",
+      filter: "institution=eq." + profile.institution
+    },
+    (payload) => {
+      const newAnn = payload.new;
+      if(newAnn.role === "hod"){
+        const targetOk = !newAnn.target_role ||
+          newAnn.target_role === "teacher" ||
+          newAnn.target_role === "both";
+        if(targetOk){
+          hodAnnouncementsList.unshift(newAnn);
+          hodAnnouncementsList.sort((a,b)=>
+            new Date(b.created_at) - new Date(a.created_at)
+          );
+          renderHodAnnouncements();
+        }
+      }
+    }
+  )
+  .subscribe();
+
+
 
 const { data: teams, error: teamError } =
 await supabase
@@ -292,7 +325,7 @@ option.textContent=team.name;
 select.appendChild(option);
 });
 
-/* POST ANNOUNCEMENT */
+
 
 document.getElementById("announcementForm")
 .addEventListener("submit",async function(e){

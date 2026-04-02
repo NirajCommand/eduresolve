@@ -51,9 +51,7 @@
 
 <script>
 
-/* =========================
-   SUPABASE CONFIG
-========================= */
+
 
 const SUPABASE_URL = "https://jaetijisqgecxqgcqget.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphZXRpamlzcWdlY3hxZ2NxZ2V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2NTIxMDcsImV4cCI6MjA4NjIyODEwN30.9N66bJYHvB2JJIUESX-EQLtQM2Grk9R9xSY04dnexXk";
@@ -63,9 +61,7 @@ const supabase = window.supabase.createClient(
   SUPABASE_ANON_KEY
 );
 
-/* =========================
-   AUTH PROTECTION
-========================= */
+
 
 async function protectTeacherPage() {
 
@@ -90,9 +86,7 @@ async function protectTeacherPage() {
   return user;
 }
 
-/* =========================
-   GENERATE TEAM CODE
-========================= */
+
 
 function generateTeamCode() {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -103,9 +97,7 @@ function generateTeamCode() {
   return code;
 }
 
-/* =========================
-   CREATE TEAM
-========================= */
+
 
 async function createTeam() {
 
@@ -140,9 +132,7 @@ async function createTeam() {
   loadTeams();
 }
 
-/* =========================
-   LOAD TEAMS
-========================= */
+
 
 async function loadTeams() {
 
@@ -182,9 +172,7 @@ async function loadTeams() {
   }
 }
 
-/* =========================
-   INIT
-========================= */
+
 
 document.addEventListener("DOMContentLoaded", () => {
   loadTeams();

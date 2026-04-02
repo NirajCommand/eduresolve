@@ -4,19 +4,19 @@ body {
   transition: 0.3s ease;
 }
 
-/* ================= DARK MODE ================= */
+
 body.dark-mode {
   background: #0f172a;
   color: #ffffff;
 }
 
-/* ================= LIGHT MODE ================= */
+
 body.light-mode {
   background: #f4f6fa;
   color: #111827;
 }
 
-/* ================= NAVBAR ================= */
+
 .navbar-custom {
   height: 65px;
   padding: 0 60px;
@@ -147,7 +147,7 @@ body.light-mode .menu-dropdown a:hover {
   display: block;
 }
 
-/* ================= WELCOME BOX ================= */
+
 .welcome-box {
   margin: 90px 60px 30px;
   padding: 30px 40px;
@@ -179,14 +179,14 @@ body.light-mode .menu-dropdown a:hover {
   opacity: 0.7;
 }
 
-/* ================= MAIN CONTAINER ================= */
+
 .main-container {
   padding: 20px 60px 80px;
   max-width: 1400px;
   margin: auto;
 }
 
-/* ================= STATS BOX ================= */
+
 .stats-box {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -227,7 +227,7 @@ body.light-mode .stat-card {
   opacity: 0.7;
 }
 
-/* ================= EXAM CARDS ================= */
+
 .exams-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -348,7 +348,7 @@ body.light-mode .meta-tag {
   box-shadow: 0 10px 25px rgba(34,197,94,0.4);
 }
 
-/* ================= FORM STYLES ================= */
+
 .form-section {
   padding: 30px;
   border-radius: 16px;
@@ -450,7 +450,7 @@ body.light-mode .form-group textarea {
   font-size: 14px;
 }
 
-/* ================= QUESTION BUILDER ================= */
+
 .question-builder {
   padding: 25px;
   border-radius: 12px;
@@ -494,7 +494,7 @@ body.light-mode .question-builder {
   background: rgba(239,68,68,0.25);
 }
 
-/* ================= TEST CASE EDITOR ================= */
+
 .test-case-editor {
   margin-top: 20px;
 }
@@ -536,7 +536,7 @@ body.light-mode .test-case-row textarea {
   height: fit-content;
 }
 
-/* ================= LANGUAGE SELECTOR ================= */
+
 .language-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -579,7 +579,7 @@ body.light-mode .language-option {
   accent-color: #2f6df6;
 }
 
-/* ================= SUBMISSION VIEWER ================= */
+
 .submission-list {
   display: flex;
   flex-direction: column;
@@ -607,6 +607,21 @@ body.light-mode .submission-card {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+}
+
+.submission-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.submission-actions button {
+  flex: 0 0 auto;
+}
+
+.code-toggle-btn {
+  min-width: 140px;
 }
 
 .student-info {
@@ -656,7 +671,7 @@ body.light-mode .submission-card {
   color: #ef4444;
 }
 
-/* ================= CODE VIEWER ================= */
+
 .code-viewer {
   margin-top: 15px;
   border-radius: 10px;
@@ -673,19 +688,52 @@ body.light-mode .submission-card {
   font-size: 12px;
 }
 
-.code-viewer pre {
-  margin: 0;
-  padding: 15px;
-  background: #1e293b;
-  color: #e2e8f0;
-  font-family: 'Consolas', monospace;
+.cm-fake-editor {
+  display: flex;
+  background: #263238;
+  border-radius: 0 0 10px 10px;
+  overflow: hidden;
+  font-family: 'Consolas', 'Courier New', monospace;
   font-size: 13px;
-  line-height: 1.5;
-  overflow-x: auto;
-  white-space: pre-wrap;
+  line-height: 1.6;
+  min-height: 60px;
 }
 
-/* ================= MALPRACTICE LOG ================= */
+.cm-fake-gutter {
+  background: #1c2834;
+  color: #546e7a;
+  text-align: right;
+  user-select: none;
+  padding: 12px 0;
+  min-width: 48px;
+  border-right: 1px solid #37474f;
+  overflow: hidden;
+}
+
+.cm-fake-ln {
+  display: block;
+  padding: 0 10px 0 8px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.cm-fake-content {
+  margin: 0;
+  padding: 12px 16px;
+  flex: 1;
+  color: #e2e8f0;
+  overflow-x: auto;
+  white-space: pre;
+  min-width: 0;
+}
+
+.cm-fake-line {
+  display: block;
+  min-height: 21px;
+  white-space: pre;
+}
+
+
 .malpractice-log {
   margin-top: 20px;
   padding: 20px;
@@ -725,7 +773,7 @@ body.light-mode .submission-card {
   font-size: 12px;
 }
 
-/* ================= EXAM TIMER ================= */
+
 .exam-timer {
   position: fixed;
   top: 80px;
@@ -757,7 +805,7 @@ body.light-mode .submission-card {
   50% { transform: scale(1.05); }
 }
 
-/* ================= EXAM FULLSCREEN ================= */
+
 .exam-container {
   padding-top: 100px;
   min-height: 100vh;
@@ -817,7 +865,7 @@ body.light-mode .exam-sidebar {
   color: #22c55e;
 }
 
-/* ================= PASSWORD MODAL ================= */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -887,7 +935,7 @@ body.light-mode .modal-box input {
   border-color: #2f6df6;
 }
 
-/* ================= RESPONSIVE ================= */
+
 @media (max-width: 1200px) {
   .exam-sidebar {
     position: static;
@@ -943,7 +991,7 @@ body.light-mode .modal-box input {
   }
 }
 
-/* ================= ANIMATIONS ================= */
+
 .fade-in {
   animation: fadeIn 0.3s ease;
 }
@@ -962,7 +1010,7 @@ body.light-mode .modal-box input {
   to { transform: translateX(0); opacity: 1; }
 }
 
-/* ================= EMPTY STATE ================= */
+
 .empty-state {
   text-align: center;
   padding: 60px 20px;
@@ -984,7 +1032,7 @@ body.light-mode .modal-box input {
   font-size: 14px;
 }
 
-/* ================= TOGGLE SWITCH ================= */
+
 .toggle-switch {
   position: relative;
   display: inline-block;
@@ -1030,7 +1078,7 @@ body.light-mode .modal-box input {
   transform: translateX(24px);
 }
 
-/* ================= PROGRESS BAR ================= */
+
 .progress-bar {
   height: 8px;
   border-radius: 4px;
@@ -1046,7 +1094,7 @@ body.light-mode .modal-box input {
   transition: width 0.3s ease;
 }
 
-/* ================= BADGE ================= */
+
 .badge {
   display: inline-block;
   padding: 4px 10px;

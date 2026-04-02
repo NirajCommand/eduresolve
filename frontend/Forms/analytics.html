@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FlowForge - Analytics</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="topbar">
+        <h1>FlowForge</h1>
+        <div class="nav-buttons">
+            <a href="builder.html"><button>Create Form</button></a>
+            <a href="respond.html"><button>Answer Form</button></a>
+            <a href="analytics.html"><button>Analytics</button></a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="hero-box">
+            <h2>Analytics Dashboard</h2>
+            <p>See response count, popular options, and recent written answers.</p>
+        </div>
+
+        <div class="card">
+            <div class="row-line">
+                <input type="text" id="analyticsId" class="input-box" placeholder="Enter Form ID">
+                <button class="main-btn" onclick="showAnalytics()">Show Analytics</button>
+            </div>
+        </div>
+
+        <div id="analyticsArea"></div>
+
+        <div class="footer-text">Web Programming Project</div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -113,17 +113,27 @@ const{data:assign}=await supabase.from("assignments").select("*").eq("id",assign
 if(!assign||assign.teacher_id!==user.id){alert("Assignment not found");window.location.href="teacher-assignment-list.html";return}
 document.getElementById("assignTitle").innerText=assign.title;
 document.getElementById("assignDesc").innerText=assign.description||"";
-const{data:submissions}=await supabase.from("assignment_submissions").select("*,users(name,email)").eq("assignment_id",assignId).order("submitted_at",{ascending:false});
+const{data:submissions,error:subsError}=await supabase.from("assignment_submissions").select("id,assignment_id,student_id,file_url,file_name,file_type,file_size,submitted_at,marks_obtained,feedback,evaluated_at").eq("assignment_id",assignId).order("submitted_at",{ascending:false});
+
+if(subsError){console.error("Submissions query error:",subsError)}
+console.log("Submissions found:",submissions?.length||0,submissions);
+
 const container=document.getElementById("submissionsContainer");
 if(!submissions||submissions.length===0){container.innerHTML='<div class="empty-state"><i class="fa-solid fa-users"></i><h4>No submissions yet</h4></div>';return}
+
+const studentIds=submissions.map(s=>s.student_id);
+const{data:students}=await supabase.from("users").select("id,name,email").in("id",studentIds);
+const studentMap={};
+(students||[]).forEach(s=>{studentMap[s.id]={name:s.name,email:s.email}});
 let evaluatedCount=0;
 let totalMarks=0;
 submissions.forEach((s,idx)=>{
   if(s.marks_obtained!==null&&s.marks_obtained!==undefined)evaluatedCount++;
   if(s.marks_obtained!==null&&s.marks_obtained!==undefined)totalMarks+=s.marks_obtained;
-  const initial=(s.users?.name||"?")[0].toUpperCase();
+  const studentInfo=studentMap[s.student_id]||{name:"Unknown",email:""};
+  const initial=(studentInfo.name||"?")[0].toUpperCase();
   const statusBadge=s.marks_obtained!==null&&s.marks_obtained!==undefined?'<span class="meta-tag" style="background:rgba(34,197,94,0.15);color:#22c55e">Evaluated</span>':'<span class="meta-tag" style="background:rgba(245,158,11,0.15);color:#f59e0b">Pending</span>';
-  container.innerHTML+=`<div class="submission-card"><div class="submission-header"><div class="student-info"><div class="student-avatar">${initial}</div><div><strong>${s.users?.name||"Unknown"}</strong><br><small style="opacity:0.6">${s.users?.email||""}</small></div></div><div style="text-align:right">${s.marks_obtained!==null&&s.marks_obtained!==undefined?`<div class="score-display">${s.marks_obtained}/${assign.max_marks||100}</div>`:""}${statusBadge}</div></div><div style="margin-bottom:10px"><a href="${s.file_url}" target="_blank" class="btn btn-secondary"><i class="fa-solid fa-download"></i> Download: ${s.file_name}</a></div><small style="opacity:0.5">Submitted: ${s.submitted_at?new Date(s.submitted_at).toLocaleString():""}</small>${s.feedback?`<p style="margin-top:10px"><strong>Feedback:</strong> ${s.feedback}</p>`:""}<div class="eval-section" id="eval${idx}"><div style="display:flex;gap:15px;align-items:end"><div class="form-group" style="flex:1;margin-bottom:0"><label>Marks (out of ${assign.max_marks||100})</label><input type="number" id="marks${idx}" value="${s.marks_obtained||''}" min="0" max="${assign.max_marks||100}"></div><div class="form-group" style="flex:2;margin-bottom:0"><label>Feedback</label><input type="text" id="feedback${idx}" value="${s.feedback||''}" placeholder="Optional feedback"></div><button class="btn btn-primary" onclick="evaluate(${idx},'${s.id}')"><i class="fa-solid fa-check"></i> Save</button></div></div><button class="btn btn-secondary mt-2" onclick="document.getElementById('eval${idx}').classList.toggle('show')"><i class="fa-solid fa-pen"></i> Evaluate</button></div>`;
+  container.innerHTML+=`<div class="submission-card"><div class="submission-header"><div class="student-info"><div class="student-avatar">${initial}</div><div><strong>${studentInfo.name}</strong><br><small style="opacity:0.6">${studentInfo.email}</small></div></div><div style="text-align:right">${s.marks_obtained!==null&&s.marks_obtained!==undefined?`<div class="score-display">${s.marks_obtained}/${assign.max_marks||100}</div>`:""}${statusBadge}</div></div><div style="margin-bottom:10px"><a href="${s.file_url}" target="_blank" class="btn btn-secondary"><i class="fa-solid fa-download"></i> Download: ${s.file_name}</a></div><small style="opacity:0.5">Submitted: ${s.submitted_at?new Date(s.submitted_at).toLocaleString():""}</small>${s.feedback?`<p style="margin-top:10px"><strong>Feedback:</strong> ${s.feedback}</p>`:""}<div class="eval-section" id="eval${idx}"><div style="display:flex;gap:15px;align-items:end"><div class="form-group" style="flex:1;margin-bottom:0"><label>Marks (out of ${assign.max_marks||100})</label><input type="number" id="marks${idx}" value="${s.marks_obtained||''}" min="0" max="${assign.max_marks||100}"></div><div class="form-group" style="flex:2;margin-bottom:0"><label>Feedback</label><input type="text" id="feedback${idx}" value="${s.feedback||''}" placeholder="Optional feedback"></div><button class="btn btn-primary" onclick="evaluate(${idx},'${s.id}')"><i class="fa-solid fa-check"></i> Save</button></div></div><button class="btn btn-secondary mt-2" onclick="document.getElementById('eval${idx}').classList.toggle('show')"><i class="fa-solid fa-pen"></i> Evaluate</button></div>`;
 });
 document.getElementById("totalSubs").innerText=submissions.length;
 document.getElementById("evaluated").innerText=evaluatedCount;

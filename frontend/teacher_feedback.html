@@ -17,7 +17,7 @@ background:#0f172a;
 color:white;
 }
 
-/* NAVBAR */
+
 
 .navbar-custom{
 display:flex;
@@ -49,7 +49,7 @@ font-size:14px;
 color:white;
 }
 
-/* PAGE */
+
 
 .page-container{
 max-width:1000px;
@@ -61,7 +61,7 @@ h2{
 margin-bottom:30px;
 }
 
-/* FEEDBACK CARD */
+
 
 .feedback-card{
 background:#1e293b;
@@ -150,17 +150,17 @@ window.location.href="login.html";
 return;
 }
 
-/* GET TEACHER TEAMS */
+
 
 const { data:teams } = await client
 .from("teams")
 .select("id");
 
 const teamIds = teams
-.filter(t => true)   /* safety */
+.filter(t => true)   
 .map(t => t.id);
 
-/* LOAD FEEDBACK */
+
 
 const { data:queries } = await client
 .from("queries")

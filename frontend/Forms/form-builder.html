@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Forms | EduResolve</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="forms.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<nav class="navbar-custom">
+  <div class="logo" onclick="window.location.href='student-dashboard.html'">
+    <i class="fa-solid fa-graduation-cap"></i> EduResolve
+  </div>
+  <div class="nav-center">
+    <a href="#" id="navFormsLink">My Forms</a>
+    <a href="#" id="navBuilderLink">Builder</a>
+    <a href="#" id="navRespondLink">Respond</a>
+    <a href="#" id="navAnalyticsLink">Analytics</a>
+  </div>
+  <div class="nav-right">
+    <button id="modeBtn" class="mode-btn"><i class="fa-solid fa-moon"></i></button>
+    <button id="logoutNavBtn" class="logout-nav-btn"><i class="fa-solid fa-right-from-bracket"></i></button>
+    <div class="menu">
+      <i class="fa-solid fa-bars" id="menuIcon"></i>
+      <div class="menu-dropdown" id="menuDropdown">
+        <a href="#" id="profileLink">Profile</a>
+        <a href="#" id="dashboardLink">Dashboard</a>
+        <a href="#" id="logoutBtn">Logout</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="forms-page">
+
+  <div id="formsListView" class="view-section">
+    <div class="view-header">
+      <h2><i class="fa-solid fa-file-lines"></i> My Forms</h2>
+      <button class="btn-primary" id="createFormBtn"><i class="fa-solid fa-plus"></i> Create Form</button>
+    </div>
+    <div id="formsListContainer" class="forms-grid"></div>
+  </div>
+
+  <div id="builderView" class="view-section" style="display:none;">
+    <div class="view-header">
+      <h2><i class="fa-solid fa-pen-to-square"></i> <span id="builderTitle">Create Form</span></h2>
+      <div class="builder-actions">
+        <button class="btn-secondary" id="backBtn"><i class="fa-solid fa-arrow-left"></i> Back</button>
+        <button class="btn-secondary" id="saveDraftBtn"><i class="fa-solid fa-floppy-disk"></i> Save Draft</button>
+        <button class="btn-primary" id="publishBtn"><i class="fa-solid fa-paper-plane"></i> Publish</button>
+      </div>
+    </div>
+    <div class="builder-layout">
+      <div class="builder-left">
+        <div class="form-card">
+          <h4>Form Details</h4>
+          <div class="form-group">
+            <label>Title</label>
+            <input type="text" id="formTitleInput" placeholder="Form title">
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea id="formDescInput" rows="3" placeholder="Form description"></textarea>
+          </div>
+        </div>
+        <div class="form-card">
+          <h4>Add Question</h4>
+          <div class="form-group">
+            <label>Question Text</label>
+            <input type="text" id="questionTextInput" placeholder="Enter question">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Type</label>
+              <select id="questionTypeInput">
+                <option value="single">Single Choice (Radio)</option>
+                <option value="multi">Multiple Choice (Checkbox)</option>
+                <option value="dropdown">Dropdown</option>
+                <option value="short">Short Answer</option>
+                <option value="long">Written Answer</option>
+              </select>
+            </div>
+            <div class="form-group checkbox-group">
+              <label><input type="checkbox" id="questionRequiredInput"> Required</label>
+            </div>
+          </div>
+          <div class="form-group" id="optionsGroup">
+            <label>Options (one per line)</label>
+            <textarea id="questionOptionsInput" rows="4" placeholder="Option 1&#10;Option 2&#10;Option 3"></textarea>
+          </div>
+          <button class="btn-primary w-full" id="addQuestionBtn"><i class="fa-solid fa-plus"></i> Add Question</button>
+        </div>
+        <div class="form-card" id="questionsListCard">
+          <h4>Questions (<span id="questionsCount">0</span>)</h4>
+          <div id="questionsList"></div>
+        </div>
+      </div>
+      <div class="builder-right">
+        <div class="form-card preview-card">
+          <h4>Preview</h4>
+          <div id="previewHeader">
+            <h3 id="previewTitle">Untitled Form</h3>
+            <p id="previewDesc">No description yet</p>
+          </div>
+          <div id="previewQuestions"></div>
+          <div id="previewEmpty" class="empty-state">
+            <i class="fa-solid fa-file-circle-question"></i>
+            <p>Add questions to see preview</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="respondView" class="view-section" style="display:none;">
+    <div class="view-header">
+      <h2><i class="fa-solid fa-pen"></i> Respond to Form</h2>
+      <button class="btn-secondary" id="respondBackBtn"><i class="fa-solid fa-arrow-left"></i> Back</button>
+    </div>
+    <div id="respondFormIdEntry" class="form-card" style="max-width:500px;margin:0 auto;">
+      <h4>Enter Form ID</h4>
+      <div class="form-group">
+        <input type="text" id="respondFormIdInput" placeholder="Enter Form ID (e.g., from your teacher)">
+      </div>
+      <button class="btn-primary w-full" id="loadFormBtn"><i class="fa-solid fa-arrow-right"></i> Load Form</button>
+    </div>
+    <div id="respondArea" style="display:none;">
+      <div class="form-card respond-card">
+        <h3 id="respondFormTitle"></h3>
+        <p id="respondFormDesc"></p>
+        <div id="respondQuestions"></div>
+        <button class="btn-primary w-full" id="submitResponseBtn" style="margin-top:20px;"><i class="fa-solid fa-paper-plane"></i> Submit Response</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="analyticsView" class="view-section" style="display:none;">
+    <div class="view-header">
+      <h2><i class="fa-solid fa-chart-bar"></i> Form Analytics</h2>
+      <button class="btn-secondary" id="analyticsBackBtn"><i class="fa-solid fa-arrow-left"></i> Back</button>
+    </div>
+    <div id="analyticsFormIdEntry" class="form-card" style="max-width:500px;margin:0 auto;">
+      <h4>Enter Form ID</h4>
+      <div class="form-group">
+        <input type="text" id="analyticsFormIdInput" placeholder="Enter your Form ID">
+      </div>
+      <button class="btn-primary w-full" id="loadAnalyticsBtn"><i class="fa-solid fa-chart-line"></i> Load Analytics</button>
+    </div>
+    <div id="analyticsArea" style="display:none;"></div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+
+var SUPABASE_URL = "https://zwpjavmrgveckswnobhg.supabase.co";
+var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3cGphdm1yZ3ZlY2tzd25vYmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg0MzcsImV4cCI6MjA4ODAyNDQzN30.jZUB2M-mqpWC1vkiMyVJFZU9ez0wKXsiTPbg8ndNITw";
+
+var db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+var currentUser = null;
+var userProfile = null;
+var currentFormId = null;
+var formQuestions = [];
+var currentRespondForm = null;
+
+
+document.addEventListener("DOMContentLoaded", async function(){
+  try {
+    var result = await db.auth.getUser();
+    var user = result.data.user;
+    if(!user){ window.location.href="login.html"; return; }
+    currentUser = user;
+
+    var profileResult = await db.from("users").select("name,institution,role").eq("id", user.id).single();
+    if(!profileResult.data){ window.location.href="login.html"; return; }
+    userProfile = profileResult.data;
+
+    setupNav();
+    applyTheme();
+    bindEvents();
+
+    var params = new URLSearchParams(window.location.search);
+    var view = params.get("view");
+    var formId = params.get("formId");
+
+    if(view === "respond" && formId){
+      showRespond();
+      document.getElementById("respondFormIdInput").value = formId;
+      loadFormToRespond();
+    } else if(view === "analytics"){
+      showAnalytics();
+    } else if(view === "builder"){
+      showBuilder();
+    } else {
+      showFormsList();
+    }
+  } catch(e){
+    console.error("Init error:", e);
+    alert("Error loading page: " + e.message);
+  }
+});
+
+
+function setupNav(){
+  var dashMap = { student:"student-dashboard.html", teacher:"teacher-dashboard.html", hod:"hod-dashboard.html" };
+  var dashLink = document.getElementById("dashboardLink");
+  if(dashLink) dashLink.href = dashMap[userProfile.role] || "login.html";
+
+  var navForms = document.getElementById("navFormsLink");
+  if(navForms) navForms.onclick = function(e){ e.preventDefault(); showFormsList(); };
+
+  var navBuilder = document.getElementById("navBuilderLink");
+  if(navBuilder) navBuilder.onclick = function(e){ e.preventDefault(); showBuilder(); };
+
+  var navRespond = document.getElementById("navRespondLink");
+  if(navRespond) navRespond.onclick = function(e){ e.preventDefault(); showRespond(); };
+
+  var navAnalytics = document.getElementById("navAnalyticsLink");
+  if(navAnalytics) navAnalytics.onclick = function(e){ e.preventDefault(); showAnalytics(); };
+
+  var menuIcon = document.getElementById("menuIcon");
+  if(menuIcon) menuIcon.onclick = function(){ document.getElementById("menuDropdown").classList.toggle("show-menu"); };
+
+  var logoutBtn = document.getElementById("logoutBtn");
+  if(logoutBtn) logoutBtn.onclick = async function(e){ e.preventDefault(); await db.auth.signOut(); window.location.href="login.html"; };
+
+  var logoutNavBtn = document.getElementById("logoutNavBtn");
+  if(logoutNavBtn) logoutNavBtn.onclick = async function(e){ e.preventDefault(); await db.auth.signOut(); window.location.href="login.html"; };
+}
+
+function applyTheme(){
+  var saved = localStorage.getItem("theme");
+  if(saved === "dark"){
+    document.body.classList.add("dark-mode");
+    var icon = document.querySelector("#modeBtn i");
+    if(icon) icon.className = "fa-solid fa-sun";
+  }
+  var modeBtn = document.getElementById("modeBtn");
+  if(modeBtn) modeBtn.onclick = function(){
+    document.body.classList.toggle("dark-mode");
+    var isDark = document.body.classList.contains("dark-mode");
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+    var icon = document.querySelector("#modeBtn i");
+    if(icon) icon.className = isDark ? "fa-solid fa-sun" : "fa-solid fa-moon";
+  };
+}
+
+
+function bindEvents(){
+  var el = function(id){ return document.getElementById(id); };
+
+  el("createFormBtn").onclick = function(){ showBuilder(); };
+  el("backBtn").onclick = function(){ showFormsList(); };
+  el("respondBackBtn").onclick = function(){ showFormsList(); };
+  el("analyticsBackBtn").onclick = function(){ showFormsList(); };
+  el("saveDraftBtn").onclick = function(){ saveDraft(); };
+  el("publishBtn").onclick = function(){ publishForm(); };
+  el("addQuestionBtn").onclick = function(){ addQuestion(); };
+  el("loadFormBtn").onclick = function(){ loadFormToRespond(); };
+  el("submitResponseBtn").onclick = function(){ submitResponse(); };
+  el("loadAnalyticsBtn").onclick = function(){ loadAnalytics(); };
+  el("questionTypeInput").onchange = function(){ toggleOptions(); };
+  el("formTitleInput").oninput = function(){ updatePreview(); };
+  el("formDescInput").oninput = function(){ updatePreview(); };
+
+  toggleOptions();
+}
+
+
+function hideAllViews(){
+  ["formsListView","builderView","respondView","analyticsView"].forEach(function(id){
+    document.getElementById(id).style.display = "none";
+  });
+}
+
+function showFormsList(){
+  hideAllViews();
+  document.getElementById("formsListView").style.display = "block";
+  loadMyForms();
+  updateUrl("forms");
+}
+
+function showBuilder(){
+  hideAllViews();
+  document.getElementById("builderView").style.display = "block";
+  updateUrl("builder");
+  updatePreview();
+  renderQuestionsList();
+}
+
+function showRespond(){
+  hideAllViews();
+  document.getElementById("respondView").style.display = "block";
+  updateUrl("respond");
+}
+
+function showAnalytics(){
+  hideAllViews();
+  document.getElementById("analyticsView").style.display = "block";
+  updateUrl("analytics");
+}
+
+function updateUrl(view){
+  var u = new URL(window.location);
+  u.searchParams.set("view", view);
+  window.history.pushState({}, "", u);
+}
+
+
+async function loadMyForms(){
+  var container = document.getElementById("formsListContainer");
+  container.innerHTML = '<div class="loading">Loading forms...</div>';
+
+  try {
+    var result = await db.from("forms").select("id,title,description,status,created_at").eq("created_by", currentUser.id).order("created_at", {ascending:false});
+
+    if(result.error){
+      container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>Error: ' + escHtml(result.error.message) + '</p><p style="margin-top:8px;font-size:0.85rem;">Make sure you have run the SQL migration in Supabase.</p></div>';
+      return;
+    }
+
+    var forms = result.data;
+    if(!forms || forms.length === 0){
+      container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-file-circle-plus"></i><p>No forms yet. Create your first form!</p></div>';
+      return;
+    }
+
+    container.innerHTML = "";
+    for(var i = 0; i < forms.length; i++){
+      var form = forms[i];
+      var respResult = await db.from("form_responses").select("*", {count:"exact",head:true}).eq("form_id", form.id);
+      var qResult = await db.from("form_questions").select("*", {count:"exact",head:true}).eq("form_id", form.id);
+      var respCount = respResult.count || 0;
+      var qCount = qResult.count || 0;
+
+      var card = document.createElement("div");
+      card.className = "form-item-card";
+      card.innerHTML =
+        '<div class="form-item-header">' +
+          '<h4>' + escHtml(form.title) + '</h4>' +
+          '<span class="badge ' + (form.status==='published'?'badge-green':'badge-yellow') + '">' + form.status + '</span>' +
+        '</div>' +
+        '<p class="form-item-desc">' + escHtml(form.description || "No description") + '</p>' +
+        '<div class="form-item-meta">' +
+          '<span><i class="fa-solid fa-circle-question"></i> ' + qCount + ' questions</span>' +
+          '<span><i class="fa-solid fa-users"></i> ' + respCount + ' responses</span>' +
+          '<span><i class="fa-solid fa-clock"></i> ' + new Date(form.created_at).toLocaleDateString() + '</span>' +
+        '</div>' +
+        '<div class="form-item-actions">' +
+          '<button class="btn-sm" data-action="copy" data-id="' + form.id + '"><i class="fa-solid fa-copy"></i> Copy ID</button>' +
+          '<button class="btn-sm" data-action="edit" data-id="' + form.id + '"><i class="fa-solid fa-pen"></i> Edit</button>' +
+          '<button class="btn-sm btn-danger" data-action="delete" data-id="' + form.id + '"><i class="fa-solid fa-trash"></i> Delete</button>' +
+          (form.status==='draft' ? '<button class="btn-sm btn-green" data-action="publish" data-id="' + form.id + '"><i class="fa-solid fa-paper-plane"></i> Publish</button>' : '') +
+        '</div>';
+
+      card.querySelectorAll("[data-action]").forEach(function(btn){
+        btn.onclick = function(){
+          var action = this.getAttribute("data-action");
+          var id = this.getAttribute("data-id");
+          if(action === "copy") copyFormId(id);
+          else if(action === "edit") loadFormForEdit(id);
+          else if(action === "delete") deleteForm(id);
+          else if(action === "publish") publishExisting(id);
+        };
+      });
+
+      container.appendChild(card);
+    }
+  } catch(e){
+    container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>' + escHtml(e.message) + '</p></div>';
+  }
+}
+
+async function copyFormId(id){
+  try {
+    await navigator.clipboard.writeText(id);
+    alert("Form ID copied: " + id);
+  } catch(e){
+    prompt("Copy this Form ID:", id);
+  }
+}
+
+async function loadFormForEdit(id){
+  try {
+    var formResult = await db.from("forms").select("*").eq("id", id).single();
+    if(formResult.error || !formResult.data){ alert("Form not found"); return; }
+
+    var form = formResult.data;
+    if(form.created_by !== currentUser.id){ alert("You can only edit your own forms"); return; }
+
+    currentFormId = id;
+    document.getElementById("formTitleInput").value = form.title;
+    document.getElementById("formDescInput").value = form.description || "";
+    document.getElementById("builderTitle").textContent = "Edit Form";
+
+    var qResult = await db.from("form_questions").select("*").eq("form_id", id).order("order_index");
+    formQuestions = qResult.data || [];
+
+    showBuilder();
+  } catch(e){
+    alert("Error loading form: " + e.message);
+  }
+}
+
+async function deleteForm(id){
+  if(!confirm("Delete this form and all its responses?")) return;
+  try {
+    var respResult = await db.from("form_responses").select("id").eq("form_id", id);
+    if(respResult.data && respResult.data.length > 0){
+      var respIds = respResult.data.map(function(r){ return r.id; });
+      await db.from("form_answers").delete().in("response_id", respIds);
+    }
+    await db.from("form_responses").delete().eq("form_id", id);
+    await db.from("form_questions").delete().eq("form_id", id);
+    await db.from("forms").delete().eq("id", id);
+    loadMyForms();
+  } catch(e){
+    alert("Delete failed: " + e.message);
+  }
+}
+
+async function publishExisting(id){
+  try {
+    await db.from("forms").update({status:"published"}).eq("id", id);
+    loadMyForms();
+    alert("Form published!");
+  } catch(e){
+    alert("Publish failed: " + e.message);
+  }
+}
+
+
+function toggleOptions(){
+  var type = document.getElementById("questionTypeInput").value;
+  document.getElementById("optionsGroup").style.display = (type==="short"||type==="long") ? "none" : "block";
+}
+
+function addQuestion(){
+  var text = document.getElementById("questionTextInput").value.trim();
+  var type = document.getElementById("questionTypeInput").value;
+  var required = document.getElementById("questionRequiredInput").checked;
+  var rawOptions = document.getElementById("questionOptionsInput").value.trim();
+
+  if(!text){ alert("Enter question text"); return; }
+
+  var options = [];
+  if(type !== "short" && type !== "long"){
+    options = rawOptions.split("\n").map(function(o){ return o.trim(); }).filter(function(o){ return o; });
+    if(options.length < 2){ alert("Enter at least 2 options"); return; }
+  }
+
+  formQuestions.push({
+    id: "q_" + Date.now() + "_" + Math.random().toString(36).substr(2,5),
+    text: text,
+    type: type,
+    required: required,
+    options: options,
+    order_index: formQuestions.length
+  });
+
+  document.getElementById("questionTextInput").value = "";
+  document.getElementById("questionOptionsInput").value = "";
+  document.getElementById("questionRequiredInput").checked = false;
+
+  renderQuestionsList();
+  updatePreview();
+}
+
+function moveQuestion(idx, dir){
+  var newIdx = idx + dir;
+  if(newIdx < 0 || newIdx >= formQuestions.length) return;
+  var temp = formQuestions[idx];
+  formQuestions[idx] = formQuestions[newIdx];
+  formQuestions[newIdx] = temp;
+  formQuestions.forEach(function(q, i){ q.order_index = i; });
+  renderQuestionsList();
+  updatePreview();
+}
+
+function deleteQuestion(idx){
+  formQuestions.splice(idx, 1);
+  formQuestions.forEach(function(q, i){ q.order_index = i; });
+  renderQuestionsList();
+  updatePreview();
+}
+
+function renderQuestionsList(){
+  var container = document.getElementById("questionsList");
+  document.getElementById("questionsCount").textContent = formQuestions.length;
+
+  if(formQuestions.length === 0){
+    container.innerHTML = '<div class="empty-state"><p>No questions added yet</p></div>';
+    return;
+  }
+
+  container.innerHTML = "";
+  formQuestions.forEach(function(q, i){
+    var div = document.createElement("div");
+    div.className = "question-item";
+    div.innerHTML =
+      '<div class="question-item-top">' +
+        '<strong>Q' + (i+1) + '. ' + escHtml(q.text) + '</strong>' +
+        '<span class="badge badge-blue">' + getTypeName(q.type) + '</span>' +
+        (q.required ? '<span class="badge badge-red">Required</span>' : '') +
+      '</div>' +
+      '<div class="question-item-bottom">' +
+        (q.options.length ? '<small>' + escHtml(q.options.join(", ")) + '</small>' : '') +
+        '<div class="question-item-btns">' +
+          '<button class="btn-icon" data-move="' + i + '" data-dir="-1"' + (i===0?' disabled':'') + '><i class="fa-solid fa-arrow-up"></i></button>' +
+          '<button class="btn-icon" data-move="' + i + '" data-dir="1"' + (i===formQuestions.length-1?' disabled':'') + '><i class="fa-solid fa-arrow-down"></i></button>' +
+          '<button class="btn-icon btn-danger" data-del="' + i + '"><i class="fa-solid fa-trash"></i></button>' +
+        '</div>' +
+      '</div>';
+
+    div.querySelectorAll("[data-move]").forEach(function(btn){
+      btn.onclick = function(){ moveQuestion(parseInt(this.getAttribute("data-move")), parseInt(this.getAttribute("data-dir"))); };
+    });
+    div.querySelectorAll("[data-del]").forEach(function(btn){
+      btn.onclick = function(){ deleteQuestion(parseInt(this.getAttribute("data-del"))); };
+    });
+
+    container.appendChild(div);
+  });
+}
+
+function updatePreview(){
+  var title = document.getElementById("formTitleInput").value.trim() || "Untitled Form";
+  var desc = document.getElementById("formDescInput").value.trim() || "No description yet";
+  document.getElementById("previewTitle").textContent = title;
+  document.getElementById("previewDesc").textContent = desc;
+
+  var container = document.getElementById("previewQuestions");
+  var empty = document.getElementById("previewEmpty");
+
+  if(formQuestions.length === 0){
+    container.innerHTML = "";
+    empty.style.display = "block";
+    return;
+  }
+
+  empty.style.display = "none";
+  container.innerHTML = "";
+  formQuestions.forEach(function(q, i){
+    var div = document.createElement("div");
+    div.className = "preview-question";
+    div.innerHTML = '<strong>' + (i+1) + '. ' + escHtml(q.text) + ' ' + (q.required?'<span class="red-star">*</span>':'') + '</strong>';
+    div.innerHTML += renderPreviewField(q, i);
+    container.appendChild(div);
+  });
+}
+
+function renderPreviewField(q, idx){
+  var html = "";
+  if(q.type === "single"){
+    q.options.forEach(function(o){
+      html += '<label class="preview-option"><input type="radio" name="pv_' + idx + '" disabled> ' + escHtml(o) + '</label>';
+    });
+  } else if(q.type === "multi"){
+    q.options.forEach(function(o){
+      html += '<label class="preview-option"><input type="checkbox" disabled> ' + escHtml(o) + '</label>';
+    });
+  } else if(q.type === "dropdown"){
+    html += '<select disabled><option>Select...</option>';
+    q.options.forEach(function(o){ html += '<option>' + escHtml(o) + '</option>'; });
+    html += '</select>';
+  } else if(q.type === "short"){
+    html += '<input type="text" placeholder="Short answer" disabled>';
+  } else {
+    html += '<textarea placeholder="Write your answer" disabled></textarea>';
+  }
+  return html;
+}
+
+function getTypeName(type){
+  var names = {single:"Single Choice",multi:"Multiple Choice",short:"Short Answer",long:"Written Answer",dropdown:"Dropdown"};
+  return names[type] || type;
+}
+
+
+async function saveDraft(){
+  var title = document.getElementById("formTitleInput").value.trim();
+  if(!title){ alert("Enter a form title"); return; }
+  if(formQuestions.length === 0){ alert("Add at least one question"); return; }
+
+  var desc = document.getElementById("formDescInput").value.trim();
+
+  try {
+    var formId = currentFormId;
+    if(!formId){
+      var newResult = await db.from("forms").insert([{
+        title: title, description: desc, created_by: currentUser.id,
+        institution: userProfile.institution, status: "draft"
+      }]).select().single();
+      if(newResult.error){ alert("Save failed: " + newResult.error.message); return; }
+      formId = newResult.data.id;
+      currentFormId = formId;
+    } else {
+      await db.from("forms").update({title: title, description: desc, updated_at: new Date().toISOString()}).eq("id", formId);
+      await db.from("form_questions").delete().eq("form_id", formId);
+    }
+
+    for(var i = 0; i < formQuestions.length; i++){
+      var q = formQuestions[i];
+      await db.from("form_questions").insert([{
+        form_id: formId, question_text: q.text, question_type: q.type,
+        options: q.options, required: q.required, order_index: i
+      }]);
+    }
+
+    alert("Draft saved! Form ID: " + formId);
+    document.getElementById("builderTitle").textContent = "Edit Form";
+  } catch(e){
+    alert("Save failed: " + e.message);
+  }
+}
+
+async function publishForm(){
+  var title = document.getElementById("formTitleInput").value.trim();
+  if(!title){ alert("Enter a form title"); return; }
+  if(formQuestions.length === 0){ alert("Add at least one question"); return; }
+
+  var desc = document.getElementById("formDescInput").value.trim();
+
+  try {
+    var formId = currentFormId;
+    if(!formId){
+      var newResult = await db.from("forms").insert([{
+        title: title, description: desc, created_by: currentUser.id,
+        institution: userProfile.institution, status: "published"
+      }]).select().single();
+      if(newResult.error){ alert("Publish failed: " + newResult.error.message); return; }
+      formId = newResult.data.id;
+      currentFormId = formId;
+    } else {
+      await db.from("forms").update({title: title, description: desc, status:"published", updated_at: new Date().toISOString()}).eq("id", formId);
+      await db.from("form_questions").delete().eq("form_id", formId);
+    }
+
+    for(var i = 0; i < formQuestions.length; i++){
+      var q = formQuestions[i];
+      await db.from("form_questions").insert([{
+        form_id: formId, question_text: q.text, question_type: q.type,
+        options: q.options, required: q.required, order_index: i
+      }]);
+    }
+
+    alert("Form published!\n\nShare this Form ID:\n" + formId);
+    showFormsList();
+  } catch(e){
+    alert("Publish failed: " + e.message);
+  }
+}
+
+
+async function loadFormToRespond(){
+  var formId = document.getElementById("respondFormIdInput").value.trim();
+  if(!formId){ alert("Enter a Form ID"); return; }
+
+  try {
+    var formResult = await db.from("forms").select("*").eq("id", formId).eq("status","published").single();
+    if(formResult.error || !formResult.data){
+      alert("Form not found or not published");
+      document.getElementById("respondArea").style.display = "none";
+      document.getElementById("respondFormIdEntry").style.display = "block";
+      return;
+    }
+
+    var form = formResult.data;
+    var qResult = await db.from("form_questions").select("*").eq("form_id", formId).order("order_index");
+    var questions = qResult.data || [];
+
+    currentRespondForm = { id: form.id, title: form.title, description: form.description, questions: questions };
+
+    document.getElementById("respondFormIdEntry").style.display = "none";
+    document.getElementById("respondArea").style.display = "block";
+    document.getElementById("respondFormTitle").textContent = form.title;
+    document.getElementById("respondFormDesc").textContent = form.description || "";
+
+    var container = document.getElementById("respondQuestions");
+    container.innerHTML = "";
+    questions.forEach(function(q, i){
+      var div = document.createElement("div");
+      div.className = "respond-question";
+      div.innerHTML = '<strong>' + (i+1) + '. ' + escHtml(q.question_text) + ' ' + (q.required?'<span class="red-star">*</span>':'') + '</strong>';
+      div.innerHTML += renderAnswerField(q, i);
+      container.appendChild(div);
+    });
+  } catch(e){
+    alert("Error loading form: " + e.message);
+  }
+}
+
+function renderAnswerField(q, idx){
+  var html = "";
+  if(q.question_type === "single"){
+    q.options.forEach(function(o){
+      html += '<label class="respond-option"><input type="radio" name="ans_' + idx + '" value="' + escHtml(o) + '"> ' + escHtml(o) + '</label>';
+    });
+  } else if(q.question_type === "multi"){
+    q.options.forEach(function(o){
+      html += '<label class="respond-option"><input type="checkbox" name="ans_' + idx + '" value="' + escHtml(o) + '"> ' + escHtml(o) + '</label>';
+    });
+  } else if(q.question_type === "dropdown"){
+    html += '<select id="ans_' + idx + '"><option value="">Select...</option>';
+    q.options.forEach(function(o){ html += '<option value="' + escHtml(o) + '">' + escHtml(o) + '</option>'; });
+    html += '</select>';
+  } else if(q.question_type === "short"){
+    html += '<input type="text" id="ans_' + idx + '" placeholder="Your answer">';
+  } else {
+    html += '<textarea id="ans_' + idx + '" placeholder="Write your answer" rows="4"></textarea>';
+  }
+  return html;
+}
+
+async function submitResponse(){
+  if(!currentRespondForm){ alert("No form loaded"); return; }
+
+  var answers = [];
+  for(var i = 0; i < currentRespondForm.questions.length; i++){
+    var q = currentRespondForm.questions[i];
+    var answer;
+
+    if(q.question_type === "single"){
+      var checked = document.querySelector('input[name="ans_' + i + '"]:checked');
+      answer = checked ? checked.value : "";
+    } else if(q.question_type === "multi"){
+      var checkedAll = document.querySelectorAll('input[name="ans_' + i + '"]:checked');
+      answer = [];
+      checkedAll.forEach(function(c){ answer.push(c.value); });
+    } else {
+      var el = document.getElementById("ans_" + i);
+      answer = el ? el.value.trim() : "";
+    }
+
+    if(q.required){
+      if(Array.isArray(answer) && answer.length === 0){ alert("Question " + (i+1) + " is required"); return; }
+      if(!Array.isArray(answer) && !answer){ alert("Question " + (i+1) + " is required"); return; }
+    }
+
+    answers.push({ question_id: q.id, answer: answer });
+  }
+
+  try {
+    var respResult = await db.from("form_responses").insert([{
+      form_id: currentRespondForm.id, submitted_by: currentUser.id
+    }]).select().single();
+
+    if(respResult.error){ alert("Submit failed: " + respResult.error.message); return; }
+
+    var responseId = respResult.data.id;
+    for(var j = 0; j < answers.length; j++){
+      await db.from("form_answers").insert([{
+        response_id: responseId, question_id: answers[j].question_id, answer: answers[j].answer
+      }]);
+    }
+
+    alert("Response submitted successfully!");
+    currentRespondForm = null;
+    document.getElementById("respondArea").style.display = "none";
+    document.getElementById("respondFormIdEntry").style.display = "block";
+    document.getElementById("respondFormIdInput").value = "";
+  } catch(e){
+    alert("Submit failed: " + e.message);
+  }
+}
+
+
+async function loadAnalytics(){
+  var formId = document.getElementById("analyticsFormIdInput").value.trim();
+  if(!formId){ alert("Enter a Form ID"); return; }
+
+  try {
+    var formResult = await db.from("forms").select("*").eq("id", formId).single();
+    if(!formResult.data || formResult.data.created_by !== currentUser.id){
+      alert("Form not found or not yours");
+      return;
+    }
+
+    var form = formResult.data;
+    var qResult = await db.from("form_questions").select("*").eq("form_id", formId).order("order_index");
+    var questions = qResult.data || [];
+    var rResult = await db.from("form_responses").select("id,submitted_at,submitted_by").eq("form_id", formId).order("submitted_at");
+    var responses = rResult.data || [];
+    var uResult = await db.from("users").select("id,name");
+    var users = uResult.data || [];
+
+    var userMap = {};
+    users.forEach(function(u){ userMap[u.id] = u.name; });
+
+    document.getElementById("analyticsFormIdEntry").style.display = "none";
+    var area = document.getElementById("analyticsArea");
+    area.style.display = "block";
+
+    var html = '<div class="form-card"><h3>' + escHtml(form.title) + '</h3><p>Total Responses: <strong>' + responses.length + '</strong></p></div>';
+
+    if(responses.length === 0){
+      html += '<div class="empty-state"><p>No responses yet</p></div>';
+      area.innerHTML = html;
+      return;
+    }
+
+    var aResult = await db.from("form_answers").select("*").in("response_id", responses.map(function(r){ return r.id; }));
+    var allAnswers = aResult.data || [];
+
+    html += '<div class="analytics-grid">';
+    questions.forEach(function(q, qi){
+      html += '<div class="form-card"><h4>' + (qi+1) + '. ' + escHtml(q.question_text) + '</h4><p class="text-muted">' + getTypeName(q.question_type) + '</p>';
+
+      var qAnswers = allAnswers.filter(function(a){ return a.question_id === q.id; });
+
+      if(q.question_type === "single" || q.question_type === "dropdown"){
+        var counts = {};
+        (q.options||[]).forEach(function(o){ counts[o] = 0; });
+        qAnswers.forEach(function(a){ if(counts[a.answer] !== undefined) counts[a.answer]++; });
+        var total = responses.length;
+        Object.keys(counts).forEach(function(opt){
+          var cnt = counts[opt];
+          var pct = total ? Math.round((cnt/total)*100) : 0;
+          html += '<div class="bar-wrap"><div class="bar-top"><span>' + escHtml(opt) + '</span><span>' + cnt + '</span></div><div class="bar-bg"><div class="bar-fill" style="width:' + pct + '%"></div></div></div>';
+        });
+      } else if(q.question_type === "multi"){
+        var counts2 = {};
+        (q.options||[]).forEach(function(o){ counts2[o] = 0; });
+        qAnswers.forEach(function(a){
+          if(Array.isArray(a.answer)) a.answer.forEach(function(v){ if(counts2[v] !== undefined) counts2[v]++; });
+        });
+        var total2 = responses.length;
+        Object.keys(counts2).forEach(function(opt){
+          var cnt = counts2[opt];
+          var pct = total2 ? Math.round((cnt/total2)*100) : 0;
+          html += '<div class="bar-wrap"><div class="bar-top"><span>' + escHtml(opt) + '</span><span>' + cnt + '</span></div><div class="bar-bg"><div class="bar-fill" style="width:' + pct + '%"></div></div></div>';
+        });
+      } else {
+        html += '<div class="text-muted">Recent text responses:</div>';
+        qAnswers.slice(-5).forEach(function(a){
+          html += '<div class="text-response">' + escHtml(a.answer || "(No answer)") + '</div>';
+        });
+      }
+
+      html += '</div>';
+    });
+    html += '</div>';
+
+    html += '<div class="form-card"><h4>All Responses</h4><div class="responses-table"><table><thead><tr><th>#</th><th>Submitted By</th><th>Date</th></tr></thead><tbody>';
+    responses.forEach(function(r, i){
+      html += '<tr><td>' + (i+1) + '</td><td>' + escHtml(userMap[r.submitted_by] || "Unknown") + '</td><td>' + new Date(r.submitted_at).toLocaleString() + '</td></tr>';
+    });
+    html += '</tbody></table></div></div>';
+
+    area.innerHTML = html;
+  } catch(e){
+    alert("Analytics error: " + e.message);
+  }
+}
+
+
+function escHtml(str){
+  if(!str) return "";
+  var div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+})();
+</script>
+
+</body>
+</html>

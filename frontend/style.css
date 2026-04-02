@@ -4,16 +4,14 @@
   --soft-blue: rgba(47,109,246,0.15);
 }
 
-/* Base */
+
 body {
   margin: 0;
   font-family: Arial, sans-serif;
 }
 
-/* =====================================================
-   LANDING PAGE
-===================================================== */
-/* ================= LANDING PAGE FIXED ================= */
+
+
 
 .hero-section {
   height: 100vh;
@@ -41,7 +39,7 @@ body {
   z-index: 2;
   max-width: 720px;
   width: 100%;
-  margin-top: 65px;   /* slight top spacing */
+  margin-top: 65px;   
   padding: 20px;
 }
 
@@ -73,13 +71,13 @@ body {
   font-size: 14px;
   border-radius: 6px;
   border: none;
-  /* Smooths the transition back and forth */
+  
   transition: transform 0.3s ease, background-color 0.3s ease;
 }
 
 .explore-btn:hover {
   background-color: #c9a963;
-  /* This creates the zoom effect */
+  
   transform: scale(1.05);
   cursor: pointer;
 }
@@ -119,9 +117,7 @@ body {
   font-size: 13px;
 }
 
-/* =====================================================
-   LOGIN & REGISTER
-===================================================== */
+
 
 .login-box,
 .register-box {
@@ -160,9 +156,7 @@ body {
   border-color: var(--primary-gold);
   box-shadow: 0 0 0 0.2rem rgba(214,181,122,0.25);
 }
-/* =====================================================
-   NAVBAR
-===================================================== */
+
 
 .navbar-custom {
   display: flex;
@@ -204,12 +198,10 @@ body {
   color: inherit;
 }
 
-/* =====================================================
-   DASHBOARD
-===================================================== */
 
 
-/* Welcome Section */
+
+
 
 .welcome-section {
   padding: 80px 40px 20px 50px;
@@ -233,7 +225,7 @@ body {
   margin: 0;
 }
 
-/* ================= DASHBOARD LAYOUT ================= */
+
 
 
 
@@ -247,13 +239,13 @@ body {
   transition: background 0.3s ease;
 }
 
-/* Light mode */
+
 .light-mode .welcome-section {
   background: linear-gradient(135deg, #f8fafc, #eef2ff);
   box-shadow: 0 12px 30px rgba(0,0,0,0.08);
 }
 
-/* Dark mode */
+
 .dark-mode .welcome-section {
   background: linear-gradient(135deg, #162136, #0f1a2b);
   box-shadow: 0 12px 30px rgba(0,0,0,0.6);
@@ -296,12 +288,9 @@ body {
 .dark-mode .welcome-date {
   color: #cbd5f5;
 }
-/* Dark Mode */
 
-/*.dark-mode .welcome-section {
-  background-color: #162136;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-}*/
+
+
 
 .dark-mode .welcome-left p,
 .dark-mode .institution-label {
@@ -325,7 +314,7 @@ body {
   box-sizing: border-box;
 }
 
-/* ================= LEFT PANEL ================= */
+
 
 .updates-panel {
   flex: 0 0 320px;
@@ -342,7 +331,7 @@ body {
   transition: 0.2s ease;
 }
 
-/* ================= RIGHT GRID ================= */
+
 
 .actions-panel {
   flex: 1;
@@ -351,7 +340,7 @@ body {
   gap: 35px;
 }
 
-/* ================= ACTION CARDS ================= */
+
 
 .action-card {
   border-radius: 22px;
@@ -377,12 +366,12 @@ body {
   font-size: 14px;
 }
 
-/* Hover effect */
+
 .action-card:hover {
   transform: translateY(-10px) scale(1.02);
 }
 
-/* ================= LIGHT MODE ================= */
+
 
 .light-mode .dashboard-container {
   background-color: #f4f6fa;
@@ -411,7 +400,7 @@ body {
   box-shadow: 0 18px 40px rgba(47,109,246,0.25);
 }
 
-/* ================= DARK MODE ================= */
+
 
 .dark-mode .dashboard-container {
   background-color: #0f1a2b;
@@ -442,7 +431,7 @@ body {
   box-shadow: 0 18px 45px rgba(79,140,255,0.35);
 }
 
-/* Highlight card */
+
 
 .action-card.highlight {
   background: linear-gradient(135deg, #2f6df6, #1e4fc4);
@@ -476,10 +465,8 @@ body {
 }
 
 
-/* =====================================================
-   DARKMODE
-===================================================== */
-/* Dark mode */
+
+
 .dark-mode .dashboard-container {
   background-color: #0f1a2b;
 }
@@ -502,7 +489,7 @@ body {
   color: #ebf0f6;
 }
 
-/* Dark mode visibility */
+
 .dark-mode .mode-btn {
   color: #ffffff;
 }
@@ -510,9 +497,7 @@ body {
 
 
 
-/* =====================================================
-   MENU
-===================================================== */
+
 
 .menu {
   position: relative;
@@ -553,7 +538,7 @@ body {
   display: block;
 }
 
-/* Dark mode menu */
+
 .dark-mode .menu-dropdown {
   background-color: #1b2a44;
 }

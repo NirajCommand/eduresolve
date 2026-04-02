@@ -4,7 +4,7 @@ body {
   transition: 0.3s ease;
 }
 
-/* ================= NAVBAR ================= */
+
 
 .navbar-custom {
   display: flex;
@@ -76,7 +76,7 @@ body {
   color: white;
 }
 
-/* ===== MENU FIX ===== */
+
 
 .menu {
   position: relative;
@@ -134,7 +134,7 @@ body {
   background: #334155;
 }
 
-/* ================= WELCOME ================= */
+
 
 .welcome-section {
   padding: 60px 80px 40px;
@@ -154,7 +154,7 @@ body {
   color: #4b5563;
 }
 
-/* ================= MAIN GRID ================= */
+
 
 .dashboard-container {
   display: grid;
@@ -163,7 +163,7 @@ body {
   padding: 60px 80px;
 }
 
-/* ================= CARD ================= */
+
 
 .card-box {
   background: white;
@@ -213,7 +213,7 @@ body {
   box-shadow: 0 12px 30px rgba(47,109,246,0.4);
 }
 
-/* ================= REPORT ================= */
+
 
 .right-panel h4 {
   margin-bottom: 20px;
@@ -238,7 +238,7 @@ body {
   margin-bottom: 10px;
 }
 
-/* ================= APPROVAL ================= */
+
 
 .approval-card {
   display: flex;
@@ -261,7 +261,7 @@ body {
   box-shadow: 0 8px 20px rgba(22,163,74,0.4);
 }
 
-/* ================= DARK MODE ================= */
+
 
 .dark-mode {
   background: #0f172a;
@@ -290,9 +290,9 @@ body {
 }
 
 
-/*=================================================*/
-/* ================= REQUEST PAGE ================= */
-/*=================================================*/
+
+
+
 
 .requests-container {
   padding: 60px 80px;
@@ -368,9 +368,9 @@ body {
 }
 
 
-/*=====================================*/
-/*search*/
-/*======================================*/
+
+
+
 
 .search-results {
   position: absolute;

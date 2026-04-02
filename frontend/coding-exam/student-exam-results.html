@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="exam.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../theme.js"></script>
 </head>
@@ -62,6 +63,32 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUser = null;
 
+function attachReadOnlyViewer(textarea) {
+  if (typeof CodeMirror === "undefined") {
+    textarea.readOnly = true;
+    textarea.style.width = "100%";
+    textarea.style.minHeight = "220px";
+    textarea.style.padding = "12px";
+    textarea.style.border = "none";
+    textarea.style.outline = "none";
+    textarea.style.resize = "vertical";
+    textarea.style.background = "#0f172a";
+    textarea.style.color = "#e2e8f0";
+    textarea.style.fontFamily = "Consolas, monospace";
+    return;
+  }
+
+  const viewer = CodeMirror.fromTextArea(textarea, {
+    lineNumbers: true,
+    readOnly: true,
+    theme: "material-darker",
+    tabSize: 2,
+    viewportMargin: Infinity
+  });
+
+  viewer.setSize("100%", "auto");
+}
+
 document.addEventListener("DOMContentLoaded", async function() {
   const params = new URLSearchParams(window.location.search);
   const submissionId = params.get("id");
@@ -107,12 +134,7 @@ document.addEventListener("DOMContentLoaded", async function() {
       `;
       container.querySelector(".code-viewer:last-child").appendChild(ta);
       setTimeout(() => {
-        CodeMirror.fromTextArea(ta, {
-          lineNumbers: true,
-          readOnly: true,
-          theme: "material-darker",
-          tabSize: 2
-        });
+        attachReadOnlyViewer(ta);
       }, 100);
     }
   } else {

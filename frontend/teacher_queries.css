@@ -5,7 +5,7 @@ background:#0f172a;
 color:white;
 }
 
-/* NAVBAR */
+
 
 .navbar-custom{
 display:flex;
@@ -32,7 +32,7 @@ color:#cbd5f5;
 text-decoration:none;
 }
 
-/* PAGE */
+
 
 .page-container{
 max-width:1100px;
@@ -40,7 +40,7 @@ margin:auto;
 padding:40px;
 }
 
-/* STATS */
+
 
 .stats-box{
 display:flex;
@@ -61,7 +61,7 @@ margin:0;
 font-size:28px;
 }
 
-/* QUERY CARD */
+
 
 .query-card{
 background:#1e293b;
